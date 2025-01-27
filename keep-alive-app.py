@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 from datetime import datetime, time as dt_time
 import time
 import pyautogui
@@ -7,26 +8,16 @@ import win32gui
 import win32con
 import win32api
 import win32ts
+import win32com.client
+import psutil
 import ctypes
 from ctypes import wintypes
 from enum import Enum
 from PyQt6.QtCore import Qt, QTimer, QTime, QCoreApplication
 from PyQt6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QSpinBox,
-    QTimeEdit,
-    QCheckBox,
-    QPushButton,
-    QSystemTrayIcon,
-    QMenu,
-    QStyle,
-    QFrame,
-    QButtonGroup,
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QLabel, QSpinBox, QTimeEdit, QCheckBox, QPushButton,
+    QSystemTrayIcon, QMenu, QStyle, QFrame, QButtonGroup
 )
 from PyQt6.QtGui import QIcon, QAction
 
@@ -39,47 +30,65 @@ ES_DISPLAY_REQUIRED = 0x00000002
 pyautogui.FAILSAFE = False
 pyautogui.PAUSE = 0.1
 
-
-def debug_log(message):
-    """Função global para logging"""
-    print(f"DEBUG: {message}")
-    with open("keepalive_debug.log", "a", encoding="utf-8") as f:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        f.write(f"{timestamp} - {message}\n")
-
+def debug_log(message, force_print=False):
+    """
+    Função global para logging com controle de verbosidade
+    
+    Args:
+        message (str): Mensagem a ser registrada
+        force_print (bool): Se True, força impressão mesmo para mensagens não críticas
+    """
+    # Lista de termos que indicam mensagens importantes/críticas
+    critical_terms = [
+        "ERRO", "Iniciando", "Parando", "Status alterado",
+        "Teams não encontrado", "Falha", "CRÍTICO"
+    ]
+    
+    is_critical = any(term in message for term in critical_terms)
+    
+    if is_critical or force_print:
+        print(f"DEBUG: {message}")
+        with open("keepalive_debug.log", "a", encoding="utf-8") as f:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            f.write(f"{timestamp} - {message}\n")
 
 class TeamsStatus(Enum):
-    """Enumeração dos status possíveis do Teams"""
+    """
+    Enumeração dos status possíveis do Teams com suporte multi-idioma.
+    Mantém a acentuação correta em todos os comandos e nomes.
+    """
+    AVAILABLE = ("Disponível", ["/Disponível", "/Available", "/Disponible"])
+    BUSY = ("Ocupado", ["/Ocupado", "/Busy", "/Ocupado"])
+    DO_NOT_DISTURB = ("Não incomodar", ["/Não incomodar", "/DoNotDisturb", "/NoMolestar"])
+    AWAY = ("Ausente", ["/Ausente", "/Away", "/Ausente"])
+    OFFLINE = ("Offline", ["/Offline", "/Offline", "/Desconectado"])
+    BE_RIGHT_BACK = ("Voltar logo", ["/Voltar logo", "/BeRightBack", "/Vuelvo"])
 
-    AVAILABLE = ("Disponível", "available")
-    BUSY = ("Ocupado", "busy")
-    DO_NOT_DISTURB = ("Não Perturbe", "dnd")
-    AWAY = ("Ausente", "away")
-    OFFLINE = ("Offline", "offline")
-
-    def __init__(self, display_name, status_code):
+    def __init__(self, display_name, commands):
+        """
+        Inicializa um status do Teams.
+        
+        Args:
+            display_name (str): Nome de exibição do status na interface (com acentuação)
+            commands (list): Lista de comandos para cada idioma (com acentuação)
+        """
         self.display_name = display_name
-        self.status_code = status_code
-
+        self.commands = commands
 
 class StyleFrame(QFrame):
     """Frame estilizado para a interface"""
-
     def __init__(self):
         super().__init__()
         self.setFrameShape(QFrame.Shape.StyledPanel)
         self.setFrameShadow(QFrame.Shadow.Raised)
-        self.setStyleSheet(
-            """
+        self.setStyleSheet("""
             StyleFrame {
                 background-color: palette(window);
                 border: 1px solid palette(mid);
                 border-radius: 5px;
                 padding: 10px;
             }
-        """
-        )
-
+        """)
 
 class KeepAliveApp(QMainWindow):
     def __init__(self):
@@ -142,11 +151,7 @@ class KeepAliveApp(QMainWindow):
 
         # Duplo clique no ícone mostra a janela
         self.tray_icon.activated.connect(
-            lambda reason: (
-                self.show()
-                if reason == QSystemTrayIcon.ActivationReason.DoubleClick
-                else None
-            )
+            lambda reason: self.show() if reason == QSystemTrayIcon.ActivationReason.DoubleClick else None
         )
 
     def setup_ui(self):
@@ -201,26 +206,35 @@ class KeepAliveApp(QMainWindow):
         teams_layout = QVBoxLayout(teams_frame)
         teams_layout.addWidget(QLabel("Status do Teams:"))
 
-        # Botões de status do Teams
-        status_button_layout = QHBoxLayout()
+        # Grid layout para os botões de status
+        status_grid = QGridLayout()
         self.teams_buttons = {}
+        
+        # Organizar botões em grade 2x3
+        status_positions = {
+            TeamsStatus.AVAILABLE: (0, 0),
+            TeamsStatus.BUSY: (0, 1),
+            TeamsStatus.DO_NOT_DISTURB: (0, 2),
+            TeamsStatus.AWAY: (1, 0),
+            TeamsStatus.BE_RIGHT_BACK: (1, 1),
+            TeamsStatus.OFFLINE: (1, 2)
+        }
 
-        for status in TeamsStatus:
+        for status, pos in status_positions.items():
             btn = QPushButton(status.display_name)
             btn.setCheckable(True)
+            btn.setMinimumWidth(150)  # Largura mínima para acomodar o texto
             btn.clicked.connect(lambda checked, s=status: self.set_teams_status(s))
             self.teams_buttons[status] = btn
-            status_button_layout.addWidget(btn)
+            status_grid.addWidget(btn, pos[0], pos[1])
 
-        teams_layout.addLayout(status_button_layout)
+        teams_layout.addLayout(status_grid)
         layout.addWidget(teams_frame)
 
         # Opções Frame
         options_frame = StyleFrame()
         options_layout = QVBoxLayout(options_frame)
-        self.minimize_to_tray_cb = QCheckBox(
-            "Minimizar para bandeja do sistema ao fechar"
-        )
+        self.minimize_to_tray_cb = QCheckBox("Minimizar para bandeja do sistema ao fechar")
         self.minimize_to_tray_cb.setChecked(True)
         options_layout.addWidget(self.minimize_to_tray_cb)
         layout.addWidget(options_frame)
@@ -249,15 +263,17 @@ class KeepAliveApp(QMainWindow):
             if not hasattr(self, "last_cursor_pos"):
                 self.last_cursor_pos = current_pos
                 return
-
+            
             if current_pos != self.last_cursor_pos:
                 self.last_user_activity = time.time()
                 self.last_cursor_pos = current_pos
-                debug_log(
-                    f"Atividade do usuário detectada: Mouse movido para {current_pos}"
-                )
+                # Log de movimento apenas a cada 60 segundos para reduzir verbosidade
+                if not hasattr(self, "last_movement_log") or \
+                   time.time() - self.last_movement_log > 60:
+                    debug_log("Atividade do usuário detectada")
+                    self.last_movement_log = time.time()
         except Exception as e:
-            debug_log(f"Erro ao verificar atividade do usuário: {str(e)}")
+            debug_log(f"Erro ao verificar atividade do usuário: {str(e)}", True)
 
     def should_move_mouse(self):
         """Verifica se deve mover o mouse baseado na última atividade"""
@@ -265,53 +281,60 @@ class KeepAliveApp(QMainWindow):
             if not hasattr(self, "last_user_activity"):
                 self.last_user_activity = time.time()
                 return False
-
+            
             return time.time() - self.last_user_activity >= self.interval_spin.value()
         except Exception as e:
             debug_log(f"Erro em should_move_mouse: {str(e)}")
             return False
 
     def perform_activity(self):
-        """Executa as atividades de keep-alive"""
+        """
+        Executa as atividades de keep-alive periodicamente.
+        Mantém a sessão RDP ativa e previne mudança automática de status no Teams.
+        """
         try:
             debug_log("Iniciando ciclo de atividade")
-
+            
             # Verificar conexão RDP
             if not self.check_rdp_connection():
-                debug_log("Aviso: Conexão RDP pode estar instável")
+                debug_log("Aviso: Conexão RDP pode estar instável", True)
                 self.status_label.setText(
                     "Aviso: Conexão RDP pode estar instável\n"
                     "Verificando métodos alternativos..."
                 )
-
+            
             # Mover mouse se necessário
             if self.should_move_mouse():
-                debug_log("Movendo mouse (sem atividade recente detectada)")
-                self.move_mouse_safely()
-
+                debug_log("Movendo mouse para manter status ativo")
+                if self.move_mouse_safely():
+                    # Se moveu o mouse com sucesso, reforçar o status atual
+                    if hasattr(self, 'current_teams_status'):
+                        self.set_teams_status(self.current_teams_status)
+            
             # Manter RDP e tela ativos
             self.keep_rdp_alive()
             self.prevent_screen_lock()
-
+            
             # Atualizar status
             self.activity_count += 1
             current_time = datetime.now().strftime("%H:%M:%S")
-
+            
             status_text = (
                 f"Mantendo conexões ativas\n"
+                f"Status atual: {self.current_teams_status.display_name}\n"
                 f"Última atividade: {current_time} (#{self.activity_count})\n"
-                f"Próxima ação em {self.interval_spin.value()} segundos\n"
-                f"Status do Teams: {self.current_teams_status.display_name}"
+                f"Próxima ação em {self.interval_spin.value()} segundos"
             )
-
-            debug_log(f"Ciclo completado: {status_text}")
+            
+            debug_log(f"Ciclo completado", True)
             self.status_label.setText(status_text)
-
+            
         except Exception as e:
             error_msg = f"Erro ao executar atividade: {str(e)}"
-            debug_log(error_msg)
+            debug_log(error_msg, True)
             self.status_label.setText(
-                f"{error_msg}\n" "Tentando métodos alternativos..."
+                f"{error_msg}\n"
+                "Tentando métodos alternativos..."
             )
 
     def move_mouse_safely(self):
@@ -321,20 +344,20 @@ class KeepAliveApp(QMainWindow):
             screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
             screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
             current_pos = pyautogui.position()
-
+            
             # Definir área segura de movimento
             max_movement = 10
             x_move = min(max_movement, screen_width - current_pos[0] - 1)
             x_move = max(x_move, -current_pos[0])
             y_move = min(max_movement, screen_height - current_pos[1] - 1)
             y_move = max(y_move, -current_pos[1])
-
+            
             # Executar movimento
             moves = [(x_move, 0), (0, y_move), (-x_move, 0), (0, -y_move)]
             for dx, dy in moves:
                 debug_log(f"Movendo mouse: ({dx}, {dy})")
                 pyautogui.moveRel(dx, dy, duration=0.2)
-
+            
             return True
         except Exception as e:
             debug_log(f"Erro ao mover mouse: {str(e)}")
@@ -415,10 +438,11 @@ class KeepAliveApp(QMainWindow):
     def set_teams_status(self, status):
         """
         Define o status do Teams usando comandos nativos via caixa de pesquisa.
-
+        Tenta comandos em português, inglês e espanhol.
+        
         Args:
             status (TeamsStatus): Novo status a ser definido
-
+            
         Returns:
             bool: True se o status foi alterado com sucesso, False caso contrário
         """
@@ -428,27 +452,21 @@ class KeepAliveApp(QMainWindow):
         def log_debug(message):
             debug_log(message)
             self.debug_info.append(message)
-            self.status_label.setText("\n".join(self.debug_info[-5:]))
-
-        # Mapeamento de status para comandos
-        status_commands = {
-            TeamsStatus.AVAILABLE: "/available",
-            TeamsStatus.BUSY: "/busy",
-            TeamsStatus.DO_NOT_DISTURB: "/dnd",
-            TeamsStatus.AWAY: "/away",
-            TeamsStatus.OFFLINE: "/offline",
-        }
+            self.status_label.setText(
+                f"Status: {status.display_name}\n" + \
+                self.debug_info[-1]
+            )
 
         try:
             # Atualizar botões da UI
             log_debug("1. Atualizando botões da interface...")
             for s, btn in self.teams_buttons.items():
                 btn.setChecked(s == status)
-
+            
             # Procurar janela do Teams
             log_debug("2. Procurando janela do Teams...")
             teams_windows = []
-
+            
             def find_teams_window(hwnd, _):
                 if win32gui.IsWindowVisible(hwnd):
                     window_text = win32gui.GetWindowText(hwnd)
@@ -466,52 +484,79 @@ class KeepAliveApp(QMainWindow):
             for teams_hwnd, window_text in teams_windows:
                 try:
                     log_debug(f"3. Tentando janela: {window_text}")
-
+                    
                     # Verificar e focar janela
                     if not win32gui.IsWindow(teams_hwnd):
                         continue
 
                     # Guardar janela atual
                     current_foreground = win32gui.GetForegroundWindow()
-
+                    
                     # Focar Teams
                     log_debug("4. Focando janela do Teams...")
                     win32gui.ShowWindow(teams_hwnd, win32con.SW_RESTORE)
                     win32gui.SetForegroundWindow(teams_hwnd)
                     time.sleep(0.5)
-
+                    
                     # Abrir caixa de pesquisa
                     log_debug("5. Abrindo caixa de pesquisa (Ctrl+E)...")
-                    pyautogui.hotkey("ctrl", "e")
+                    pyautogui.hotkey('ctrl', 'e')
                     time.sleep(0.5)
-
-                    # Enviar comando de status
-                    if status in status_commands:
-                        command = status_commands[status]
-                        log_debug(f"6. Enviando comando: {command}")
-                        pyautogui.write(command)
-                        time.sleep(0.2)
-                        pyautogui.press("enter")
-                        time.sleep(0.5)
+                    
+                    # Tentar comandos em diferentes idiomas
+                    log_debug(f"Alterando status para: {status.display_name}")
+                    success = False
+                    last_error = None
+                    languages = ["PT-BR", "EN-US", "ES"]
+                    
+                    for idx, command in enumerate(status.commands):
+                        try:
+                            # Limpar qualquer texto existente
+                            pyautogui.hotkey('ctrl', 'a')
+                            pyautogui.press('delete')
+                            time.sleep(0.2)
+                            
+                            # Enviar comando
+                            log_debug(f"Tentando comando {command} ({languages[idx]})")
+                            pyautogui.write(command)
+                            time.sleep(0.2)
+                            pyautogui.press('enter')
+                            time.sleep(0.5)
+                            
+                            # Se não houve erro, consideramos que o comando funcionou
+                            success = True
+                            log_debug(f"Status alterado com sucesso usando {languages[idx]}")
+                            break
+                        except Exception as e:
+                            last_error = f"Erro com {command} ({languages[idx]}): {str(e)}"
+                            debug_log(last_error, True)
+                            continue
+                        finally:
+                            # Garantir que a caixa de pesquisa seja fechada
+                            pyautogui.press('esc')
+                            time.sleep(0.2)
+                    
+                    if not success:
+                        raise Exception(f"Falha ao alterar status. Último erro: {last_error}")
 
                         # Pressionar Esc para fechar qualquer menu aberto
-                        pyautogui.press("esc")
+                        pyautogui.press('esc')
                         time.sleep(0.2)
-
+                        
                         # Voltar para a janela original
                         log_debug("7. Retornando à janela original...")
                         if current_foreground:
                             win32gui.SetForegroundWindow(current_foreground)
-
+                        
                         log_debug("Status alterado com sucesso!")
                         return True
-
+                
                 except Exception as e:
                     log_debug(f"ERRO ao tentar janela específica: {str(e)}")
                     continue
-
+            
             raise Exception("Nenhuma janela do Teams respondeu corretamente")
-
+            
         except Exception as e:
             error_msg = f"ERRO CRÍTICO ao alterar status: {str(e)}"
             log_debug(error_msg)
@@ -527,7 +572,7 @@ class KeepAliveApp(QMainWindow):
                 "Keep Alive Manager",
                 "O programa continua rodando em segundo plano",
                 QSystemTrayIcon.MessageIcon.Information,
-                2000,
+                2000
             )
         else:
             debug_log("Fechando aplicação")
@@ -554,13 +599,9 @@ if __name__ == "__main__":
 
     # Configurações de DPI
     if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
-        QCoreApplication.setAttribute(
-            Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True
-        )
+        QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
     if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-        QCoreApplication.setAttribute(
-            Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
-        )
+        QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
     # Iniciar aplicação
