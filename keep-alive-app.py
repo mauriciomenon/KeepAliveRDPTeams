@@ -1,16 +1,16 @@
 import sys
 import os
-import uiautomation as auto
-from PyQt6.QtCore import Qt, QCoreApplication
-
-if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
-    QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-    QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-
 from datetime import datetime, time as dt_time
+import time
 import pyautogui
+import win32gui
+import win32con
+import win32api
+import win32ts
+import ctypes
+from ctypes import wintypes
+from enum import Enum
+from PyQt6.QtCore import Qt, QTimer, QTime, QCoreApplication
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -28,18 +28,9 @@ from PyQt6.QtWidgets import (
     QFrame,
     QButtonGroup,
 )
-from PyQt6.QtCore import QTimer, Qt, QTime
 from PyQt6.QtGui import QIcon, QAction
-import win32gui
-import win32con
-import win32api
-import win32ts
-import ctypes
-from ctypes import wintypes
-from enum import Enum, auto
-import time
 
-# Constantes do Windows
+# Configurações do sistema
 ES_CONTINUOUS = 0x80000000
 ES_SYSTEM_REQUIRED = 0x00000001
 ES_DISPLAY_REQUIRED = 0x00000002
@@ -49,7 +40,17 @@ pyautogui.FAILSAFE = False
 pyautogui.PAUSE = 0.1
 
 
+def debug_log(message):
+    """Função global para logging"""
+    print(f"DEBUG: {message}")
+    with open("keepalive_debug.log", "a", encoding="utf-8") as f:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        f.write(f"{timestamp} - {message}\n")
+
+
 class TeamsStatus(Enum):
+    """Enumeração dos status possíveis do Teams"""
+
     AVAILABLE = ("Disponível", "available")
     BUSY = ("Ocupado", "busy")
     DO_NOT_DISTURB = ("Não Perturbe", "dnd")
@@ -62,6 +63,8 @@ class TeamsStatus(Enum):
 
 
 class StyleFrame(QFrame):
+    """Frame estilizado para a interface"""
+
     def __init__(self):
         super().__init__()
         self.setFrameShape(QFrame.Shape.StyledPanel)
@@ -114,9 +117,6 @@ class KeepAliveApp(QMainWindow):
         self.setup_ui()
         self.setup_tray(app_icon)
         self.check_schedule()
-
-        # Definir status inicial do Teams como Disponível
-        self.set_teams_status(TeamsStatus.AVAILABLE)
 
     def setup_tray(self, icon):
         """Configura o ícone na bandeja do sistema"""
@@ -212,9 +212,6 @@ class KeepAliveApp(QMainWindow):
             self.teams_buttons[status] = btn
             status_button_layout.addWidget(btn)
 
-        # Marcar botão "Disponível" como selecionado inicialmente
-        self.teams_buttons[TeamsStatus.AVAILABLE].setChecked(True)
-
         teams_layout.addLayout(status_button_layout)
         layout.addWidget(teams_frame)
 
@@ -251,174 +248,134 @@ class KeepAliveApp(QMainWindow):
             current_pos = win32api.GetCursorPos()
             if not hasattr(self, "last_cursor_pos"):
                 self.last_cursor_pos = current_pos
+                return
 
-            # Se a posição do cursor mudou, atualizar timestamp
             if current_pos != self.last_cursor_pos:
                 self.last_user_activity = time.time()
                 self.last_cursor_pos = current_pos
-        except:
-            pass
+                debug_log(
+                    f"Atividade do usuário detectada: Mouse movido para {current_pos}"
+                )
+        except Exception as e:
+            debug_log(f"Erro ao verificar atividade do usuário: {str(e)}")
 
     def should_move_mouse(self):
         """Verifica se deve mover o mouse baseado na última atividade"""
-        return time.time() - self.last_user_activity >= self.interval_spin.value()
-
-    def set_teams_status(self, status):
-        """Define o status do Teams usando UI Automation"""
-        self.current_teams_status = status
-
-        # Atualizar botões
-        for s, btn in self.teams_buttons.items():
-            btn.setChecked(s == status)
-
         try:
-            # Procurar a janela do Teams
-            teams_window = auto.WindowControl(
-                searchDepth=1, ClassName="Chrome_WidgetWin_1", SubName="Teams"
-            )
-            if not teams_window.Exists(1):
-                raise Exception("Janela do Teams não encontrada")
+            if not hasattr(self, "last_user_activity"):
+                self.last_user_activity = time.time()
+                return False
 
-            # Encontrar e clicar no botão de status
-            status_button = teams_window.ButtonControl(AutomationId="status-bar-item")
-            if not status_button.Exists(1):
-                raise Exception("Botão de status não encontrado")
-
-            status_button.Click()
-            auto.WaitForInputIdle(1)
-
-            # Mapeamento de status para texto do menu
-            status_menu_items = {
-                TeamsStatus.AVAILABLE: "Disponível",
-                TeamsStatus.BUSY: "Ocupado",
-                TeamsStatus.DO_NOT_DISTURB: "Não perturbe",
-                TeamsStatus.AWAY: "Ausente",
-                TeamsStatus.OFFLINE: "Offline",
-            }
-
-            # Encontrar e clicar no item de menu correspondente
-            menu_item = teams_window.MenuItemControl(Name=status_menu_items[status])
-            if not menu_item.Exists(1):
-                raise Exception(
-                    f"Opção de status '{status_menu_items[status]}' não encontrada"
-                )
-
-            menu_item.Click()
-            print(f"Status do Teams alterado para: {status.display_name}")
-
-            # Atualizar o label de status
-            self.status_label.setText(
-                f"Status do Teams alterado para: {status.display_name}\n"
-                "O programa continua mantendo suas conexões ativas"
-            )
-
+            return time.time() - self.last_user_activity >= self.interval_spin.value()
         except Exception as e:
-            error_msg = f"Erro ao alterar status do Teams: {e}"
-            print(error_msg)
-            self.status_label.setText(
-                f"{error_msg}\n" "O programa continua mantendo suas conexões ativas"
-            )
-
-        except Exception as e:
-            error_msg = f"Erro ao alterar status do Teams: {e}"
-            print(error_msg)
-            self.status_label.setText(
-                f"{error_msg}\n" "O programa continua mantendo suas conexões ativas"
-            )
+            debug_log(f"Erro em should_move_mouse: {str(e)}")
+            return False
 
     def perform_activity(self):
         """Executa as atividades de keep-alive"""
         try:
-            success = False
+            debug_log("Iniciando ciclo de atividade")
 
             # Verificar conexão RDP
             if not self.check_rdp_connection():
+                debug_log("Aviso: Conexão RDP pode estar instável")
                 self.status_label.setText(
                     "Aviso: Conexão RDP pode estar instável\n"
                     "Verificando métodos alternativos..."
                 )
 
-            # Só move o mouse se não houve atividade recente
+            # Mover mouse se necessário
             if self.should_move_mouse():
-                success = self.move_mouse_safely()
-            else:
-                success = True  # Considera sucesso se houve atividade recente
+                debug_log("Movendo mouse (sem atividade recente detectada)")
+                self.move_mouse_safely()
 
-            # Sempre tenta manter a sessão RDP ativa
+            # Manter RDP e tela ativos
             self.keep_rdp_alive()
             self.prevent_screen_lock()
 
+            # Atualizar status
             self.activity_count += 1
             current_time = datetime.now().strftime("%H:%M:%S")
 
-            self.status_label.setText(
+            status_text = (
                 f"Mantendo conexões ativas\n"
                 f"Última atividade: {current_time} (#{self.activity_count})\n"
                 f"Próxima ação em {self.interval_spin.value()} segundos\n"
                 f"Status do Teams: {self.current_teams_status.display_name}"
             )
 
+            debug_log(f"Ciclo completado: {status_text}")
+            self.status_label.setText(status_text)
+
         except Exception as e:
+            error_msg = f"Erro ao executar atividade: {str(e)}"
+            debug_log(error_msg)
             self.status_label.setText(
-                f"Erro ao executar atividade:\n{str(e)}\n"
-                "Tentando métodos alternativos..."
+                f"{error_msg}\n" "Tentando métodos alternativos..."
             )
 
     def move_mouse_safely(self):
         """Movimento do mouse em um pequeno quadrado"""
         try:
+            debug_log("Iniciando movimento seguro do mouse")
             screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
             screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
             current_pos = pyautogui.position()
 
-            # Definir um quadrado de 20x20 pixels centrado na posição atual
-            max_movement = 10  # 10 pixels para cada lado = quadrado de 20x20
-
-            # Calcular movimentos seguros dentro dos limites da tela
+            # Definir área segura de movimento
+            max_movement = 10
             x_move = min(max_movement, screen_width - current_pos[0] - 1)
             x_move = max(x_move, -current_pos[0])
             y_move = min(max_movement, screen_height - current_pos[1] - 1)
             y_move = max(y_move, -current_pos[1])
 
-            # Movimento suave em pequeno quadrado
+            # Executar movimento
             moves = [(x_move, 0), (0, y_move), (-x_move, 0), (0, -y_move)]
-
             for dx, dy in moves:
+                debug_log(f"Movendo mouse: ({dx}, {dy})")
                 pyautogui.moveRel(dx, dy, duration=0.2)
 
             return True
-        except Exception:
+        except Exception as e:
+            debug_log(f"Erro ao mover mouse: {str(e)}")
             return False
 
     def keep_rdp_alive(self):
-        """Manter sessão RDP ativa usando API do Terminal Services"""
+        """Manter sessão RDP ativa"""
         try:
+            debug_log("Tentando manter sessão RDP ativa")
             win32ts.WTSResetPersistentSession()
             return True
-        except:
+        except Exception as e:
+            debug_log(f"Erro ao manter RDP: {str(e)}")
             return False
 
     def check_rdp_connection(self):
         """Verificar estado da conexão RDP"""
         try:
+            debug_log("Verificando conexão RDP")
             session_id = win32ts.WTSGetActiveConsoleSessionId()
             return session_id != 0xFFFFFFFF
-        except:
+        except Exception as e:
+            debug_log(f"Erro ao verificar RDP: {str(e)}")
             return False
 
     def prevent_screen_lock(self):
         """Prevenir bloqueio de tela usando API do Windows"""
         try:
+            debug_log("Prevenindo bloqueio de tela")
             ctypes.windll.kernel32.SetThreadExecutionState(
                 ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
             )
             return True
-        except:
+        except Exception as e:
+            debug_log(f"Erro ao prevenir bloqueio: {str(e)}")
             return False
 
     def toggle_service(self):
         """Inicia ou para o serviço de keep-alive"""
         if not self.is_running:
+            debug_log("Iniciando serviço")
             self.timer.start(self.interval_spin.value() * 1000)
             self.is_running = True
             self.toggle_button.setText("Parar")
@@ -428,6 +385,7 @@ class KeepAliveApp(QMainWindow):
                 "O programa está funcionando em segundo plano"
             )
         else:
+            debug_log("Parando serviço")
             self.timer.stop()
             self.is_running = False
             self.toggle_button.setText("Iniciar")
@@ -444,16 +402,125 @@ class KeepAliveApp(QMainWindow):
         start_time = self.start_time_edit.time()
         end_time = self.end_time_edit.time()
 
+        debug_log(f"Verificando horário: {current_time.toString()}")
         if start_time <= current_time <= end_time:
             if not self.is_running and self.toggle_button.text() == "Iniciar":
+                debug_log("Dentro do horário programado - iniciando")
                 self.toggle_service()
         else:
             if self.is_running:
+                debug_log("Fora do horário programado - parando")
                 self.toggle_service()
+
+    def set_teams_status(self, status):
+        """
+        Define o status do Teams usando comandos nativos via caixa de pesquisa.
+
+        Args:
+            status (TeamsStatus): Novo status a ser definido
+
+        Returns:
+            bool: True se o status foi alterado com sucesso, False caso contrário
+        """
+        self.current_teams_status = status
+        self.debug_info = []
+
+        def log_debug(message):
+            debug_log(message)
+            self.debug_info.append(message)
+            self.status_label.setText("\n".join(self.debug_info[-5:]))
+
+        # Mapeamento de status para comandos
+        status_commands = {
+            TeamsStatus.AVAILABLE: "/available",
+            TeamsStatus.BUSY: "/busy",
+            TeamsStatus.DO_NOT_DISTURB: "/dnd",
+            TeamsStatus.AWAY: "/away",
+            TeamsStatus.OFFLINE: "/offline",
+        }
+
+        try:
+            # Atualizar botões da UI
+            log_debug("1. Atualizando botões da interface...")
+            for s, btn in self.teams_buttons.items():
+                btn.setChecked(s == status)
+
+            # Procurar janela do Teams
+            log_debug("2. Procurando janela do Teams...")
+            teams_windows = []
+
+            def find_teams_window(hwnd, _):
+                if win32gui.IsWindowVisible(hwnd):
+                    window_text = win32gui.GetWindowText(hwnd)
+                    if "Microsoft Teams" in window_text:
+                        teams_windows.append((hwnd, window_text))
+                        log_debug(f"   Encontrada janela: {window_text} (hwnd: {hwnd})")
+                return True
+
+            win32gui.EnumWindows(find_teams_window, None)
+
+            if not teams_windows:
+                raise Exception("Nenhuma janela do Teams encontrada")
+
+            # Tentar alterar status
+            for teams_hwnd, window_text in teams_windows:
+                try:
+                    log_debug(f"3. Tentando janela: {window_text}")
+
+                    # Verificar e focar janela
+                    if not win32gui.IsWindow(teams_hwnd):
+                        continue
+
+                    # Guardar janela atual
+                    current_foreground = win32gui.GetForegroundWindow()
+
+                    # Focar Teams
+                    log_debug("4. Focando janela do Teams...")
+                    win32gui.ShowWindow(teams_hwnd, win32con.SW_RESTORE)
+                    win32gui.SetForegroundWindow(teams_hwnd)
+                    time.sleep(0.5)
+
+                    # Abrir caixa de pesquisa
+                    log_debug("5. Abrindo caixa de pesquisa (Ctrl+E)...")
+                    pyautogui.hotkey("ctrl", "e")
+                    time.sleep(0.5)
+
+                    # Enviar comando de status
+                    if status in status_commands:
+                        command = status_commands[status]
+                        log_debug(f"6. Enviando comando: {command}")
+                        pyautogui.write(command)
+                        time.sleep(0.2)
+                        pyautogui.press("enter")
+                        time.sleep(0.5)
+
+                        # Pressionar Esc para fechar qualquer menu aberto
+                        pyautogui.press("esc")
+                        time.sleep(0.2)
+
+                        # Voltar para a janela original
+                        log_debug("7. Retornando à janela original...")
+                        if current_foreground:
+                            win32gui.SetForegroundWindow(current_foreground)
+
+                        log_debug("Status alterado com sucesso!")
+                        return True
+
+                except Exception as e:
+                    log_debug(f"ERRO ao tentar janela específica: {str(e)}")
+                    continue
+
+            raise Exception("Nenhuma janela do Teams respondeu corretamente")
+
+        except Exception as e:
+            error_msg = f"ERRO CRÍTICO ao alterar status: {str(e)}"
+            log_debug(error_msg)
+            return False
 
     def closeEvent(self, event):
         """Trata o evento de fechamento da janela"""
         if self.minimize_to_tray_cb.isChecked():
+            debug_log("Minimizando para a bandeja")
             event.ignore()
             self.hide()
             self.tray_icon.showMessage(
@@ -463,10 +530,12 @@ class KeepAliveApp(QMainWindow):
                 2000,
             )
         else:
+            debug_log("Fechando aplicação")
             self.quit_application()
 
     def quit_application(self):
         """Encerra a aplicação adequadamente"""
+        debug_log("Encerrando aplicação")
         if self.is_running:
             self.toggle_service()
         self.tray_icon.hide()
@@ -483,6 +552,18 @@ if __name__ == "__main__":
     if GetLastError() == ERROR_ALREADY_EXISTS:
         sys.exit(1)
 
+    # Configurações de DPI
+    if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
+        QCoreApplication.setAttribute(
+            Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True
+        )
+    if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
+        QCoreApplication.setAttribute(
+            Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
+        )
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+
+    # Iniciar aplicação
     app = QApplication(sys.argv)
     app.setStyle("Windows")
     window = KeepAliveApp()
