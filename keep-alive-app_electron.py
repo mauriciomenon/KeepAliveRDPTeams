@@ -866,7 +866,7 @@ class KeepAliveApp(QMainWindow):
             if self.should_update_status():
                 logger.info("Atualizando status do Teams")
                 if self.teams_manager.set_status(status.ipc_status):
-                self.current_teams_status = status
+                    self.current_teams_status = status
                 # Atualizar botões da UI
                 for s, btn in self.teams_buttons.items():
                     btn.setChecked(s == status)
@@ -929,36 +929,37 @@ def main():
 
 if __name__ == "__main__":
     status = main()
-    sys.exit(status)status(
-                    self.current_teams_status.ipc_status
-                ):
-                    logger.info("Status atualizado com sucesso")
+    sys.exit(status)
 
-            # Manter RDP e tela ativos
-            self.keep_rdp_alive()
-            self.prevent_screen_lock()
+    try:
+        self.current_teams_status.ipc_status
+        logger.info("Status atualizado com sucesso")
 
-            # Atualizar status na interface
-            self.activity_count += 1
-            current_time = datetime.now().strftime("%H:%M:%S")
+        # Manter RDP e tela ativos
+        self.keep_rdp_alive()
+        self.prevent_screen_lock()
 
-            status_text = (
-                f"Mantendo conexões ativas\n"
-                f"Status atual: {self.current_teams_status.display_name}\n"
-                f"Última atividade: {current_time} (#{self.activity_count})\n"
-                f"Próxima ação em {self.interval_spin.value()} segundos"
-            )
+        # Atualizar status na interface
+        self.activity_count += 1
+        current_time = datetime.now().strftime("%H:%M:%S")
 
-            logger.debug("Ciclo completado")
-            self.status_label.setText(status_text)
+        status_text = (
+            f"Mantendo conexões ativas\n"
+            f"Status atual: {self.current_teams_status.display_name}\n"
+            f"Última atividade: {current_time} (#{self.activity_count})\n"
+            f"Próxima ação em {self.interval_spin.value()} segundos"
+        )
 
-        except Exception as e:
-            error_msg = f"Erro ao executar atividade: {str(e)}"
-            logger.error(error_msg)
-            self.status_label.setText(
-                f"{error_msg}\n"
-                "Tentando métodos alternativos..."
-            )
+        logger.debug("Ciclo completado")
+        self.status_label.setText(status_text)
+
+    except Exception as e:
+        error_msg = f"Erro ao executar atividade: {str(e)}"
+        logger.error(error_msg)
+        self.status_label.setText(
+            f"{error_msg}\n"
+            "Tentando métodos alternativos..."
+        )
 
     def keep_rdp_alive(self):
         """Manter sessão RDP ativa"""
