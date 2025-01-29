@@ -1,0 +1,75 @@
+2025-01-29 10:46:42 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 10:46:42 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: type object 'SystemConfig' has no attribute 'MAX_CONNECTION_ATTEMPTS'
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1117, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 671, in __init__
+    self.teams_manager = TeamsElectronManager(self.config)
+                         ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 329, in __init__
+    SystemConfig.MAX_CONNECTION_ATTEMPTS
+AttributeError: type object 'SystemConfig' has no attribute 'MAX_CONNECTION_ATTEMPTS'
+2025-01-29 10:47:01 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 10:47:01 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: super-class __init__() of type KeepAliveApp was never called
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1135, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 673, in __init__
+    if hasattr(self, "_initialized"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: super-class __init__() of type KeepAliveApp was never called
+2025-01-29 10:47:08 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 10:47:08 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: super-class __init__() of type KeepAliveApp was never called
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1135, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 673, in __init__
+    if hasattr(self, "_initialized"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: super-class __init__() of type KeepAliveApp was never called
+2025-01-29 10:48:01 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 10:48:01 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: super-class __init__() of type KeepAliveApp was never called
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1133, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 673, in __init__
+    if not hasattr(self, "_is_initialized"):
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: super-class __init__() of type KeepAliveApp was never called
+2025-01-29 10:59:39 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 10:59:39 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: super-class __init__() of type KeepAliveApp was never called
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1127, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 668, in __init__
+    if not hasattr(self, "_is_initialized"):
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: super-class __init__() of type KeepAliveApp was never called
+2025-01-29 11:00:17 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 11:00:17 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: super-class __init__() of type KeepAliveApp was never called
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1124, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 667, in __init__
+    if not hasattr(self, "_is_initialized"):
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: super-class __init__() of type KeepAliveApp was never called
+2025-01-29 11:00:54 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 11:00:54 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: super-class __init__() of type KeepAliveApp was never called
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1127, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 667, in __init__
+    if not hasattr(self, "_is_initialized"):
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: super-class __init__() of type KeepAliveApp was never called
+2025-01-29 11:05:19 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 11:05:19 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: super-class __init__() of type KeepAliveApp was never called
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1130, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 667, in __init__
+    if hasattr(self, "_is_initialized"):
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: super-class __init__() of type KeepAliveApp was never called
+2025-01-29 11:10:58 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager

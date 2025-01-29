@@ -1,0 +1,7 @@
+{
+    "interval": 120,
+    "start_time": "08:45",
+    "end_time": "17:15",
+    "minimize_to_tray": true,
+    "default_teams_status": "Available"
+}

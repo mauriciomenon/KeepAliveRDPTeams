@@ -128,19 +128,20 @@ def setup_logging(log_dir: str = 'logs') -> logging.Logger:
 # Global logger with enhanced configuration
 logger = setup_logging()
 
+
 # Singleton Implementation
 class SingletonMeta(type):
     """
     Metaclass for implementing singleton pattern with thread-safety
-    using win32 mutex for cross-process prevention
+    and cross-process prevention
     """
+
     _instances = {}
     _singleton_mutex = None
 
     def __call__(cls, *args, **kwargs):
         # Ensure only one instance is created
         if cls not in cls._instances:
-            # Create mutex to prevent multiple processes
             try:
                 from win32event import CreateMutex
                 from win32api import GetLastError
@@ -148,7 +149,7 @@ class SingletonMeta(type):
 
                 # Create named mutex
                 cls._singleton_mutex = CreateMutex(None, False, f"{cls.__name__}_Mutex")
-                
+
                 # Check if mutex already exists
                 if GetLastError() == ERROR_ALREADY_EXISTS:
                     logger.warning(f"Singleton {cls.__name__} already running")
@@ -161,6 +162,7 @@ class SingletonMeta(type):
                 raise
 
         return cls._instances[cls]
+
 
 # Retry Decorator with Exponential Backoff
 def retry(max_attempts=3, base_delay=1, max_delay=30, 
@@ -614,7 +616,7 @@ class RDPManager:
     """
     def __init__(self, logger=None):
         self.logger = logger or logging.getLogger(self.__class__.__name__)
-    
+
     def keep_session_alive(self) -> bool:
         """
         Prevent RDP session from timing out
@@ -625,19 +627,19 @@ class RDPManager:
         try:
             # Use Windows API to reset persistent session
             win32ts.WTSResetPersistentSession()
-            
+
             # Prevent screen lock
             ctypes.windll.kernel32.SetThreadExecutionState(
                 SystemConfig.ES_CONTINUOUS | 
                 SystemConfig.ES_SYSTEM_REQUIRED | 
                 SystemConfig.ES_DISPLAY_REQUIRED
             )
-            
+
             return True
         except Exception as e:
             self.logger.error(f"RDP session management error: {e}")
             return False
-    
+
     def check_session_status(self) -> bool:
         """
         Check current RDP session status
@@ -652,47 +654,60 @@ class RDPManager:
             self.logger.error(f"RDP session status check error: {e}")
             return False
 
-class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
-    """
-    Main application window for Keep Alive Manager
-    """
-    def __init__(self):
-        super().__init__()
-        
+
+class KeepAliveApp(QMainWindow):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(KeepAliveApp, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self, *args, **kwargs):
+        # Chamar a superclasse ANTES de qualquer verificação
+        super().__init__(
+            *args, **kwargs
+        )  # Chama corretamente a inicialização do QMainWindow
+
+        if hasattr(self, "_is_initialized"):
+            return  # Evita reinicialização indesejada
+
         # Logging
         self.logger = logging.getLogger(self.__class__.__name__)
-        
-        # Configuration
+
+        # Configuração
         self.config = SystemConfig.load_config()
-        
+
         # Managers
         self.teams_manager = TeamsElectronManager(self.config)
         self.rdp_manager = RDPManager(self.logger)
-        
-        # Application state
+
+        # Estado da aplicação
         self.is_running = False
         self.current_teams_status = TeamsStatus.AVAILABLE
-        
+
         # Timers
         self.activity_timer = QTimer(self)
         self.activity_timer.timeout.connect(self.check_system_activity)
-        
+
         self.main_timer = QTimer(self)
         self.main_timer.timeout.connect(self.perform_keep_alive)
-        
+
         self.schedule_timer = QTimer(self)
         self.schedule_timer.timeout.connect(self.check_schedule)
-        
-        # UI Setup
+
+        # Configuração da UI
         self.setup_ui()
         self.setup_tray_icon()
-        
-        # Event Listeners
+
+        # Listeners de eventos
         self.setup_event_listeners()
-        
-        # Initial configuration
-        self.logger.info("Keep Alive Manager initialized")
-    
+
+        # Marca como inicializado
+        self._is_initialized = True
+
+        self.logger.info("Keep Alive Manager inicializado corretamente.")
+
     def setup_ui(self):
         """
         Configure main application user interface
@@ -700,16 +715,16 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
         # Window properties
         self.setWindowTitle("Keep Alive Manager")
         self.setFixedSize(500, 600)
-        
+
         # Central widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
-        
+
         # Status Frame
         status_frame = StyleFrame()
         status_layout = QVBoxLayout(status_frame)
-        
+
         self.status_label = QLabel(
             "Keep Alive Manager\n"
             "Configure settings and start the service"
@@ -717,18 +732,18 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         status_layout.addWidget(self.status_label)
         main_layout.addWidget(status_frame)
-        
+
         # Teams Status Frame
         teams_frame = StyleFrame()
         teams_layout = QVBoxLayout(teams_frame)
-        
+
         teams_label = QLabel("Teams Status:")
         teams_layout.addWidget(teams_label)
-        
+
         # Teams status buttons
         self.teams_status_buttons = {}
         teams_status_grid = QGridLayout()
-        
+
         status_grid_config = [
             (TeamsStatus.AVAILABLE, (0, 0)),
             (TeamsStatus.BUSY, (0, 1)),
@@ -737,85 +752,85 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
             (TeamsStatus.BE_RIGHT_BACK, (1, 1)),
             (TeamsStatus.OFFLINE, (1, 2))
         ]
-        
+
         for status, (row, col) in status_grid_config:
             btn = QPushButton(status.display_name)
             btn.setCheckable(True)
             btn.setStyleSheet(f"background-color: {status.color};")
             btn.clicked.connect(lambda _, s=status: self.set_teams_status(s))
-            
+
             self.teams_status_buttons[status] = btn
             teams_status_grid.addWidget(btn, row, col)
-        
+
         teams_layout.addLayout(teams_status_grid)
         main_layout.addWidget(teams_frame)
-        
+
         # Configuration Frame
         config_frame = StyleFrame()
         config_layout = QVBoxLayout(config_frame)
-        
+
         # Interval configuration
         interval_layout = QHBoxLayout()
         interval_label = QLabel("Keep Alive Interval (seconds):")
         self.interval_spin = QSpinBox()
         self.interval_spin.setRange(30, 300)
         self.interval_spin.setValue(self.config.get('interval', 120))
-        
+
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.interval_spin)
         config_layout.addLayout(interval_layout)
-        
+
         # Time range configuration
         time_layout = QHBoxLayout()
         start_label = QLabel("Active Period:")
-        
+
         self.start_time_edit = QTimeEdit()
         self.start_time_edit.setTime(QTime.fromString(
             self.config.get('start_time', '08:45'), 
             'HH:mm'
         ))
-        
+
         end_label = QLabel("to")
-        
+
         self.end_time_edit = QTimeEdit()
         self.end_time_edit.setTime(QTime.fromString(
             self.config.get('end_time', '17:15'), 
             'HH:mm'
         ))
-        
+
         time_layout.addWidget(start_label)
         time_layout.addWidget(self.start_time_edit)
         time_layout.addWidget(end_label)
         time_layout.addWidget(self.end_time_edit)
-        
+
         config_layout.addLayout(time_layout)
         main_layout.addWidget(config_frame)
-        
+
         # Options Frame
         options_frame = StyleFrame()
         options_layout = QVBoxLayout(options_frame)
-        
+
         self.minimize_to_tray_cb = QCheckBox("Minimize to System Tray")
         self.minimize_to_tray_cb.setChecked(
             self.config.get('minimize_to_tray', True)
         )
         options_layout.addWidget(self.minimize_to_tray_cb)
         main_layout.addWidget(options_frame)
-        
+
         # Control Buttons
         button_layout = QHBoxLayout()
-        
+
         self.toggle_button = QPushButton("Start")
         self.toggle_button.clicked.connect(self.toggle_service)
-        
+
         self.minimize_button = QPushButton("Minimize")
         self.minimize_button.clicked.connect(self.hide)
-        
+
         button_layout.addWidget(self.toggle_button)
         button_layout.addWidget(self.minimize_button)
-        
+
         main_layout.addLayout(button_layout)
-    
+
     def setup_tray_icon(self):
         """
         Configure system tray icon and menu
@@ -825,30 +840,30 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
             self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon),
             self
         )
-        
+
         # Tray menu
         tray_menu = QMenu()
-        
+
         # Actions
         show_action = QAction("Show", self)
         show_action.triggered.connect(self.show)
-        
+
         self.toggle_tray_action = QAction("Start", self)
         self.toggle_tray_action.triggered.connect(self.toggle_service)
-        
+
         quit_action = QAction("Exit", self)
         quit_action.triggered.connect(self.quit_application)
-        
+
         # Add actions to menu
         tray_menu.addAction(show_action)
         tray_menu.addAction(self.toggle_tray_action)
         tray_menu.addSeparator()
         tray_menu.addAction(quit_action)
-        
+
         # Set menu and show tray icon
         self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.show()
-    
+
     def setup_event_listeners(self):
         """
         Set up event listeners for Teams manager
@@ -866,21 +881,21 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
             'on_status_change', 
             self.on_teams_status_changed
         )
-    
+
     def on_teams_connected(self):
         """
         Handle Teams connection event
         """
         self.logger.info("Teams connected")
         self.status_label.setText("Teams connected successfully")
-    
+
     def on_teams_disconnected(self):
         """
         Handle Teams disconnection event
         """
         self.logger.warning("Teams disconnected")
         self.status_label.setText("Teams disconnected. Attempting to reconnect...")
-    
+
     def on_teams_status_changed(self, status):
         """
         Handle Teams status change event
@@ -889,11 +904,11 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
             status (TeamsStatus): New Teams status
         """
         self.logger.info(f"Teams status changed to {status.display_name}")
-        
+
         # Update UI buttons
         for btn_status, btn in self.teams_status_buttons.items():
             btn.setChecked(btn_status == status)
-    
+
     def check_system_activity(self):
         """
         Monitor system activity to prevent unnecessary keep-alive actions
@@ -903,14 +918,14 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
             if not hasattr(self, 'last_cursor_pos'):
                 self.last_cursor_pos = current_pos
                 return
-            
+
             # Check for cursor movement
             if current_pos != self.last_cursor_pos:
                 self.last_user_activity = time.time()
                 self.last_cursor_pos = current_pos
         except Exception as e:
             self.logger.error(f"System activity check error: {e}")
-    
+
     def perform_keep_alive(self):
         """
         Perform keep-alive actions for RDP and Teams
@@ -919,13 +934,13 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
             # Check if we should perform keep-alive
             if not self.should_perform_keep_alive():
                 return
-            
+
             # Keep RDP session alive
             rdp_success = self.rdp_manager.keep_session_alive()
-            
+
             # Update Teams status
             teams_success = self.teams_manager.set_status(self.current_teams_status)
-            
+
             # Update status label
             status_text = (
                 f"Keep Alive Status:\n"
@@ -933,11 +948,11 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
                 f"Teams: {'Status Updated' if teams_success else 'Update Failed'}"
             )
             self.status_label.setText(status_text)
-            
+
             self.logger.info("Keep alive cycle completed")
         except Exception as e:
             self.logger.error(f"Keep alive cycle error: {e}")
-    
+
     def should_perform_keep_alive(self) -> bool:
         """
         Determine if keep-alive should be performed
@@ -949,21 +964,21 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
         current_time = QTime.currentTime()
         start_time = self.start_time_edit.time()
         end_time = self.end_time_edit.time()
-        
+
         # Check if current time is within scheduled period
         if not (start_time <= current_time <= end_time):
             if self.is_running:
                 self.toggle_service()
             return False
-        
+
         # Check user activity
         if hasattr(self, 'last_user_activity'):
             inactivity_duration = time.time() - self.last_user_activity
             if inactivity_duration < self.interval_spin.value():
                 return False
-        
+
         return self.is_running
-    
+
     def set_teams_status(self, status: TeamsStatus):
         """
         Set Teams status
@@ -979,44 +994,44 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
                 self.logger.warning(f"Failed to set Teams status to {status.display_name}")
         except Exception as e:
             self.logger.error(f"Error setting Teams status: {e}")
-    
+
     def toggle_service(self):
         """
         Toggle keep-alive service on/off
         """
         self.is_running = not self.is_running
-        
+
         if self.is_running:
             # Start service
             self.toggle_button.setText("Stop")
             self.toggle_tray_action.setText("Stop")
-            
+
             # Start timers
             self.activity_timer.start(1000)  # Check activity every second
             self.main_timer.start(self.interval_spin.value() * 1000)
             self.schedule_timer.start(60000)  # Check schedule every minute
-            
+
             # Start Teams connection
             self.teams_manager.connect()
-            
+
             self.status_label.setText("Keep Alive service started")
             self.logger.info("Keep Alive service started")
         else:
             # Stop service
             self.toggle_button.setText("Start")
             self.toggle_tray_action.setText("Start")
-            
+
             # Stop timers
             self.activity_timer.stop()
             self.main_timer.stop()
             self.schedule_timer.stop()
-            
+
             # Close Teams connection
             self.teams_manager.close()
-            
+
             self.status_label.setText("Keep Alive service stopped")
             self.logger.info("Keep Alive service stopped")
-    
+
     def closeEvent(self, event):
         """
         Handle window close event
@@ -1044,15 +1059,15 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
             # Stop service if running
             if self.is_running:
                 self.toggle_service()
-            
+
             # Close Teams manager
             if hasattr(self, 'teams_manager'):
                 self.teams_manager.close()
-            
+
             # Remove tray icon
             if hasattr(self, 'tray_icon'):
                 self.tray_icon.hide()
-            
+
             # Save current configuration
             config_update = {
                 'interval': self.interval_spin.value(),
@@ -1061,19 +1076,20 @@ class KeepAliveApp(QMainWindow, metaclass=SingletonMeta):
                 'minimize_to_tray': self.minimize_to_tray_cb.isChecked(),
                 'default_teams_status': self.current_teams_status.ipc_status
             }
-            
+
             try:
                 with open('config.json', 'w', encoding='utf-8') as f:
                     json.dump(config_update, f, indent=4)
             except Exception as e:
                 self.logger.error(f"Failed to save configuration: {e}")
-            
+
             # Exit application
             QApplication.quit()
-        
+
         except Exception as e:
             self.logger.error(f"Error during application quit: {e}")
             QApplication.quit()
+
 
 def main():
     """
