@@ -73,3 +73,94 @@ Traceback (most recent call last):
        ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
 RuntimeError: super-class __init__() of type KeepAliveApp was never called
 2025-01-29 11:10:58 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 12:10:34 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 12:13:14 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:08:12 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:11:13 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:20:56 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:35:38 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:41:43 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:42:07 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:44:21 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:44:21 - KeepAliveManager - MainProcess - MainThread - CRITICAL - Fatal application error: name 'win32event' is not defined
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\temp.py", line 1111, in main
+    mutex = win32event.CreateMutex(None, False, "KeepAliveManagerMutex")
+            ^^^^^^^^^^
+NameError: name 'win32event' is not defined
+2025-01-29 13:47:47 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:48:09 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:52:14 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:53:26 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:55:28 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 13:57:50 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:08:29 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:11:53 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:13:41 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:14:17 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:25:05 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:27:31 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:33:30 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:35:43 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:36:20 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:37:55 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:40:35 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:45:30 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:48:31 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:51:42 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:54:22 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:56:18 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:57:59 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 14:59:01 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 15:03:16 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 15:05:42 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 15:27:53 - KeepAliveManager - MainProcess - MainThread - INFO - Initializing Keep Alive Manager
+2025-01-29 16:29:01 - KeepAliveManager - MainProcess - MainThread - DEBUG - QApplication created
+2025-01-29 16:29:01 - KeepAliveManager - MainProcess - MainThread - DEBUG - Super init completed
+2025-01-29 16:29:01 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration loaded
+2025-01-29 16:29:01 - KeepAliveManager - MainProcess - MainThread - DEBUG - Managers initialized
+2025-01-29 16:29:01 - KeepAliveManager - MainProcess - MainThread - ERROR - Error in main: name 'QComboBox' is not defined
+Traceback (most recent call last):
+  File "c:\Users\menon\git\KeepAliveRDPTeams\tempCodeRunnerFile.python", line 753, in main
+    window = KeepAliveApp()
+  File "c:\Users\menon\git\KeepAliveRDPTeams\tempCodeRunnerFile.python", line 417, in __init__
+    self.setup_ui()
+    ~~~~~~~~~~~~~^^
+  File "c:\Users\menon\git\KeepAliveRDPTeams\tempCodeRunnerFile.python", line 454, in setup_ui
+    self.teams_status_combo = QComboBox()
+                              ^^^^^^^^^
+NameError: name 'QComboBox' is not defined
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - QApplication created
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - Super init completed
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration loaded
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - Managers initialized
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - UI setup completed
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - Tray icon setup completed
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - Timers setup completed
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - KeepAliveApp initialization completed
+2025-01-29 16:31:41 - KeepAliveManager - MainProcess - MainThread - DEBUG - Main window created and shown
+2025-01-29 16:32:11 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration saved successfully
+2025-01-29 16:32:14 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration saved successfully
+2025-01-29 16:32:15 - KeepAliveManager - MainProcess - MainThread - WARNING - Keep-alive action failed
+2025-01-29 16:32:15 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service started
+2025-01-29 16:32:26 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service stopped
+2025-01-29 16:32:27 - KeepAliveManager - MainProcess - MainThread - WARNING - Keep-alive action failed
+2025-01-29 16:32:27 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service started
+2025-01-29 16:32:37 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration saved successfully
+2025-01-29 16:32:38 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration saved successfully
+2025-01-29 16:33:27 - KeepAliveManager - MainProcess - MainThread - WARNING - Keep-alive action failed
+2025-01-29 16:34:27 - KeepAliveManager - MainProcess - MainThread - WARNING - Keep-alive action failed
+2025-01-29 16:34:27 - KeepAliveManager - MainProcess - MainThread - WARNING - Keep-alive action failed
+2025-01-29 16:35:02 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service stopped
+2025-01-29 16:35:03 - KeepAliveManager - MainProcess - MainThread - DEBUG - QApplication created
+2025-01-29 16:35:03 - KeepAliveManager - MainProcess - MainThread - DEBUG - Super init completed
+2025-01-29 16:35:03 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration loaded
+2025-01-29 16:35:03 - KeepAliveManager - MainProcess - MainThread - DEBUG - Managers initialized
+2025-01-29 16:35:03 - KeepAliveManager - MainProcess - MainThread - DEBUG - UI setup completed
+2025-01-29 16:35:03 - KeepAliveManager - MainProcess - MainThread - DEBUG - Tray icon setup completed
+2025-01-29 16:35:03 - KeepAliveManager - MainProcess - MainThread - DEBUG - Timers setup completed
+2025-01-29 16:35:03 - KeepAliveManager - MainProcess - MainThread - DEBUG - KeepAliveApp initialization completed
+2025-01-29 16:35:04 - KeepAliveManager - MainProcess - MainThread - DEBUG - Main window created and shown
+2025-01-29 16:35:18 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 16:35:18
+2025-01-29 16:35:18 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service started
+2025-01-29 16:36:11 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service stopped

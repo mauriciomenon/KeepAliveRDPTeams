@@ -253,12 +253,35 @@ class TeamsElectronManager:
     async def _test_websocket_port(self, port: int) -> bool:
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.ws_connect(
-                    f"ws://127.0.0.1:{port}", timeout=0.5
-                ) as ws:
-                    await ws.ping()
-                    return True
-        except Exception:
+                try:
+                    async with session.ws_connect(
+                        f"ws://127.0.0.1:{port}",
+                        timeout=0.5,
+                        headers={
+                            "Origin": "https://teams.microsoft.com",
+                            "User-Agent": "Microsoft Teams",
+                        },
+                    ) as ws:
+                        # Enviar mensagem de teste
+                        test_message = {"id": str(uuid.uuid4()), "method": "ping"}
+                        await ws.send_json(test_message)
+
+                        # Aguardar resposta
+                        try:
+                            response = await ws.receive_json(timeout=1.0)
+                            if "error" not in response:
+                                self.logger.info(
+                                    f"Teams WebSocket port {port} is responsive"
+                                )
+                                return True
+                        except Exception:
+                            pass
+
+                        return False
+                except Exception:
+                    return False
+        except Exception as e:
+            self.logger.debug(f"Port {port} test failed: {e}")
             return False
 
     async def _establish_websocket_connection(self, port: int):
@@ -376,24 +399,72 @@ class TeamsElectronManager:
 class RDPManager:
     def __init__(self):
         self.logger = logging.getLogger(self.__class__.__name__)
+        # Flags para simular atividade do mouse/teclado
+        self.MOUSEEVENTF_MOVE = 0x0001
+        self.INPUT_MOUSE = 0
+        self.INPUT_KEYBOARD = 1
+
+    def _simulate_input(self):
+        """Simula um pequeno movimento do mouse para manter a sessão ativa"""
+        try:
+            # Estrutura para input do mouse
+            class MOUSEINPUT(ctypes.Structure):
+                _fields_ = [
+                    ("dx", ctypes.c_long),
+                    ("dy", ctypes.c_long),
+                    ("mouseData", ctypes.c_ulong),
+                    ("dwFlags", ctypes.c_ulong),
+                    ("time", ctypes.c_ulong),
+                    ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
+                ]
+
+            class INPUT(ctypes.Structure):
+                _fields_ = [("type", ctypes.c_ulong), ("mi", MOUSEINPUT)]
+
+            # Criar input do mouse
+            x = INPUT()
+            x.type = self.INPUT_MOUSE
+            x.mi = MOUSEINPUT(1, 1, 0, self.MOUSEEVENTF_MOVE, 0, None)
+
+            # Enviar input
+            ctypes.windll.user32.SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+
+            # Mover de volta
+            x.mi = MOUSEINPUT(-1, -1, 0, self.MOUSEEVENTF_MOVE, 0, None)
+            ctypes.windll.user32.SendInput(1, ctypes.pointer(x), ctypes.sizeof(x))
+
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to simulate input: {e}")
+            return False
 
     def keep_session_alive(self) -> bool:
         try:
-            win32ts.WTSResetPersistentSession()
+            # Prevenir suspensão do sistema
             ctypes.windll.kernel32.SetThreadExecutionState(
                 SystemConfig.ES_CONTINUOUS
                 | SystemConfig.ES_SYSTEM_REQUIRED
                 | SystemConfig.ES_DISPLAY_REQUIRED
             )
-            return True
+
+            # Simular input para manter a sessão RDP ativa
+            if self._simulate_input():
+                return True
+
+            return False
         except Exception as e:
             self.logger.error(f"RDP session management error: {e}")
             return False
 
     def check_session_status(self) -> bool:
         try:
+            # Verifica se estamos em uma sessão RDP
             session_id = win32ts.WTSGetActiveConsoleSessionId()
-            return session_id != 0xFFFFFFFF
+            if session_id == 0xFFFFFFFF:
+                return False
+
+            # Verifica se a sessão está ativa
+            return ctypes.windll.user32.GetForegroundWindow() != 0
         except Exception as e:
             self.logger.error(f"Session status check error: {e}")
             return False
@@ -599,17 +670,39 @@ class KeepAliveApp(QMainWindow):
     def perform_keep_alive(self):
         """Perform keep-alive actions"""
         try:
+            current_time = datetime.now().strftime("%H:%M:%S")
+            status_messages = []
+
             # Keep RDP session alive
             if self.rdp_manager.keep_session_alive():
-                current_time = datetime.now().strftime("%H:%M:%S")
-                self.status_label.setText(
-                    f"Status: Keep-alive performed at {current_time}"
-                )
+                status_messages.append("RDP: Active")
                 self.last_activity_label.setText(f"Last Activity: {current_time}")
                 logger.info(f"Keep-alive performed at {current_time}")
             else:
-                self.status_label.setText("Status: Keep-alive failed")
-                logger.warning("Keep-alive action failed")
+                status_messages.append("RDP: Failed")
+                logger.warning("RDP keep-alive failed")
+
+            # Update Teams status if needed
+            if self.teams_manager.is_connected:
+                status_messages.append("Teams: Connected")
+                # Refresh Teams status
+                current_status = self.teams_status_combo.currentText()
+                status = next(
+                    (s for s in TeamsStatus if s.display_name == current_status),
+                    TeamsStatus.AVAILABLE,
+                )
+                if self.teams_manager.set_status(status):
+                    status_messages.append(f"Status: {status.display_name}")
+                else:
+                    status_messages.append("Teams Status Update Failed")
+            else:
+                status_messages.append("Teams: Disconnected")
+                # Tentar reconectar
+                self.teams_manager.connect()
+
+            # Update status display
+            status_text = f"Status [{current_time}]: " + " | ".join(status_messages)
+            self.status_label.setText(status_text)
 
         except Exception as e:
             logger.error(f"Error performing keep-alive: {e}")

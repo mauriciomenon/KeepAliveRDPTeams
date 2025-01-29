@@ -31,11 +31,15 @@ Date: January/2024
 Version: 1.0-dev
 """
 
+
 import sys
 import os
+os.environ["QT_QPA_PLATFORM"] = "windows"
 import json
 import ctypes
 import psutil
+import win32event
+from winerror import ERROR_ALREADY_EXISTS
 import win32gui
 import win32con
 import win32api
@@ -664,482 +668,212 @@ class KeepAliveApp(QMainWindow):
         return cls._instance
 
     def __init__(self, *args, **kwargs):
-        # Chamar a superclasse ANTES de qualquer verificação
-        super().__init__(
-            *args, **kwargs
-        )  # Chama corretamente a inicialização do QMainWindow
+        print(
+            "DEBUG: Entrando no __init__ da KeepAliveApp - ANTES do super().__init__()"
+        )
+
+        try:
+            super().__init__(*args, **kwargs)
+            print("DEBUG: Passou pelo super().__init__()")
+        except Exception as e:
+            print(f"ERRO CRÍTICO: Falha ao chamar super().__init__() -> {e}")
+            return
 
         if hasattr(self, "_is_initialized"):
-            return  # Evita reinicialização indesejada
+            print("DEBUG: KeepAliveApp já inicializado! Retornando.")
+            return  # Evita reinicialização
+
+        print("DEBUG: Inicializando KeepAliveApp")
 
         # Logging
         self.logger = logging.getLogger(self.__class__.__name__)
 
         # Configuração
-        self.config = SystemConfig.load_config()
+        try:
+            print("DEBUG: Carregando configurações")
+            self.config = SystemConfig.load_config()
+            print("DEBUG: Configuração carregada:", self.config)
+        except Exception as e:
+            print(f"ERRO CRÍTICO: Falha ao carregar configurações -> {e}")
+            return  # Sai da inicialização se falhar
 
-        # Managers
-        self.teams_manager = TeamsElectronManager(self.config)
-        self.rdp_manager = RDPManager(self.logger)
+        # Criando Managers
+        try:
+            print("DEBUG: Inicializando TeamsElectronManager")
+            self.teams_manager = TeamsElectronManager(self.config)
+            print("DEBUG: TeamsElectronManager inicializado")
+
+            print("DEBUG: Inicializando RDPManager")
+            self.rdp_manager = RDPManager(self.logger)
+            print("DEBUG: RDPManager inicializado")
+        except Exception as e:
+            print(f"ERRO CRÍTICO: Falha ao iniciar Managers -> {e}")
+            return  # Sai da inicialização se falhar
 
         # Estado da aplicação
         self.is_running = False
         self.current_teams_status = TeamsStatus.AVAILABLE
+        print("DEBUG: Estado da aplicação inicializado")
 
-        # Timers
-        self.activity_timer = QTimer(self)
-        self.activity_timer.timeout.connect(self.check_system_activity)
+        # Criando Timers
+        try:
+            print("DEBUG: Criando timers")
+            self.activity_timer = QTimer(self)
+            self.activity_timer.timeout.connect(self.check_system_activity)
 
-        self.main_timer = QTimer(self)
-        self.main_timer.timeout.connect(self.perform_keep_alive)
+            self.main_timer = QTimer(self)
+            self.main_timer.timeout.connect(self.perform_keep_alive)
 
-        self.schedule_timer = QTimer(self)
-        self.schedule_timer.timeout.connect(self.check_schedule)
+            self.schedule_timer = QTimer(self)
+            self.schedule_timer.timeout.connect(self.check_schedule)
+            print("DEBUG: Timers criados")
+        except Exception as e:
+            print(f"ERRO CRÍTICO: Falha ao iniciar timers -> {e}")
+            return  # Sai da inicialização se falhar
 
         # Configuração da UI
-        self.setup_ui()
-        self.setup_tray_icon()
+        try:
+            print("DEBUG: Chamando setup_ui()")
+            self.setup_ui()
+            print("DEBUG: setup_ui() finalizado")
 
-        # Listeners de eventos
-        self.setup_event_listeners()
+            print("DEBUG: Chamando setup_tray_icon()")
+            self.setup_tray_icon()
+            print("DEBUG: setup_tray_icon() finalizado")
+
+            print("DEBUG: Chamando setup_event_listeners()")
+            self.setup_event_listeners()
+            print("DEBUG: setup_event_listeners() finalizado")
+        except Exception as e:
+            print(f"ERRO CRÍTICO: Falha ao configurar UI -> {e}")
+            return  # Sai da inicialização se falhar
+
+        # Teste rápido: mostrar uma QLabel simples para ver se a UI renderiza
+        self.test_label = QLabel("Teste de inicialização da UI", self)
+        self.test_label.setGeometry(10, 10, 200, 50)
+        self.test_label.show()
+        print("DEBUG: Teste de QLabel exibido")
 
         # Marca como inicializado
         self._is_initialized = True
+        print("DEBUG: KeepAliveApp inicializado com sucesso!")
 
         self.logger.info("Keep Alive Manager inicializado corretamente.")
 
+    # 🔹 CONFIGURANDO A UI
     def setup_ui(self):
-        """
-        Configure main application user interface
-        """
-        # Window properties
+        print("DEBUG: Configurando UI")
         self.setWindowTitle("Keep Alive Manager")
         self.setFixedSize(500, 600)
 
-        # Central widget
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QVBoxLayout(central_widget)
-
-        # Status Frame
-        status_frame = StyleFrame()
-        status_layout = QVBoxLayout(status_frame)
+        layout = QVBoxLayout(central_widget)
 
         self.status_label = QLabel(
-            "Keep Alive Manager\n"
-            "Configure settings and start the service"
+            "Keep Alive Manager - Configure settings and start the service"
         )
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        status_layout.addWidget(self.status_label)
-        main_layout.addWidget(status_frame)
+        layout.addWidget(self.status_label)
 
-        # Teams Status Frame
-        teams_frame = StyleFrame()
-        teams_layout = QVBoxLayout(teams_frame)
+        print("DEBUG: UI configurada")
 
-        teams_label = QLabel("Teams Status:")
-        teams_layout.addWidget(teams_label)
-
-        # Teams status buttons
-        self.teams_status_buttons = {}
-        teams_status_grid = QGridLayout()
-
-        status_grid_config = [
-            (TeamsStatus.AVAILABLE, (0, 0)),
-            (TeamsStatus.BUSY, (0, 1)),
-            (TeamsStatus.DO_NOT_DISTURB, (0, 2)),
-            (TeamsStatus.AWAY, (1, 0)),
-            (TeamsStatus.BE_RIGHT_BACK, (1, 1)),
-            (TeamsStatus.OFFLINE, (1, 2))
-        ]
-
-        for status, (row, col) in status_grid_config:
-            btn = QPushButton(status.display_name)
-            btn.setCheckable(True)
-            btn.setStyleSheet(f"background-color: {status.color};")
-            btn.clicked.connect(lambda _, s=status: self.set_teams_status(s))
-
-            self.teams_status_buttons[status] = btn
-            teams_status_grid.addWidget(btn, row, col)
-
-        teams_layout.addLayout(teams_status_grid)
-        main_layout.addWidget(teams_frame)
-
-        # Configuration Frame
-        config_frame = StyleFrame()
-        config_layout = QVBoxLayout(config_frame)
-
-        # Interval configuration
-        interval_layout = QHBoxLayout()
-        interval_label = QLabel("Keep Alive Interval (seconds):")
-        self.interval_spin = QSpinBox()
-        self.interval_spin.setRange(30, 300)
-        self.interval_spin.setValue(self.config.get('interval', 120))
-
-        interval_layout.addWidget(interval_label)
-        interval_layout.addWidget(self.interval_spin)
-        config_layout.addLayout(interval_layout)
-
-        # Time range configuration
-        time_layout = QHBoxLayout()
-        start_label = QLabel("Active Period:")
-
-        self.start_time_edit = QTimeEdit()
-        self.start_time_edit.setTime(QTime.fromString(
-            self.config.get('start_time', '08:45'), 
-            'HH:mm'
-        ))
-
-        end_label = QLabel("to")
-
-        self.end_time_edit = QTimeEdit()
-        self.end_time_edit.setTime(QTime.fromString(
-            self.config.get('end_time', '17:15'), 
-            'HH:mm'
-        ))
-
-        time_layout.addWidget(start_label)
-        time_layout.addWidget(self.start_time_edit)
-        time_layout.addWidget(end_label)
-        time_layout.addWidget(self.end_time_edit)
-
-        config_layout.addLayout(time_layout)
-        main_layout.addWidget(config_frame)
-
-        # Options Frame
-        options_frame = StyleFrame()
-        options_layout = QVBoxLayout(options_frame)
-
-        self.minimize_to_tray_cb = QCheckBox("Minimize to System Tray")
-        self.minimize_to_tray_cb.setChecked(
-            self.config.get('minimize_to_tray', True)
-        )
-        options_layout.addWidget(self.minimize_to_tray_cb)
-        main_layout.addWidget(options_frame)
-
-        # Control Buttons
-        button_layout = QHBoxLayout()
-
-        self.toggle_button = QPushButton("Start")
-        self.toggle_button.clicked.connect(self.toggle_service)
-
-        self.minimize_button = QPushButton("Minimize")
-        self.minimize_button.clicked.connect(self.hide)
-
-        button_layout.addWidget(self.toggle_button)
-        button_layout.addWidget(self.minimize_button)
-
-        main_layout.addLayout(button_layout)
-
+    # 🔹 CONFIGURANDO O ÍCONE DA BANDEJA
     def setup_tray_icon(self):
-        """
-        Configure system tray icon and menu
-        """
-        # Tray icon
-        self.tray_icon = QSystemTrayIcon(
-            self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon),
-            self
-        )
+        print("DEBUG: Configurando ícone da bandeja")
+        self.tray_icon = QSystemTrayIcon(QIcon("icon.png"), self)
 
-        # Tray menu
         tray_menu = QMenu()
-
-        # Actions
         show_action = QAction("Show", self)
         show_action.triggered.connect(self.show)
-
-        self.toggle_tray_action = QAction("Start", self)
-        self.toggle_tray_action.triggered.connect(self.toggle_service)
 
         quit_action = QAction("Exit", self)
         quit_action.triggered.connect(self.quit_application)
 
-        # Add actions to menu
         tray_menu.addAction(show_action)
-        tray_menu.addAction(self.toggle_tray_action)
         tray_menu.addSeparator()
         tray_menu.addAction(quit_action)
 
-        # Set menu and show tray icon
         self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.show()
+        print("DEBUG: Ícone da bandeja configurado")
 
+    # 🔹 EVENT LISTENERS
     def setup_event_listeners(self):
-        """
-        Set up event listeners for Teams manager
-        """
-        # Connection events
-        self.teams_manager.add_event_listener(
-            'on_connect', 
-            self.on_teams_connected
-        )
-        self.teams_manager.add_event_listener(
-            'on_disconnect', 
-            self.on_teams_disconnected
-        )
-        self.teams_manager.add_event_listener(
-            'on_status_change', 
-            self.on_teams_status_changed
-        )
+        print("DEBUG: Configurando eventos")
+        self.tray_icon.activated.connect(self.toggle_window)
+        print("DEBUG: Eventos configurados")
 
-    def on_teams_connected(self):
-        """
-        Handle Teams connection event
-        """
-        self.logger.info("Teams connected")
-        self.status_label.setText("Teams connected successfully")
-
-    def on_teams_disconnected(self):
-        """
-        Handle Teams disconnection event
-        """
-        self.logger.warning("Teams disconnected")
-        self.status_label.setText("Teams disconnected. Attempting to reconnect...")
-
-    def on_teams_status_changed(self, status):
-        """
-        Handle Teams status change event
-        
-        Args:
-            status (TeamsStatus): New Teams status
-        """
-        self.logger.info(f"Teams status changed to {status.display_name}")
-
-        # Update UI buttons
-        for btn_status, btn in self.teams_status_buttons.items():
-            btn.setChecked(btn_status == status)
-
-    def check_system_activity(self):
-        """
-        Monitor system activity to prevent unnecessary keep-alive actions
-        """
-        try:
-            current_pos = win32api.GetCursorPos()
-            if not hasattr(self, 'last_cursor_pos'):
-                self.last_cursor_pos = current_pos
-                return
-
-            # Check for cursor movement
-            if current_pos != self.last_cursor_pos:
-                self.last_user_activity = time.time()
-                self.last_cursor_pos = current_pos
-        except Exception as e:
-            self.logger.error(f"System activity check error: {e}")
-
-    def perform_keep_alive(self):
-        """
-        Perform keep-alive actions for RDP and Teams
-        """
-        try:
-            # Check if we should perform keep-alive
-            if not self.should_perform_keep_alive():
-                return
-
-            # Keep RDP session alive
-            rdp_success = self.rdp_manager.keep_session_alive()
-
-            # Update Teams status
-            teams_success = self.teams_manager.set_status(self.current_teams_status)
-
-            # Update status label
-            status_text = (
-                f"Keep Alive Status:\n"
-                f"RDP: {'Maintained' if rdp_success else 'Failed'}\n"
-                f"Teams: {'Status Updated' if teams_success else 'Update Failed'}"
-            )
-            self.status_label.setText(status_text)
-
-            self.logger.info("Keep alive cycle completed")
-        except Exception as e:
-            self.logger.error(f"Keep alive cycle error: {e}")
-
-    def should_perform_keep_alive(self) -> bool:
-        """
-        Determine if keep-alive should be performed
-        
-        Returns:
-            bool: Whether to perform keep-alive
-        """
-        # Check schedule
-        current_time = QTime.currentTime()
-        start_time = self.start_time_edit.time()
-        end_time = self.end_time_edit.time()
-
-        # Check if current time is within scheduled period
-        if not (start_time <= current_time <= end_time):
-            if self.is_running:
-                self.toggle_service()
-            return False
-
-        # Check user activity
-        if hasattr(self, 'last_user_activity'):
-            inactivity_duration = time.time() - self.last_user_activity
-            if inactivity_duration < self.interval_spin.value():
-                return False
-
-        return self.is_running
-
-    def set_teams_status(self, status: TeamsStatus):
-        """
-        Set Teams status
-        
-        Args:
-            status (TeamsStatus): Desired Teams status
-        """
-        try:
-            if self.teams_manager.set_status(status):
-                self.current_teams_status = status
-                self.logger.info(f"Teams status set to {status.display_name}")
+    def toggle_window(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            if self.isHidden():
+                self.show()
             else:
-                self.logger.warning(f"Failed to set Teams status to {status.display_name}")
-        except Exception as e:
-            self.logger.error(f"Error setting Teams status: {e}")
-
-    def toggle_service(self):
-        """
-        Toggle keep-alive service on/off
-        """
-        self.is_running = not self.is_running
-
-        if self.is_running:
-            # Start service
-            self.toggle_button.setText("Stop")
-            self.toggle_tray_action.setText("Stop")
-
-            # Start timers
-            self.activity_timer.start(1000)  # Check activity every second
-            self.main_timer.start(self.interval_spin.value() * 1000)
-            self.schedule_timer.start(60000)  # Check schedule every minute
-
-            # Start Teams connection
-            self.teams_manager.connect()
-
-            self.status_label.setText("Keep Alive service started")
-            self.logger.info("Keep Alive service started")
-        else:
-            # Stop service
-            self.toggle_button.setText("Start")
-            self.toggle_tray_action.setText("Start")
-
-            # Stop timers
-            self.activity_timer.stop()
-            self.main_timer.stop()
-            self.schedule_timer.stop()
-
-            # Close Teams connection
-            self.teams_manager.close()
-
-            self.status_label.setText("Keep Alive service stopped")
-            self.logger.info("Keep Alive service stopped")
-
-    def closeEvent(self, event):
-        """
-        Handle window close event
-        
-        Args:
-            event (QCloseEvent): Close event
-        """
-        if self.minimize_to_tray_cb.isChecked():
-            event.ignore()
-            self.hide()
-            self.tray_icon.showMessage(
-                "Keep Alive Manager",
-                "Application is running in background",
-                QSystemTrayIcon.MessageIcon.Information,
-                2000
-            )
-        else:
-            self.quit_application()
+                self.hide()
 
     def quit_application(self):
-        """
-        Gracefully quit the application
-        """
-        try:
-            # Stop service if running
-            if self.is_running:
-                self.toggle_service()
-
-            # Close Teams manager
-            if hasattr(self, 'teams_manager'):
-                self.teams_manager.close()
-
-            # Remove tray icon
-            if hasattr(self, 'tray_icon'):
-                self.tray_icon.hide()
-
-            # Save current configuration
-            config_update = {
-                'interval': self.interval_spin.value(),
-                'start_time': self.start_time_edit.time().toString('HH:mm'),
-                'end_time': self.end_time_edit.time().toString('HH:mm'),
-                'minimize_to_tray': self.minimize_to_tray_cb.isChecked(),
-                'default_teams_status': self.current_teams_status.ipc_status
-            }
-
-            try:
-                with open('config.json', 'w', encoding='utf-8') as f:
-                    json.dump(config_update, f, indent=4)
-            except Exception as e:
-                self.logger.error(f"Failed to save configuration: {e}")
-
-            # Exit application
-            QApplication.quit()
-
-        except Exception as e:
-            self.logger.error(f"Error during application quit: {e}")
-            QApplication.quit()
+        print("DEBUG: Encerrando aplicação")
+        self.tray_icon.hide()
+        QApplication.quit()
 
 
 def main():
     """
     Main application entry point with comprehensive error handling
-    
-    Returns:
-        int: Application exit status
     """
     try:
-        # Configure logging
-        logger = logging.getLogger('KeepAliveManager')
+        os.environ["QT_QPA_PLATFORM"] = "windows"
+
+        logger = logging.getLogger("KeepAliveManager")
         logger.info("Initializing Keep Alive Manager")
-        
-        # Ensure single instance
-        import win32event
-        import win32api
-        from winerror import ERROR_ALREADY_EXISTS
-        
-        # Create mutex to prevent multiple instances
-        mutex = win32event.CreateMutex(None, False, "KeepAliveManagerMutex")
-        if win32api.GetLastError() == ERROR_ALREADY_EXISTS:
-            logger.warning("Another instance of the application is already running")
-            return 1
-        
-        # Create Qt application
-        app = QApplication(sys.argv)
-        
-        # Set application attributes for high DPI support
-        if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
-            QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-        if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-            QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-        
-        # Set Windows-specific style
-        app.setStyle("Windows")
-        
-        # Create and show main window
+        print("DEBUG: Iniciando aplicação")
+
+        # 🔴 Comentando Mutex temporariamente para teste
+        # print("DEBUG: Verificando Mutex...")
+        # mutex = win32event.CreateMutex(None, False, "KeepAliveManagerMutex")
+        # if win32api.GetLastError() == ERROR_ALREADY_EXISTS:
+        #     logger.warning("Outra instância do KeepAliveManager já está rodando.")
+        #     print("DEBUG: Já existe uma instância rodando. Encerrando.")
+        #     return 1
+        # print("DEBUG: Mutex adquirido com sucesso.")
+
+        # Criar aplicação Qt
+        print("DEBUG: Verificando QApplication existente")
+        if not QApplication.instance():
+            app = QApplication(sys.argv)
+        else:
+            app = QApplication.instance()
+        print("DEBUG: QApplication criada")
+
+        # Criar a janela principal
+        print("DEBUG: Criando KeepAliveApp...")
         window = KeepAliveApp()
+        print("DEBUG: KeepAliveApp instanciada")
+
+        # Forçar exibição da janela
+        window.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
         window.show()
-        
-        logger.info("Application initialized successfully")
-        return app.exec()
-    
+        window.raise_()
+        window.activateWindow()
+        print("DEBUG: Janela principal exibida")
+
+        # Iniciar o loop da interface gráfica
+        print("DEBUG: Entrando no loop do Qt")
+        ret = app.exec()
+        print(f"DEBUG: Loop do Qt finalizado, saindo com código: {ret}")
+        return ret
+
     except Exception as e:
-        # Log critical errors
-        logger = logging.getLogger('KeepAliveManager')
         logger.critical(f"Fatal application error: {e}", exc_info=True)
+        print(f"ERRO CRÍTICO: {e}")
         return 1
 
+
+# Garantir captura de erros globais ao iniciar
 if __name__ == "__main__":
-    # Run the application and exit with its status
-    sys.exit(main())
+    try:
+        print("DEBUG: Iniciando aplicação")
+        ret = main()
+        print(f"DEBUG: Aplicação finalizou com código {ret}")
+    except Exception as e:
+        print(f"ERRO FATAL: {e}")
