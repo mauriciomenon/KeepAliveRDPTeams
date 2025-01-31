@@ -224,11 +224,18 @@ class TeamsElectronManager:
 
         self.async_thread = threading.Thread(target=run_loop, daemon=True)
         self.async_thread.start()
+        self.logger.debug("Async thread started")
 
     async def _discover_teams_port(self) -> Optional[int]:
+        """Discover Teams WebSocket port with enhanced logging"""
+        self.logger.debug("Starting Teams port discovery")
+
+        # First try: Check Teams config file
         teams_config_path = os.path.join(
             os.getenv("LOCALAPPDATA", ""), "Microsoft", "Teams", "desktop-config.json"
         )
+
+        self.logger.debug(f"Checking Teams config at: {teams_config_path}")
 
         try:
             if os.path.exists(teams_config_path):
@@ -236,19 +243,163 @@ class TeamsElectronManager:
                     config = json.load(f)
                     if "webSocketPort" in config:
                         port = config["webSocketPort"]
+                        self.logger.debug(f"Found port in config: {port}")
                         if await self._test_websocket_port(port):
+                            self.logger.info(
+                                f"Successfully connected to port {port} from config"
+                            )
                             return port
-
-            for port in range(
-                SystemConfig.TEAMS_WS_PORT_START, SystemConfig.TEAMS_WS_PORT_END
-            ):
-                if await self._test_websocket_port(port):
-                    return port
-
-            return None
+                        else:
+                            self.logger.debug(f"Port {port} from config not responsive")
+            else:
+                self.logger.debug("Teams config file not found")
         except Exception as e:
-            self.logger.error(f"Port discovery error: {e}")
-            return None
+            self.logger.error(f"Error reading Teams config: {e}")
+
+        # Second try: Port scanning
+        self.logger.debug("Starting port scan")
+        for port in range(
+            SystemConfig.TEAMS_WS_PORT_START, SystemConfig.TEAMS_WS_PORT_END
+        ):
+            self.logger.debug(f"Testing port {port}")
+            if await self._test_websocket_port(port):
+                self.logger.info(f"Found active Teams port through scanning: {port}")
+                return port
+
+        self.logger.warning("No active Teams ports found")
+        return None
+
+    async def _test_websocket_port(self, port: int) -> bool:
+        """Test WebSocket port with enhanced error handling"""
+        try:
+            # Verificar primeiro se a porta está aberta
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(0.5)
+            result = sock.connect_ex(("127.0.0.1", port))
+            sock.close()
+
+            if result != 0:
+                self.logger.debug(f"Port {port} is not open")
+                return False
+
+            self.logger.debug(f"Testing WebSocket connection on port {port}")
+
+            async with aiohttp.ClientSession() as session:
+                try:
+                    async with session.ws_connect(
+                        f"ws://127.0.0.1:{port}",
+                        timeout=2.0,
+                        headers={
+                            "Origin": "https://teams.microsoft.com",
+                            "User-Agent": "Microsoft Teams Client",
+                        },
+                    ) as ws:
+                        # Enviar mensagem de teste
+                        test_message = {"id": str(uuid.uuid4()), "method": "ping"}
+                        await ws.send_json(test_message)
+
+                        try:
+                            response = await ws.receive_json(timeout=2.0)
+                            self.logger.debug(
+                                f"Got response from port {port}: {response}"
+                            )
+                            if "error" not in str(response).lower():
+                                return True
+                        except Exception as e:
+                            self.logger.debug(
+                                f"Error receiving response on port {port}: {e}"
+                            )
+
+                except Exception as e:
+                    self.logger.debug(
+                        f"WebSocket connection failed on port {port}: {e}"
+                    )
+
+            return False
+
+        except Exception as e:
+            self.logger.debug(f"Port {port} test failed: {e}")
+            return False
+
+    async def _establish_websocket_connection(self, port: int):
+        """Establish WebSocket connection with enhanced error handling"""
+        try:
+            self.logger.debug(
+                f"Attempting to establish WebSocket connection on port {port}"
+            )
+
+            self.websocket = await websockets.connect(
+                f"ws://127.0.0.1:{port}",
+                ping_interval=30,
+                ping_timeout=10,
+                extra_headers={
+                    "Origin": "https://teams.microsoft.com",
+                    "User-Agent": "Microsoft Teams Client",
+                },
+            )
+
+            # Test connection with ping
+            test_message = {"id": str(uuid.uuid4()), "method": "ping"}
+            await self.websocket.send(json.dumps(test_message))
+            response = await self.websocket.recv()
+
+            if "error" not in str(response).lower():
+                self.is_connected = True
+                self.ipc_port = port
+                self.logger.info(
+                    f"Successfully established Teams WebSocket connection on port {port}"
+                )
+
+                for callback in self.connection_events["on_connect"]:
+                    callback()
+                return True
+
+            self.logger.warning(f"Connection test failed on port {port}")
+            return False
+
+        except Exception as e:
+            self.is_connected = False
+            self.logger.error(f"Failed to establish WebSocket connection: {e}")
+            raise
+
+    def connect(self):
+        """Initiate Teams connection with enhanced error handling"""
+
+        def connection_task():
+            try:
+                self.logger.info("Starting Teams connection process")
+
+                # Find port
+                port_future = asyncio.run_coroutine_threadsafe(
+                    self._discover_teams_port(), self.async_loop
+                )
+                port = port_future.result(timeout=5.0)
+
+                if not port:
+                    raise Exception("No Teams WebSocket port found")
+
+                # Establish connection
+                connect_future = asyncio.run_coroutine_threadsafe(
+                    self._establish_websocket_connection(port), self.async_loop
+                )
+                connect_future.result(timeout=5.0)
+
+            except Exception as e:
+                self.logger.warning(f"Teams connection failed: {e}")
+                for callback in self.connection_events["on_disconnect"]:
+                    callback()
+
+                self.connection_attempts += 1
+                if self.connection_attempts < self.max_connection_attempts:
+                    self.logger.info(
+                        f"Retrying connection (attempt {self.connection_attempts + 1})"
+                    )
+                    time.sleep(2**self.connection_attempts)
+                    self.connect()
+                else:
+                    self.logger.error("Max connection attempts reached")
+
+        threading.Thread(target=connection_task, daemon=True).start()
 
     async def _test_websocket_port(self, port: int) -> bool:
         try:
@@ -329,23 +480,43 @@ class TeamsElectronManager:
         threading.Thread(target=connection_task, daemon=True).start()
 
     async def _send_message(self, message: Dict[str, Any]) -> bool:
+        """Send WebSocket message with enhanced error handling"""
         if not self.websocket:
+            self.logger.warning("Cannot send message - no WebSocket connection")
             return False
 
         try:
+            self.logger.debug(f"Sending message: {message}")
             await self.websocket.send(json.dumps(message))
+
             response = await self.websocket.recv()
-            return "error" not in response.lower()
+            self.logger.debug(f"Received response: {response}")
+
+            if isinstance(response, str):
+                response_data = json.loads(response)
+                if "error" not in response_data:
+                    return True
+                else:
+                    self.logger.warning(
+                        f"Error in response: {response_data.get('error')}"
+                    )
+            return False
+
         except Exception as e:
             self.logger.error(f"WebSocket send error: {e}")
             return False
 
     def set_status(self, status: TeamsStatus):
+        """Set Teams status with enhanced error handling"""
         if not self.is_connected:
-            self.logger.warning("Cannot set status - not connected")
+            self.logger.warning("Cannot set status - not connected to Teams")
             return False
 
         try:
+            self.logger.info(
+                f"Attempting to set Teams status to: {status.display_name}"
+            )
+
             message = {
                 "id": str(uuid.uuid4()),
                 "method": "setUserPresence",
@@ -359,13 +530,22 @@ class TeamsElectronManager:
             send_future = asyncio.run_coroutine_threadsafe(
                 self._send_message(message), self.async_loop
             )
-            success = send_future.result()
+
+            success = send_future.result(timeout=5.0)
 
             if success:
+                self.logger.info(
+                    f"Successfully set Teams status to: {status.display_name}"
+                )
                 for callback in self.connection_events["on_status_change"]:
                     callback(status)
+                return True
+            else:
+                self.logger.warning(
+                    f"Failed to set Teams status to: {status.display_name}"
+                )
+                return False
 
-            return success
         except Exception as e:
             self.logger.error(f"Status change error: {e}")
             return False

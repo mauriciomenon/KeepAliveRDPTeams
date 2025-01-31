@@ -1,0 +1,4 @@
+2025-01-30 15:06:02.077 POC_teams.py[142] change_status -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
+2025-01-30 15:06:03.228 POC_teams.py[151] change_status -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
+2025-01-30 15:22:09.790 POC_teams.py[176] change_status -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}
+2025-01-30 15:23:44.492 POC_teams.py[185] change_status -> Can not move cursor. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {ControlType: ButtonControl}

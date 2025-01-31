@@ -164,3 +164,23 @@ NameError: name 'QComboBox' is not defined
 2025-01-29 16:35:18 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 16:35:18
 2025-01-29 16:35:18 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service started
 2025-01-29 16:36:11 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service stopped
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - QApplication created
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - Super init completed
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration loaded
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - Managers initialized
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - UI setup completed
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - Tray icon setup completed
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - Timers setup completed
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - KeepAliveApp initialization completed
+2025-01-30 07:49:33 - KeepAliveManager - MainProcess - MainThread - DEBUG - Main window created and shown
+2025-01-30 07:49:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 07:49:37
+2025-01-30 07:49:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive service started
+2025-01-30 07:49:52 - KeepAliveManager - MainProcess - MainThread - DEBUG - Configuration saved successfully
+2025-01-30 07:51:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 07:51:37
+2025-01-30 07:53:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 07:53:37
+2025-01-30 07:55:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 07:55:37
+2025-01-30 07:57:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 07:57:37
+2025-01-30 07:59:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 07:59:37
+2025-01-30 08:01:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 08:01:37
+2025-01-30 08:03:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 08:03:37
+2025-01-30 08:05:37 - KeepAliveManager - MainProcess - MainThread - INFO - Keep-alive performed at 08:05:37
