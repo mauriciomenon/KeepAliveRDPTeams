@@ -1,3 +1,4 @@
+# pylint: disable=E0602,E0102,E1101
 """
 Keep Alive Manager - RDP & Teams (Electron IPC Implementation)
 ------------------------------------------------------------------
@@ -5,7 +6,8 @@ Keep Alive Manager - RDP & Teams (Electron IPC Implementation)
 Esta versão está em desenvolvimento e necessita das seguintes implementações:
 
 1. Interface e Sistema Base
-   - Debugar inicialização do QApplication (possível problema no QTimer thread-safety)
+   - Debugar inicialização do QApplication
+     (possível problema no QTimer thread-safety)
    - Implementar singleton pattern corretamente usando win32event
    - Adicionar logging com rotação de arquivos (logging.handlers.RotatingFileHandler)
    - Melhorar tratamento de exceções com contexto específico para cada operação
@@ -81,27 +83,29 @@ import sys
 import os
 import json
 import ctypes
-import psutil
-import win32gui
-import win32con
-import win32api
-import win32ts
-import win32process
-import win32security
-import websockets
-import asyncio
-import aiohttp
-import socket
 import threading
 import uuid
 import logging
 from datetime import datetime
 import time
-from pathlib import Path
 from enum import Enum
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any
+import asyncio
 
-from PyQt6.QtCore import Qt, QTimer, QTime, QCoreApplication, pyqtSignal, QObject
+import psutil
+import win32ts
+import websockets
+import aiohttp
+
+from PyQt6.QtCore import (
+    Qt,
+    QTimer,
+    QTime,
+    QCoreApplication,
+    pyqtSignal,
+    QObject,
+)
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -110,22 +114,20 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QSpinBox,
-    QTimeEdit,
     QCheckBox,
     QPushButton,
     QSystemTrayIcon,
     QMenu,
     QStyle,
     QFrame,
-    QButtonGroup,
     QGridLayout,
+    QTimeEdit,
+    QAction,
 )
-from PyQt6.QtGui import QIcon, QAction, QCloseEvent
 
 # Configuração de logging básico
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -144,11 +146,7 @@ TEAMS_WS_RETRY_DELAY = 1000  # ms
 TEAMS_STATUS_MSG = {
     "id": "{uuid}",
     "method": "setUserPresence",
-    "params": {
-        "status": "{status}",
-        "expiry": None,
-        "deviceId": None
-    }
+    "params": {"status": "{status}", "expiry": None, "deviceId": None},
 }
 
 
@@ -169,11 +167,13 @@ class TeamsStatus(Enum):
 
 class TeamsError(Exception):
     """Exceção customizada para erros do Teams"""
+
     pass
 
 
 class TeamsSignals(QObject):
     """Sinais para comunicação assíncrona do Teams"""
+
     connection_status = pyqtSignal(bool, str)
     status_changed = pyqtSignal(bool, str)
 
@@ -192,7 +192,7 @@ class TeamsElectronManager:
         self.ipc_port = None
         self.signals = TeamsSignals()
         self.ws_lock = threading.Lock()
-        
+
         # Configurar loop assíncrono em thread separada
         self.loop = asyncio.new_event_loop()
         self.thread = threading.Thread(target=self._run_async_loop, daemon=True)
@@ -205,15 +205,15 @@ class TeamsElectronManager:
 
     async def _find_teams_ws_port(self):
         """Procura a porta WebSocket do Teams"""
-        teams_path = os.path.join(os.getenv('LOCALAPPDATA'), 'Microsoft', 'Teams')
-        config_file = os.path.join(teams_path, 'desktop-config.json')
-        
+        teams_path = os.path.join(os.getenv("LOCALAPPDATA"), "Microsoft", "Teams")
+        config_file = os.path.join(teams_path, "desktop-config.json")
+
         try:
             if os.path.exists(config_file):
-                with open(config_file, 'r') as f:
+                with open(config_file, "r") as f:
                     config = json.load(f)
-                    if 'webSocketPort' in config:
-                        port = config['webSocketPort']
+                    if "webSocketPort" in config:
+                        port = config["webSocketPort"]
                         logger.info(f"Porta WebSocket encontrada no config: {port}")
                         if await self._test_ws_connection(port):
                             return port
@@ -225,7 +225,7 @@ class TeamsElectronManager:
             if await self._test_ws_connection(port):
                 logger.info(f"Porta WebSocket encontrada: {port}")
                 return port
-        
+
         return None
 
     async def _test_ws_connection(self, port: int) -> bool:
@@ -233,8 +233,7 @@ class TeamsElectronManager:
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.ws_connect(
-                    f'ws://127.0.0.1:{port}',
-                    timeout=0.5
+                    f"ws://127.0.0.1:{port}", timeout=0.5
                 ) as ws:
                     await ws.ping()
                     return True
@@ -245,12 +244,12 @@ class TeamsElectronManager:
         """Estabelece conexão WebSocket com o Teams"""
         if not self.ipc_port:
             raise TeamsError("Porta WebSocket não configurada")
-            
+
         try:
             self.websocket = await websockets.connect(
-                f'ws://127.0.0.1:{self.ipc_port}',
+                f"ws://127.0.0.1:{self.ipc_port}",
                 ping_interval=None,
-                ping_timeout=TEAMS_WS_TIMEOUT
+                ping_timeout=TEAMS_WS_TIMEOUT,
             )
             logger.info("Conexão WebSocket estabelecida")
         except Exception as e:
@@ -277,14 +276,13 @@ class TeamsElectronManager:
                 return False
 
             logger.info("Processo do Teams encontrado")
-            
+
             # Procurar porta WebSocket
             future = asyncio.run_coroutine_threadsafe(
-                self._find_teams_ws_port(),
-                self.loop
+                self._find_teams_ws_port(), self.loop
             )
             self.ipc_port = future.result()
-            
+
             if not self.ipc_port:
                 logger.warning("Porta WebSocket não encontrada")
                 self.signals.connection_status.emit(False, "Porta não encontrada")
@@ -294,8 +292,7 @@ class TeamsElectronManager:
 
             # Estabelecer conexão WebSocket
             future = asyncio.run_coroutine_threadsafe(
-                self._connect_websocket(),
-                self.loop
+                self._connect_websocket(), self.loop
             )
             future.result()
 
@@ -314,8 +311,8 @@ class TeamsElectronManager:
 
     def _find_teams_process(self):
         """Localiza o processo principal do Teams"""
-        teams_path = os.path.join(os.getenv('LOCALAPPDATA'), 'Microsoft', 'Teams')
-        
+        teams_path = os.path.join(os.getenv("LOCALAPPDATA"), "Microsoft", "Teams")
+
         for proc in psutil.process_iter(["pid", "name", "cmdline", "exe"]):
             try:
                 if "ms-teams.exe" in proc.info["name"].lower():
@@ -332,7 +329,7 @@ class TeamsElectronManager:
         """Envia mensagem WebSocket para o Teams"""
         if not self.websocket:
             return False
-            
+
         try:
             message_str = json.dumps(message)
             await self.websocket.send(message_str)
@@ -353,14 +350,13 @@ class TeamsElectronManager:
             message = TEAMS_STATUS_MSG.copy()
             message["id"] = str(uuid.uuid4())
             message["params"]["status"] = status
-            
+
             # Enviar mensagem
             future = asyncio.run_coroutine_threadsafe(
-                self._send_ws_message(message),
-                self.loop
+                self._send_ws_message(message), self.loop
             )
             success = future.result()
-            
+
             if success:
                 self.signals.status_changed.emit(True, "Status alterado")
                 return True
@@ -378,10 +374,7 @@ class TeamsElectronManager:
         logger.info("Fechando conexões do Teams")
         self.connection_timer.stop()
         if self.websocket:
-            future = asyncio.run_coroutine_threadsafe(
-                self.websocket.close(),
-                self.loop
-            )
+            future = asyncio.run_coroutine_threadsafe(self.websocket.close(), self.loop)
             future.result()
         self.ipc_connected = False
         self.loop.call_soon_threadsafe(self.loop.stop)
@@ -470,7 +463,7 @@ class KeepAliveApp(QMainWindow):
     def setup_ui(self) -> None:
         """Configura a interface do usuário"""
         logger.info("Configurando interface do usuário")
-        
+
         # Widget central
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -481,7 +474,7 @@ class KeepAliveApp(QMainWindow):
         status_frame = StyleFrame()
         status_layout = QVBoxLayout()
         status_frame.setLayout(status_layout)
-        
+
         self.status_label = QLabel(
             "Aguardando início do serviço\n"
             "Configure os parâmetros abaixo e clique em 'Iniciar'\n"
@@ -502,27 +495,27 @@ class KeepAliveApp(QMainWindow):
         self.interval_spin = QSpinBox()
         self.interval_spin.setRange(30, 300)
         self.interval_spin.setValue(self.default_interval)
-        
+
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.interval_spin)
         config_layout.addLayout(interval_layout)
 
         # Horários
         time_layout = QHBoxLayout()
-        
+
         start_label = QLabel("Início:")
         self.start_time_edit = QTimeEdit()
         self.start_time_edit.setTime(self.default_start_time)
-        
+
         end_label = QLabel("Término:")
         self.end_time_edit = QTimeEdit()
         self.end_time_edit.setTime(self.default_end_time)
-        
+
         time_layout.addWidget(start_label)
         time_layout.addWidget(self.start_time_edit)
         time_layout.addWidget(end_label)
         time_layout.addWidget(self.end_time_edit)
-        
+
         config_layout.addLayout(time_layout)
         layout.addWidget(config_frame)
 
@@ -530,7 +523,7 @@ class KeepAliveApp(QMainWindow):
         teams_frame = StyleFrame()
         teams_layout = QVBoxLayout()
         teams_frame.setLayout(teams_layout)
-        
+
         status_label = QLabel("Status do Teams:")
         teams_layout.addWidget(status_label)
 
@@ -561,7 +554,7 @@ class KeepAliveApp(QMainWindow):
         options_frame = StyleFrame()
         options_layout = QVBoxLayout()
         options_frame.setLayout(options_layout)
-        
+
         self.minimize_to_tray_cb = QCheckBox(
             "Minimizar para bandeja do sistema ao fechar"
         )
@@ -584,7 +577,7 @@ class KeepAliveApp(QMainWindow):
         button_layout.addWidget(self.toggle_button)
         button_layout.addWidget(self.minimize_button)
         button_layout.addStretch()
-        
+
         layout.addLayout(button_layout)
         logger.info("Interface configurada com sucesso")
 
@@ -626,9 +619,9 @@ class KeepAliveApp(QMainWindow):
 
             # Conectar sinal de duplo clique
             self.tray_icon.activated.connect(self._handle_tray_activation)
-            
+
             logger.info("Ícone da bandeja configurado com sucesso")
-            
+
         except Exception as e:
             logger.error(f"Erro ao configurar ícone na bandeja: {str(e)}")
             raise
@@ -656,17 +649,17 @@ class KeepAliveApp(QMainWindow):
             is_running (bool): Se o serviço está rodando
         """
         try:
-            if hasattr(self, 'toggle_tray_action'):
+            if hasattr(self, "toggle_tray_action"):
                 self.toggle_tray_action.setText("Parar" if is_running else "Iniciar")
         except Exception as e:
             logger.error(f"Erro ao atualizar status na bandeja: {str(e)}")
 
     def show_tray_message(
-        self, 
-        title: str, 
-        message: str, 
-        icon_type: int = QSystemTrayIcon.MessageIcon.Information, 
-        duration: int = 2000
+        self,
+        title: str,
+        message: str,
+        icon_type: int = QSystemTrayIcon.MessageIcon.Information,
+        duration: int = 2000,
     ) -> None:
         """
         Mostra mensagem na bandeja do sistema
@@ -677,7 +670,7 @@ class KeepAliveApp(QMainWindow):
             duration: Duração em milissegundos
         """
         try:
-            if hasattr(self, 'tray_icon') and self.tray_icon.isVisible():
+            if hasattr(self, "tray_icon") and self.tray_icon.isVisible():
                 self.tray_icon.showMessage(title, message, icon_type, duration)
         except Exception as e:
             logger.error(f"Erro ao mostrar mensagem na bandeja: {str(e)}")
@@ -694,8 +687,7 @@ class KeepAliveApp(QMainWindow):
                 event.ignore()
                 self.hide()
                 self.show_tray_message(
-                    "Keep Alive Manager",
-                    "O programa continua rodando em segundo plano"
+                    "Keep Alive Manager", "O programa continua rodando em segundo plano"
                 )
             else:
                 logger.info("Fechando aplicação")
@@ -708,189 +700,36 @@ class KeepAliveApp(QMainWindow):
         """Encerra a aplicação adequadamente"""
         try:
             logger.info("Encerrando aplicação")
-            
+
             # Parar serviço se estiver rodando
             if self.is_running:
                 self.toggle_service()
 
             # Fechar gerenciador do Teams
-            if hasattr(self, 'teams_manager'):
+            if hasattr(self, "teams_manager"):
                 self.teams_manager.close()
 
             # Remover ícone da bandeja
-            if hasattr(self, 'tray_icon'):
+            if hasattr(self, "tray_icon"):
                 self.tray_icon.hide()
                 self.tray_icon = None
 
             # Encerrar aplicação
             QApplication.quit()
-            
+
         except Exception as e:
             logger.error(f"Erro ao encerrar aplicação: {str(e)}")
             QApplication.quit()
 
-    def _handle_tray_activation(self, reason: QSystemTrayIcon.ActivationReason) -> None:
-        """
-        Trata eventos de ativação do ícone na bandeja
-        Args:
-            reason (QSystemTrayIcon.ActivationReason): Razão da ativação
-        """
-        try:
-            if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
-                if self.isHidden():
-                    self.show()
-                    self.activateWindow()
-                else:
-                    self.hide()
-        except Exception as e:
-            logger.error(f"Erro ao tratar ativação da bandeja: {str(e)}")
 
-    def update_tray_status(self, is_running: bool) -> None:
-        """
-        Atualiza o status no menu da bandeja
-        Args:
-            is_running (bool): Se o serviço está rodando
-        """
-        try:
-            # Atualizar texto do botão na bandeja
-            if hasattr(self, 'toggle_tray_action'):
-                self.toggle_tray_action.setText("Parar" if is_running else "Iniciar")
-        except Exception as e:
-            logger.error(f"Erro ao atualizar status na bandeja: {str(e)}")
-
-    def show_tray_message(self, title: str, message: str, icon: QSystemTrayIcon.MessageIcon = QSystemTrayIcon.MessageIcon.Information, duration: int = 2000) -> None:
-        """
-        Mostra mensagem na bandeja do sistema
-        Args:
-            title (str): Título da mensagem
-            message (str): Conteúdo da mensagem
-            icon (QSystemTrayIcon.MessageIcon): Ícone da mensagem
-            duration (int): Duração em milissegundos
-        """
-        try:
-            if hasattr(self, 'tray_icon') and self.tray_icon.isVisible():
-                self.tray_icon.showMessage(title, message, icon, duration)
-        except Exception as e:
-            logger.error(f"Erro ao mostrar mensagem na bandeja: {str(e)}")
-
-    def closeEvent(self, event: QCloseEvent) -> None:
-        """
-        Trata o evento de fechamento da janela
-        Args:
-            event (QCloseEvent): Evento de fechamento
-        """
-        try:
-            if self.minimize_to_tray_cb.isChecked():
-                logger.info("Minimizando para a bandeja")
-                event.ignore()
-                self.hide()
-                self.show_tray_message(
-                    "Keep Alive Manager",
-                    "O programa continua rodando em segundo plano",
-                    QSystemTrayIcon.MessageIcon.Information,
-                    2000
-                )
-            else:
-                logger.info("Fechando aplicação")
-                self.quit_application()
-        except Exception as e:
-            logger.error(f"Erro ao tratar fechamento da janela: {str(e)}")
-            event.accept()  # Garante que a janela será fechada em caso de erro
-
-    def quit_application(self) -> None:
-        """Encerra a aplicação adequadamente"""
-        try:
-            logger.info("Encerrando aplicação")
-            
-            # Parar serviço se estiver rodando
-            if self.is_running:
-                self.toggle_service()
-
-            # Fechar gerenciador do Teams
-            if hasattr(self, 'teams_manager'):
-                self.teams_manager.close()
-
-            # Remover ícone da bandeja
-            if hasattr(self, 'tray_icon'):
-                self.tray_icon.hide()
-                self.tray_icon = None
-
-            # Encerrar aplicação
-            QApplication.quit()
-            
-        except Exception as e:
-            logger.error(f"Erro ao encerrar aplicação: {str(e)}")
-            QApplication.quit()  # Garante que a aplicação será encerrada mesmo com erro
-
-    def check_user_activity(self):
-        """Verifica se houve atividade do usuário"""
-        try:
-            current_pos = win32api.GetCursorPos()
-            if not hasattr(self, "last_cursor_pos"):
-                self.last_cursor_pos = current_pos
-                return
-
-            if current_pos != self.last_cursor_pos:
-                self.last_user_activity = time.time()
-                self.last_cursor_pos = current_pos
-                if (
-                    not hasattr(self, "last_movement_log")
-                    or time.time() - self.last_movement_log > 60
-                ):
-                    logger.debug("Atividade do usuário detectada")
-                    self.last_movement_log = time.time()
-        except Exception as e:
-            logger.error(f"Erro ao verificar atividade do usuário: {str(e)}")
-
-    def should_update_status(self):
-        """Verifica se deve atualizar o status baseado na última atividade"""
-        if not hasattr(self, "last_user_activity"):
-            self.last_user_activity = time.time()
-            return False
-        return time.time() - self.last_user_activity >= self.interval_spin.value()
-
-    def perform_activity(self):
-        """Executa as atividades de keep-alive periodicamente"""
-        try:
-            logger.debug("Iniciando ciclo de atividade")
-
-            # Verificar conexão RDP
-            if not self.check_rdp_connection():
-                logger.warning("Conexão RDP pode estar instável")
-                self.status_label.setText(
-                    "Aviso: Conexão RDP pode estar instável\n"
-                    "Verificando métodos alternativos..."
-                )
-
-            # Atualizar status se necessário
-            if self.should_update_status():
-                logger.info("Atualizando status do Teams")
-                if self.teams_manager.set_status(status.ipc_status):
-                    self.current_teams_status = status
-                # Atualizar botões da UI
-                for s, btn in self.teams_buttons.items():
-                    btn.setChecked(s == status)
-                return True
-            return False
-        except Exception as e:
-            logger.error(f"Erro ao definir status: {str(e)}")
-            return False
-
-    def quit_application(self):
-        """Encerra a aplicação adequadamente"""
-        logger.info("Encerrando aplicação")
-        if self.is_running:
-            self.toggle_service()
-        self.teams_manager.close()
-        self.tray_icon.hide()
-        QApplication.quit()
+# Removed leftover code
 
 
 def main():
     """Função principal da aplicação"""
     try:
         logger.info("Iniciando aplicação")
-        
+
         # Prevenir múltiplas instâncias
         from win32event import CreateMutex
         from win32api import GetLastError
@@ -918,7 +757,7 @@ def main():
         app.setStyle("Windows")
         window = KeepAliveApp()
         window.show()
-        
+
         logger.info("Aplicação iniciada com sucesso")
         return app.exec()
 
@@ -956,10 +795,7 @@ if __name__ == "__main__":
     except Exception as e:
         error_msg = f"Erro ao executar atividade: {str(e)}"
         logger.error(error_msg)
-        self.status_label.setText(
-            f"{error_msg}\n"
-            "Tentando métodos alternativos..."
-        )
+        self.status_label.setText(f"{error_msg}\n" "Tentando métodos alternativos...")
 
     def keep_rdp_alive(self):
         """Manter sessão RDP ativa"""
@@ -1025,7 +861,7 @@ if __name__ == "__main__":
         end_time = self.end_time_edit.time()
 
         logger.debug(f"Verificando horário: {current_time.toString()}")
-        
+
         if start_time <= current_time <= end_time:
             if not self.is_running and self.toggle_button.text() == "Iniciar":
                 logger.info("Dentro do horário programado - iniciando")
@@ -1055,139 +891,3 @@ if __name__ == "__main__":
         except Exception as e:
             logger.error(f"Erro ao definir status: {str(e)}")
             return False
-
-
-def main() -> int:
-    """
-    Função principal da aplicação
-    Returns:
-        int: Código de retorno da aplicação
-    """
-    try:
-        logger.info("Iniciando aplicação")
-        
-        # Prevenir múltiplas instâncias
-        from win32event import CreateMutex
-        from win32api import GetLastError
-        from winerror import ERROR_ALREADY_EXISTS
-
-        mutex = CreateMutex(None, 1, "KeepAliveManager_Mutex")
-        if GetLastError() == ERROR_ALREADY_EXISTS:
-            logger.warning("Aplicação já está em execução")
-            return 1
-
-        # Criar aplicação Qt
-        app = QApplication(sys.argv)
-
-        # Configurações de DPI
-        if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
-            QCoreApplication.setAttribute(
-                Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True
-            )
-        if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-            QCoreApplication.setAttribute(
-                Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
-            )
-        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-
-        # Configurar estilo e criar janela principal
-        app.setStyle("Windows")
-        window = KeepAliveApp()
-        window.show()
-        
-        logger.info("Aplicação iniciada com sucesso")
-        return app.exec()
-
-    except Exception as e:
-        logger.critical(f"Erro fatal na aplicação: {str(e)}")
-        return 1
-
-
-if __name__ == "__main__":
-    status = main()
-    sys.exit(status)
-
-    def closeEvent(self, event):
-        """Trata o evento de fechamento da janela"""
-        if self.minimize_to_tray_cb.isChecked():
-            logger.info("Minimizando para a bandeja")
-            event.ignore()
-            self.hide()
-            self.tray_icon.showMessage(
-                "Keep Alive Manager",
-                "O programa continua rodando em segundo plano",
-                QSystemTrayIcon.MessageIcon.Information,
-                2000,
-            )
-        else:
-            logger.info("Fechando aplicação")
-            self.quit_application()
-
-    def set_teams_status(self, status):
-        """Define o status do Teams"""
-        try:
-            logger.info(f"Alterando status para: {status.display_name}")
-            if self.teams_manager.set_status(status.ipc_status):
-                self.current_teams_status = status
-                # Atualizar botões da UI
-                for s, btn in self.teams_buttons.items():
-                    btn.setChecked(s == status)
-                return True
-            return False
-        except Exception as e:
-            logger.error(f"Erro ao definir status: {str(e)}")
-            return False
-
-    def quit_application(self):
-        """Encerra a aplicação adequadamente"""
-        logger.info("Encerrando aplicação")
-        if self.is_running:
-            self.toggle_service()
-        self.teams_manager.close()
-        self.tray_icon.hide()
-        QApplication.quit()
-
-
-def main():
-    """Função principal da aplicação"""
-    try:
-        logger.info("Iniciando aplicação")
-        
-        # Prevenir múltiplas instâncias
-        from win32event import CreateMutex
-        from win32api import GetLastError
-        from winerror import ERROR_ALREADY_EXISTS
-
-        handle = CreateMutex(None, 1, "KeepAliveManager_Mutex")
-        if GetLastError() == ERROR_ALREADY_EXISTS:
-            logger.warning("Aplicação já está em execução")
-            sys.exit(1)
-
-        # Criar aplicação Qt primeiro
-        app = QApplication(sys.argv)
-
-        # Configurações de DPI
-        if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
-            QCoreApplication.setAttribute(
-                Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True
-            )
-        if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-            QCoreApplication.setAttribute(
-                Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
-            )
-        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-
-        app.setStyle("Windows")
-        window = KeepAliveApp()
-        window.show()
-        
-        logger.info("Aplicação iniciada com sucesso")
-        sys.exit(app.exec())
-
-    except Exception as e:
-        logger.critical(f"Erro fatal na aplicação: {str(e)}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()

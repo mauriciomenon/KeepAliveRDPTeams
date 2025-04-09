@@ -1,3 +1,4 @@
+# pylint: disable=E0602,E0102,E1101
 """
 Keep Alive Manager - RDP & Teams Integration
 --------------------------------------------
