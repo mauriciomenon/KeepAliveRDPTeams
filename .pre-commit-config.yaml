@@ -1,0 +1,39 @@
+default_language_version:
+    python: python3.13
+
+repos:
+    - repo: https://github.com/psf/black
+      rev: 25.1.0
+      hooks:
+          - id: black
+            name: black-check-only
+            args: [--check, --diff]
+            pass_filenames: true
+            always_run: true
+            fail_fast: false
+            stages: [manual]
+            verbose: true
+
+    - repo: https://github.com/pycqa/flake8
+      rev: 7.2.0
+      hooks:
+          - id: flake8
+            name: flake8-lint
+            args: [--exit-zero]
+            pass_filenames: true
+            always_run: true
+            fail_fast: false
+            stages: [manual]
+            verbose: true
+
+    - repo: https://github.com/PyCQA/pylint
+      rev: v3.3.6 # Tag real existente
+      hooks:
+          - id: pylint
+            name: pylint-info
+            args: [--exit-zero]
+            pass_filenames: true
+            always_run: true
+            fail_fast: false
+            stages: [manual]
+            verbose: true

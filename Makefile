@@ -1,28 +1,16 @@
-# Makefile para KeepAlive Manager
-
-PYTHON = python
-SRC = keep-alive-app.py keep-alive-app_electron.py
-
-.PHONY: help lint format check run
-
-help:
-	@echo "Comandos disponíveis:"
-	@echo "  make lint     - Verifica código com pylint e flake8"
-	@echo "  make format   - Formata o código com black"
-	@echo "  make check    - Verifica lint + estilo"
-	@echo "  make run      - Executa a aplicação principal"
+.PHONY: lint format check run
 
 lint:
 	@echo "Executando pylint..."
-	@pylint $(SRC)
-	@echo "Executando flake8..."
-	@flake8
+	pylint *.py
 
 format:
 	@echo "Formatando com black..."
-	@black $(SRC)
+	black *.py
 
-check: lint
+check:
+	@echo "Executando pylint..."
+	pylint *.py
 
 run:
-	$(PYTHON) keep-alive-app_electron.py
+	python keep_alive_manager_final.py

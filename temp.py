@@ -35,6 +35,7 @@ Version: 1.0-dev
 
 import sys
 import os
+
 os.environ["QT_QPA_PLATFORM"] = "windows"
 import json
 import ctypes
@@ -82,53 +83,55 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon, QAction
 
+
 # Enhanced Logging Configuration
-def setup_logging(log_dir: str = 'logs') -> logging.Logger:
+def setup_logging(log_dir: str = "logs") -> logging.Logger:
     """
     Configure comprehensive logging with rotation and detailed context
-    
+
     Args:
         log_dir (str): Directory for log files
-    
+
     Returns:
         logging.Logger: Configured logger with multiple handlers
     """
     # Ensure log directory exists
     os.makedirs(log_dir, exist_ok=True)
-    
+
     # Create logger
-    logger = logging.getLogger('KeepAliveManager')
+    logger = logging.getLogger("KeepAliveManager")
     logger.setLevel(logging.DEBUG)
-    
+
     # Clear any existing handlers to prevent duplicate logging
     logger.handlers.clear()
-    
+
     # File handler with advanced rotation
     file_handler = RotatingFileHandler(
-        os.path.join(log_dir, 'keep_alive.log'),
-        maxBytes=10*1024*1024,  # 10 MB
+        os.path.join(log_dir, "keep_alive.log"),
+        maxBytes=10 * 1024 * 1024,  # 10 MB
         backupCount=5,
-        encoding='utf-8'
+        encoding="utf-8",
     )
     file_handler.setLevel(logging.DEBUG)
-    
+
     # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
-    
+
     # Formatter with more comprehensive information
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(processName)s - %(threadName)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+        "%(asctime)s - %(name)s - %(processName)s - %(threadName)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
-    
+
     # Add handlers
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
-    
+
     return logger
+
 
 # Global logger with enhanced configuration
 logger = setup_logging()
@@ -170,11 +173,12 @@ class SingletonMeta(type):
 
 
 # Retry Decorator with Exponential Backoff
-def retry(max_attempts=3, base_delay=1, max_delay=30, 
-          exceptions=(Exception,), logger=logger):
+def retry(
+    max_attempts=3, base_delay=1, max_delay=30, exceptions=(Exception,), logger=logger
+):
     """
     Decorator for implementing retry mechanism with exponential backoff
-    
+
     Args:
         max_attempts (int): Maximum number of retry attempts
         base_delay (int): Initial delay between retries
@@ -182,11 +186,12 @@ def retry(max_attempts=3, base_delay=1, max_delay=30,
         exceptions (tuple): Exceptions to catch and retry
         logger (logging.Logger): Logger for tracking retry attempts
     """
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             attempts = 0
             delay = base_delay
-            
+
             while attempts < max_attempts:
                 try:
                     return func(*args, **kwargs)
@@ -195,312 +200,314 @@ def retry(max_attempts=3, base_delay=1, max_delay=30,
                     if attempts == max_attempts:
                         logger.error(f"Max attempts reached. Final error: {e}")
                         raise
-                    
+
                     logger.warning(
                         f"Attempt {attempts}/{max_attempts} failed: {e}. "
                         f"Retrying in {delay} seconds..."
                     )
-                    
+
                     # Sleep with exponential backoff
                     time.sleep(delay)
-                    
+
                     # Increase delay exponentially
                     delay = min(delay * 2, max_delay)
-        
+
         return wrapper
+
     return decorator
+
 
 # Constants and Configuration
 class SystemConfig:
     """
     Centralized system configuration with enhanced error handling
     """
+
     # System preservation constants
     ES_CONTINUOUS = 0x80000000
     ES_SYSTEM_REQUIRED = 0x00000001
     ES_DISPLAY_REQUIRED = 0x00000002
-    
+
     # Teams WebSocket configuration
     TEAMS_WS_PORT_START = 8001
     TEAMS_WS_PORT_END = 8999
     TEAMS_WS_TIMEOUT = 5  # seconds
     TEAMS_WS_RETRY_DELAY = 1000  # ms
-    
+
     @classmethod
-    def load_config(cls, config_path='config.json'):
+    def load_config(cls, config_path="config.json"):
         """
         Load configuration with robust error handling
-        
+
         Args:
             config_path (str): Path to configuration file
-        
+
         Returns:
             dict: Loaded configuration
         """
         try:
             if not os.path.exists(config_path):
                 return cls.create_default_config(config_path)
-            
-            with open(config_path, 'r', encoding='utf-8') as f:
+
+            with open(config_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
             logger.error(f"Config load error: {e}")
             return cls.create_default_config(config_path)
-    
+
     @classmethod
-    def create_default_config(cls, config_path='config.json'):
+    def create_default_config(cls, config_path="config.json"):
         """
         Create default configuration file
-        
+
         Args:
             config_path (str): Path to save configuration
-        
+
         Returns:
             dict: Default configuration
         """
         default_config = {
-            'interval': 120,  # seconds
-            'start_time': '08:45',
-            'end_time': '17:15',
-            'minimize_to_tray': True,
-            'default_teams_status': 'Available'
+            "interval": 120,  # seconds
+            "start_time": "08:45",
+            "end_time": "17:15",
+            "minimize_to_tray": True,
+            "default_teams_status": "Available",
         }
-        
+
         try:
-            with open(config_path, 'w', encoding='utf-8') as f:
+            with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(default_config, f, indent=4)
             return default_config
         except Exception as e:
             logger.critical(f"Failed to create default config: {e}")
             return default_config
 
+
 # Enhanced error classes for more specific error handling
 class KeepAliveError(Exception):
     """Base exception for Keep Alive Manager"""
+
     pass
+
 
 class TeamsConnectionError(KeepAliveError):
     """Specific exception for Teams connection issues"""
+
     pass
+
 
 class RDPConnectionError(KeepAliveError):
     """Specific exception for RDP connection issues"""
+
     pass
+
 
 # Teams Status Management
 class TeamsStatus(Enum):
     """Enumeration of possible Teams statuses with enhanced metadata"""
+
     AVAILABLE = ("Available", "Available", "#00ff00")
     BUSY = ("Busy", "Busy", "#ff0000")
     DO_NOT_DISTURB = ("Do Not Disturb", "DoNotDisturb", "#ff4500")
     AWAY = ("Away", "Away", "#ffa500")
     OFFLINE = ("Offline", "Offline", "#808080")
     BE_RIGHT_BACK = ("Be Right Back", "BeRightBack", "#ffff00")
-    
+
     def __init__(self, display_name: str, ipc_status: str, color: str):
         self.display_name = display_name
         self.ipc_status = ipc_status
         self.color = color
 
+
 class TeamsElectronManager:
     """
     Advanced manager for Teams Electron IPC communication
-    
+
     Handles:
     - WebSocket connection
     - Status management
     - Automatic reconnection
     - Error handling
     """
+
     def __init__(self, config: Dict[str, Any] = None):
         """
         Initialize Teams Electron IPC Manager
-        
+
         Args:
             config (Dict[str, Any], optional): Configuration dictionary
         """
         # Configuration
         self.config = config or {}
-        
+
         # WebSocket communication
         self.websocket = None
         self.ipc_port = None
         self.is_connected = False
-        
+
         # Connection management
         self.connection_attempts = 0
         self.max_connection_attempts = self.config.get(
-            'max_connection_attempts', 
-            SystemConfig.MAX_CONNECTION_ATTEMPTS
+            "max_connection_attempts", SystemConfig.MAX_CONNECTION_ATTEMPTS
         )
-        
+
         # Async loop and threading
         self.async_loop = asyncio.new_event_loop()
         self.async_thread = None
-        
+
         # Signals and event handling
         self.connection_events = {
-            'on_connect': [],
-            'on_disconnect': [],
-            'on_status_change': []
+            "on_connect": [],
+            "on_disconnect": [],
+            "on_status_change": [],
         }
-        
+
         # Logging
         self.logger = logging.getLogger(self.__class__.__name__)
-        
+
         # Start async thread
         self._start_async_thread()
-    
+
     def _start_async_thread(self):
         """
         Start async event loop in a separate thread
         """
+
         def run_loop():
             asyncio.set_event_loop(self.async_loop)
             self.async_loop.run_forever()
-        
-        self.async_thread = threading.Thread(
-            target=run_loop, 
-            daemon=True
-        )
+
+        self.async_thread = threading.Thread(target=run_loop, daemon=True)
         self.async_thread.start()
-    
+
     @retry(max_attempts=3, base_delay=1, max_delay=10)
     async def _discover_teams_port(self) -> Optional[int]:
         """
         Discover active WebSocket port for Teams
-        
+
         Returns:
             Optional[int]: Active WebSocket port
         """
         # Check Teams configuration file first
         teams_config_path = os.path.join(
-            os.getenv('LOCALAPPDATA', ''), 
-            'Microsoft', 'Teams', 
-            'desktop-config.json'
+            os.getenv("LOCALAPPDATA", ""), "Microsoft", "Teams", "desktop-config.json"
         )
-        
+
         try:
             # Read config file
             if os.path.exists(teams_config_path):
-                with open(teams_config_path, 'r') as f:
+                with open(teams_config_path, "r") as f:
                     config = json.load(f)
-                    if 'webSocketPort' in config:
-                        port = config['webSocketPort']
+                    if "webSocketPort" in config:
+                        port = config["webSocketPort"]
                         if await self._test_websocket_port(port):
                             return port
-            
+
             # Scan ports if config fails
             for port in range(
-                SystemConfig.TEAMS_WS_PORT_START, 
-                SystemConfig.TEAMS_WS_PORT_END
+                SystemConfig.TEAMS_WS_PORT_START, SystemConfig.TEAMS_WS_PORT_END
             ):
                 if await self._test_websocket_port(port):
                     return port
-            
+
             return None
         except Exception as e:
             self.logger.error(f"Port discovery error: {e}")
             return None
-    
+
     async def _test_websocket_port(self, port: int) -> bool:
         """
         Test if a WebSocket port is active
-        
+
         Args:
             port (int): Port to test
-        
+
         Returns:
             bool: Port is active and responsive
         """
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.ws_connect(
-                    f'ws://127.0.0.1:{port}',
-                    timeout=0.5
+                    f"ws://127.0.0.1:{port}", timeout=0.5
                 ) as ws:
                     await ws.ping()
                     return True
         except Exception:
             return False
-    
+
     async def _establish_websocket_connection(self, port: int):
         """
         Establish WebSocket connection to Teams
-        
+
         Args:
             port (int): WebSocket port to connect
-        
+
         Raises:
             TeamsConnectionError: If connection fails
         """
         try:
             self.websocket = await websockets.connect(
-                f'ws://127.0.0.1:{port}',
+                f"ws://127.0.0.1:{port}",
                 ping_interval=30,  # Keep-alive every 30 seconds
-                ping_timeout=10
+                ping_timeout=10,
             )
             self.is_connected = True
             self.ipc_port = port
-            
+
             # Trigger connection events
-            for callback in self.connection_events['on_connect']:
+            for callback in self.connection_events["on_connect"]:
                 callback()
-            
+
             self.logger.info(f"Connected to Teams WebSocket on port {port}")
         except Exception as e:
             self.is_connected = False
             raise TeamsConnectionError(f"WebSocket connection failed: {e}")
-    
+
     def connect(self):
         """
         Initiate Teams connection process
         Runs asynchronously and manages connection lifecycle
         """
+
         def connection_task():
             try:
                 # Find port
                 port_future = asyncio.run_coroutine_threadsafe(
-                    self._discover_teams_port(), 
-                    self.async_loop
+                    self._discover_teams_port(), self.async_loop
                 )
                 port = port_future.result()
-                
+
                 if not port:
                     raise TeamsConnectionError("No Teams WebSocket port found")
-                
+
                 # Establish connection
                 connect_future = asyncio.run_coroutine_threadsafe(
-                    self._establish_websocket_connection(port), 
-                    self.async_loop
+                    self._establish_websocket_connection(port), self.async_loop
                 )
                 connect_future.result()
-            
+
             except TeamsConnectionError as e:
                 self.logger.warning(f"Connection failed: {e}")
                 # Trigger disconnect events
-                for callback in self.connection_events['on_disconnect']:
+                for callback in self.connection_events["on_disconnect"]:
                     callback()
-                
+
                 # Retry connection if attempts not exhausted
                 self.connection_attempts += 1
                 if self.connection_attempts < self.max_connection_attempts:
-                    time.sleep(2 ** self.connection_attempts)  # Exponential backoff
+                    time.sleep(2**self.connection_attempts)  # Exponential backoff
                     self.connect()
-        
+
         # Run connection in separate thread
-        threading.Thread(
-            target=connection_task, 
-            daemon=True
-        ).start()
-    
+        threading.Thread(target=connection_task, daemon=True).start()
+
     def set_status(self, status: TeamsStatus):
         """
         Set Teams user status
-        
+
         Args:
             status (TeamsStatus): Desired Teams status
-        
+
         Returns:
             bool: Status change success
         """
@@ -514,40 +521,39 @@ class TeamsElectronManager:
                 "params": {
                     "status": status.ipc_status,
                     "expiry": None,
-                    "deviceId": None
-                }
+                    "deviceId": None,
+                },
             }
-            
+
             # Send message via WebSocket
             send_future = asyncio.run_coroutine_threadsafe(
-            self._send_message(message), 
-            self.async_loop
+                self._send_message(message), self.async_loop
             )
             success = send_future.result()
-            
+
             if success:
                 # Trigger status change events
-                for callback in self.connection_events['on_status_change']:
+                for callback in self.connection_events["on_status_change"]:
                     callback(status)
-            
+
             return success
         except Exception as e:
             self.logger.error(f"Status change error: {e}")
             return False
-    
+
     async def _send_message(self, message: Dict[str, Any]) -> bool:
         """
         Send WebSocket message to Teams
-        
+
         Args:
             message (Dict[str, Any]): Message to send
-        
+
         Returns:
             bool: Message sent successfully
         """
         if not self.websocket:
             return False
-        
+
         try:
             await self.websocket.send(json.dumps(message))
             response = await self.websocket.recv()
@@ -555,22 +561,18 @@ class TeamsElectronManager:
         except Exception as e:
             self.logger.error(f"WebSocket send error: {e}")
             return False
-    
-    def add_event_listener(
-        self, 
-        event: str, 
-        callback: Callable
-    ):
+
+    def add_event_listener(self, event: str, callback: Callable):
         """
         Add event listener for connection events
-        
+
         Args:
             event (str): Event type ('on_connect', 'on_disconnect', 'on_status_change')
             callback (Callable): Callback function
         """
         if event in self.connection_events:
             self.connection_events[event].append(callback)
-    
+
     def close(self):
         """
         Close WebSocket connection and clean up resources
@@ -579,18 +581,17 @@ class TeamsElectronManager:
             # Close WebSocket
             if self.websocket:
                 close_future = asyncio.run_coroutine_threadsafe(
-                    self.websocket.close(), 
-                    self.async_loop
+                    self.websocket.close(), self.async_loop
                 )
                 close_future.result()
-            
+
             # Stop async loop
             self.async_loop.call_soon_threadsafe(self.async_loop.stop)
-            
+
             # Wait for thread to finish
             if self.async_thread:
                 self.async_thread.join(timeout=1.0)
-            
+
             # Reset connection state
             self.is_connected = False
             self.websocket = None
@@ -598,34 +599,40 @@ class TeamsElectronManager:
         except Exception as e:
             self.logger.error(f"Cleanup error: {e}")
 
+
 class StyleFrame(QFrame):
     """
     Custom styled frame for consistent UI components
     """
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFrameShape(QFrame.Shape.StyledPanel)
         self.setFrameShadow(QFrame.Shape.Raised)
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             StyleFrame {
                 background-color: palette(window);
                 border: 1px solid palette(mid);
                 border-radius: 5px;
                 padding: 10px;
             }
-        """)
+        """
+        )
+
 
 class RDPManager:
     """
     Manages RDP (Remote Desktop Protocol) session activities
     """
+
     def __init__(self, logger=None):
         self.logger = logger or logging.getLogger(self.__class__.__name__)
 
     def keep_session_alive(self) -> bool:
         """
         Prevent RDP session from timing out
-        
+
         Returns:
             bool: Success of keeping session active
         """
@@ -635,9 +642,9 @@ class RDPManager:
 
             # Prevent screen lock
             ctypes.windll.kernel32.SetThreadExecutionState(
-                SystemConfig.ES_CONTINUOUS | 
-                SystemConfig.ES_SYSTEM_REQUIRED | 
-                SystemConfig.ES_DISPLAY_REQUIRED
+                SystemConfig.ES_CONTINUOUS
+                | SystemConfig.ES_SYSTEM_REQUIRED
+                | SystemConfig.ES_DISPLAY_REQUIRED
             )
 
             return True
@@ -648,7 +655,7 @@ class RDPManager:
     def check_session_status(self) -> bool:
         """
         Check current RDP session status
-        
+
         Returns:
             bool: Session is active
         """

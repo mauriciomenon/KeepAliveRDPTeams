@@ -4,7 +4,6 @@ import requests
 # Configuração das credenciais corretas
 CONFIG = {
     "client_id": "c36ea277-60f5-48f3-b111-52133d9a6859",  # ID do aplicativo (cliente)
-  
     "tenant_id": "db31e804-2b01-4548-b3d4-642d3cde201f",  # ID do diretório (locatário)
     "user_id": "b206ca7f-4f0e-4599-ab2b-4740d93ad276",  # ID do Objeto do usuário Maurício Menon
 }
