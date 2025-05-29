@@ -1,9 +1,7 @@
-{
-  "terminal.integrated.scrollback": 99999,
-  "errorLens.statusBarColorsEnabled": true,
-  "errorLens.statusBarMessageEnabled": true,
-  "python.analysis.autoImportCompletions": false,
-  "python.analysis.typeCheckingMode": "off",
-  "python-envs.defaultEnvManager": "ms-python.python:system",
-  "python-envs.pythonProjects": []
+﻿{
+    "python.analysis.diagnosticSeverityOverrides":  {
+                                                        "reportMissingTypeStubs":  "none"
+                                                    },
+    "python.analysis.useLibraryCodeForTypes":  true,
+    "python.analysis.typeCheckingMode":  "basic"
 }

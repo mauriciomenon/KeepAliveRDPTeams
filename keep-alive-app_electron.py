@@ -735,7 +735,9 @@ def main():
         from win32api import GetLastError
         from winerror import ERROR_ALREADY_EXISTS
 
-        handle = CreateMutex(None, 1, "KeepAliveManager_Mutex")
+        _ = CreateMutex(
+            None, 1, "KeepAliveManager_Mutex"
+        )  # Suprime warning de variável não usada
         if GetLastError() == ERROR_ALREADY_EXISTS:
             logger.warning("Aplicação já está em execução")
             sys.exit(1)
@@ -743,15 +745,13 @@ def main():
         # Criar aplicação Qt primeiro
         app = QApplication(sys.argv)
 
-        # Configurações de DPI
-        if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
-            QCoreApplication.setAttribute(
-                Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True
-            )
-        if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-            QCoreApplication.setAttribute(
-                Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
-            )
+        # Configurações de DPI (sem necessidade de hasattr, PyQt6 sempre define)
+        QCoreApplication.setAttribute(
+            Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True
+        )
+        QCoreApplication.setAttribute(
+            Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True
+        )
         os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
         app.setStyle("Windows")
