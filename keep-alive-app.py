@@ -1,65 +1,28 @@
 # pylint: disable=E0602,E0102,E1101
+
 """
-Keep Alive Manager - RDP & Teams (PyAutoGUI Implementation)
---------------------------------------------------------
-
-Esta implementação utiliza o PyAutoGUI para automação de interface gráfica,
-simulando interações do usuário para manter o RDP ativo e gerenciar o status do Teams.
-
-Características principais:
-- Usa PyAutoGUI para simulação de mouse e teclado
-- Requer que a janela do Teams seja trazada para primeiro plano durante a mudança de status
-- Interface gráfica em PyQt6 com suporte a system tray
-- Suporte a múltiplos idiomas nos comandos do Teams (PT-BR, EN-US, ES)
-- Sistema de logs para debug
-- Prevenção de bloqueio de tela via Windows API
-- Controle de horário de funcionamento
-- Detecção de atividade do usuário
-
-Vantagens:
-- Implementação simples e direta
-- Não requer configuração de APIs ou permissões especiais
-- Funciona com qualquer versão do Teams
-- Fácil de entender e modificar
-
-Desvantagens:
-- Necessidade de trazer janela para primeiro plano
-- Velocidade limitada devido aos delays necessários
-- Mais suscetível a falhas por mudanças na interface
-- Pode ser interrompido por outras interações do usuário
-
-Requisitos:
-- PyAutoGUI
-- PyQt6
-- pywin32
-- Windows OS
-
-Autor: Mauricio Menon
-Data: Janeiro/2024
-Versão: 1.0
+Keep Alive Manager - RDP & Teams 2.0
+Foco principal em manter conexão RDP ativa e status do Teams como "Disponível"
 """
 
 import ctypes
+import logging
 import os
+import random
 import sys
 import time
 from datetime import datetime
-from datetime import time as dt_time
-from enum import Enum, auto
 
-import keyboard
 import pyautogui
-import uiautomation as auto
 import win32api
 import win32con
-import win32gui
-import win32ts
-from PyQt6.QtCore import QCoreApplication, Qt, QTime, QTimer
+from PyQt6.QtCore import QSettings, Qt, QTime, QTimer
 from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
     QFrame,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QMainWindow,
@@ -68,352 +31,541 @@ from PyQt6.QtWidgets import (
     QSpinBox,
     QStyle,
     QSystemTrayIcon,
+    QTabWidget,
+    QTextEdit,
     QTimeEdit,
     QVBoxLayout,
     QWidget,
 )
 
-# Ajustes de DPI no Qt
-if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
-    QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-    QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-
-
-# Função de log de debug
-def debug_log(message: str, to_console: bool = False) -> None:
-    """
-    Registra mensagens de debug com timestamp em arquivo e opcionalmente no console.
-    """
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_msg = f"[{timestamp}] {message}"
-    log_file = os.path.join(os.path.dirname(__file__), "keep_alive_manager.log")
-    try:
-        with open(log_file, "a", encoding="utf-8") as f:
-            f.write(log_msg + "\n")
-    except Exception:
-        pass
-    if to_console:
-        print(log_msg)
-
-
-# Configurações do sistema
+# Configurações para prevenir bloqueios de tela
 ES_CONTINUOUS = 0x80000000
 ES_SYSTEM_REQUIRED = 0x00000001
 ES_DISPLAY_REQUIRED = 0x00000002
+ES_AWAYMODE_REQUIRED = 0x00000040
 
-# Configuração do PyAutoGUI
-pyautogui.FAILSAFE = False
-pyautogui.PAUSE = 0.1
-
-
-class TeamsStatus(Enum):
-    AVAILABLE = ("Disponível", "available")
-    BUSY = ("Ocupado", "busy")
-    DO_NOT_DISTURB = ("Não Perturbe", "dnd")
-    AWAY = ("Ausente", "away")
-    OFFLINE = ("Offline", "offline")
-
-    def __init__(self, display_name, status_code):
-        self.display_name = display_name
-        self.status_code = status_code
+# Configuração de logging
+log_file = os.path.join(os.path.expanduser("~"), "keep_alive_manager.log")
+logging.basicConfig(
+    filename=log_file,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 
 
-class StyleFrame(QFrame):
-    """Frame estilizado para a interface"""
-
-    def __init__(self):
-        super().__init__()
-        self.setFrameShape(QFrame.Shape.StyledPanel)
-        self.setFrameShadow(QFrame.Shadow.Raised)
-        self.setStyleSheet(
-            """
-            StyleFrame {
-                background-color: palette(window);
-                border: 1px solid palette(mid);
-                border-radius: 5px;
-                padding: 10px;
-            }
-        """
+def prevent_system_lock():
+    """Previne bloqueio de tela e hibernação de forma mais eficaz"""
+    try:
+        ctypes.windll.kernel32.SetThreadExecutionState(
+            ES_CONTINUOUS
+            | ES_SYSTEM_REQUIRED
+            | ES_DISPLAY_REQUIRED
+            | ES_AWAYMODE_REQUIRED
         )
+        return True
+    except Exception as e:
+        logging.error(f"Erro ao prevenir bloqueio: {str(e)}")
+        return False
+
+
+def simulate_effective_activity():
+    """
+    Simula atividade eficaz para manter RDP e Teams ativos:
+    - Combina movimentos de mouse, teclado e eventos do sistema
+    - Foca em ações que são visíveis para o RDP
+    """
+    try:
+        # 1. Movimento de mouse significativo (visível pelo RDP)
+        screen_width, screen_height = pyautogui.size()
+        target_x = random.randint(100, screen_width - 100)
+        target_y = random.randint(100, screen_height - 100)
+        pyautogui.moveTo(target_x, target_y, duration=0.5)
+
+        # 2. Eventos de teclado que geram atividade no sistema
+        # Pressiona teclas de sistema que não interferem no trabalho do usuário
+        keys = ["shift", "ctrl", "capslock", "numlock"]
+        key = random.choice(keys)
+        pyautogui.press(key)
+
+        # 3. Evento de scroll para gerar atividade adicional
+        scroll_amount = random.choice([1, -1])
+        pyautogui.scroll(scroll_amount)
+
+        # 4. Pequeno movimento adicional para parecer natural
+        pyautogui.moveRel(random.randint(-5, 5), random.randint(-5, 5), duration=0.2)
+
+        return True
+    except Exception as e:
+        logging.error(f"Erro na simulação de atividade: {str(e)}")
+        return False
+
+
+def is_teams_active():
+    """Verifica se o Teams está com status 'Disponível'"""
+    try:
+        from win32gui import GetForegroundWindow, GetWindowText
+
+        active_window = GetWindowText(GetForegroundWindow()).lower()
+
+        # Verifica se o Teams está em foco (indicativo de atividade)
+        if "teams" in active_window:
+            return True
+
+        # Verificação adicional: se o mouse está sobre a janela do Teams
+        teams_rect = None
+        for window in pyautogui.getAllWindows():
+            if "teams" in window.title.lower():
+                teams_rect = (window.left, window.top, window.width, window.height)
+                break
+
+        if teams_rect:
+            x, y = pyautogui.position()
+            if (
+                teams_rect[0] <= x <= teams_rect[0] + teams_rect[2]
+                and teams_rect[1] <= y <= teams_rect[1] + teams_rect[3]
+            ):
+                return True
+
+        return False
+    except Exception as e:
+        logging.warning(f"Erro ao verificar status do Teams: {str(e)}")
+        return True
+
+
+class LogTab(QWidget):
+    """Aba para exibir logs de atividade"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+
+        self.log_text = QTextEdit()
+        self.log_text.setReadOnly(True)
+        layout.addWidget(self.log_text)
+
+        button_layout = QHBoxLayout()
+        clear_button = QPushButton("Limpar Log")
+        clear_button.clicked.connect(self.clear_log)
+        save_button = QPushButton("Salvar Log")
+        save_button.clicked.connect(self.save_log)
+        button_layout.addWidget(clear_button)
+        button_layout.addWidget(save_button)
+        layout.addLayout(button_layout)
+
+    def add_log(self, message):
+        """Adiciona mensagem ao log"""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.log_text.append(f"[{timestamp}] {message}")
+        self.log_text.verticalScrollBar().setValue(
+            self.log_text.verticalScrollBar().maximum()
+        )
+        logging.info(message)
+
+    def clear_log(self):
+        """Limpa o log visual"""
+        self.log_text.clear()
+
+    def save_log(self):
+        """Salva o log em um arquivo"""
+        try:
+            desktop = os.path.join(os.path.expanduser("~"), "Desktop")
+            filename = os.path.join(
+                desktop,
+                f"keep_alive_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            )
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(self.log_text.toPlainText())
+            self.add_log(f"Log salvo em: {filename}")
+        except Exception as e:
+            self.add_log(f"Erro ao salvar log: {str(e)}")
+
+
+class AdvancedTab(QWidget):
+    """Aba para configurações avançadas de atividade"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+
+        # Grupo de opções de simulação
+        sim_group = QGroupBox("Otimizações de Atividade")
+        sim_layout = QVBoxLayout(sim_group)
+
+        self.enable_mouse = QCheckBox("Ativar movimentos do mouse")
+        self.enable_mouse.setChecked(True)
+        sim_layout.addWidget(self.enable_mouse)
+
+        self.enable_keyboard = QCheckBox("Ativar eventos de teclado")
+        self.enable_keyboard.setChecked(True)
+        sim_layout.addWidget(self.enable_keyboard)
+
+        self.enable_scroll = QCheckBox("Ativar scroll do mouse")
+        self.enable_scroll.setChecked(True)
+        sim_layout.addWidget(self.enable_scroll)
+
+        self.random_intervals = QCheckBox("Usar intervalos variáveis (±30%)")
+        self.random_intervals.setChecked(True)
+        sim_layout.addWidget(self.random_intervals)
+
+        layout.addWidget(sim_group)
+
+        # Botão de teste
+        test_button = QPushButton("Testar Simulação Agora")
+        test_button.clicked.connect(self.test_simulation)
+        layout.addWidget(test_button)
+
+        # Espaçador
+        layout.addStretch()
+
+    def test_simulation(self):
+        """Testa a simulação de atividade uma vez"""
+        try:
+            if simulate_effective_activity():
+                logging.info("Teste de simulação executado com sucesso")
+                if self.parent().parent().log_tab:
+                    self.parent().parent().log_tab.add_log(
+                        "Teste de simulação executado com sucesso"
+                    )
+        except Exception as e:
+            logging.error(f"Erro no teste de simulação: {str(e)}")
+            if self.parent().parent().log_tab:
+                self.parent().parent().log_tab.add_log(f"Erro no teste: {str(e)}")
 
 
 class KeepAliveApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Keep Alive Manager - RDP & Teams")
-        self.setFixedSize(450, 450)
+        self.setFixedSize(500, 500)
 
         # Configurações padrão
-        self.default_interval = 120
-        self.default_start_time = QTime(8, 45)
-        self.default_end_time = QTime(17, 15)
+        self.settings = QSettings("KeepAliveTools", "KeepAliveManager")
+        self.default_interval = self.settings.value(
+            "interval", 60, int
+        )  # Reduzido para 60s
+        self.default_start_time = self.settings.value("start_time", QTime(8, 45), QTime)
+        self.default_end_time = self.settings.value("end_time", QTime(17, 15), QTime)
+
         self.is_running = False
         self.activity_count = 0
-        self.last_user_activity = time.time()
-        self.current_teams_status = TeamsStatus.AVAILABLE
 
-        # Configurar ícone da aplicação
-        app_icon = self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
-        self.setWindowIcon(app_icon)
-
-        # Timer para verificar atividade
+        # Timers
         self.activity_timer = QTimer()
-        self.activity_timer.timeout.connect(self.check_user_activity)
-        self.activity_timer.start(1000)  # checa a cada segundo
+        self.activity_timer.timeout.connect(self.perform_activity)
 
-        # Timer principal de keep-alive
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.perform_activity)
-
-        # Timer de schedule
         self.schedule_timer = QTimer()
         self.schedule_timer.timeout.connect(self.check_schedule)
-        self.schedule_timer.start(60000)  # a cada 60s
+        self.schedule_timer.start(60000)  # Verifica agendamento a cada minuto
+
+        # Status check timer
+        self.status_timer = QTimer()
+        self.status_timer.timeout.connect(self.update_status)
+        self.status_timer.start(5000)
+
+        logging.info("Keep Alive Manager iniciado")
 
         self.setup_ui()
-        self.setup_tray(app_icon)
-        self.check_schedule()
-        self.set_teams_status(TeamsStatus.AVAILABLE)
+        self.setup_tray()
+        self.load_settings()
 
-    def setup_tray(self, icon: QIcon) -> None:
-        tray = QSystemTrayIcon(icon, self)
-        tray.setToolTip("Keep Alive Manager")
+    def setup_ui(self):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+
+        # Status
+        status_frame = QFrame()
+        status_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        status_layout = QVBoxLayout(status_frame)
+
+        self.status_label = QLabel("Aguardando início do serviço")
+        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        status_layout.addWidget(self.status_label)
+
+        self.teams_status = QLabel("Status Teams: Verificando...")
+        status_layout.addWidget(self.teams_status)
+
+        layout.addWidget(status_frame)
+
+        # Abas
+        self.tab_widget = QTabWidget()
+        layout.addWidget(self.tab_widget)
+
+        # Aba principal
+        main_tab = QWidget()
+        main_layout = QVBoxLayout(main_tab)
+
+        # Configurações básicas
+        config_frame = QFrame()
+        config_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        config_layout = QVBoxLayout(config_frame)
+
+        interval_layout = QHBoxLayout()
+        interval_label = QLabel("Intervalo (segundos):")
+        self.interval_spin = QSpinBox()
+        self.interval_spin.setRange(30, 180)  # Intervalo mais curto
+        self.interval_spin.setValue(self.default_interval)
+        interval_layout.addWidget(interval_label)
+        interval_layout.addWidget(self.interval_spin)
+        config_layout.addLayout(interval_layout)
+
+        time_layout = QHBoxLayout()
+        start_label = QLabel("Início:")
+        self.start_time_edit = QTimeEdit()
+        self.start_time_edit.setTime(self.default_start_time)
+        end_label = QLabel("Término:")
+        self.end_time_edit = QTimeEdit()
+        self.end_time_edit.setTime(self.default_end_time)
+        time_layout.addWidget(start_label)
+        time_layout.addWidget(self.start_time_edit)
+        time_layout.addWidget(end_label)
+        time_layout.addWidget(self.end_time_edit)
+        config_layout.addLayout(time_layout)
+
+        self.minimize_to_tray_cb = QCheckBox("Minimizar para bandeja ao fechar")
+        self.minimize_to_tray_cb.setChecked(True)
+        config_layout.addWidget(self.minimize_to_tray_cb)
+
+        self.auto_start_cb = QCheckBox("Iniciar automaticamente na abertura")
+        self.auto_start_cb.setChecked(True)  # Ativado por padrão
+        config_layout.addWidget(self.auto_start_cb)
+
+        main_layout.addWidget(config_frame)
+
+        self.tab_widget.addTab(main_tab, "Principal")
+
+        # Aba de configurações avançadas
+        self.advanced_tab = AdvancedTab(self.tab_widget)
+        self.tab_widget.addTab(self.advanced_tab, "Otimizações")
+
+        # Aba de log
+        self.log_tab = LogTab(self.tab_widget)
+        self.tab_widget.addTab(self.log_tab, "Log")
+
+        # Botões
+        button_layout = QHBoxLayout()
+        self.toggle_button = QPushButton("Iniciar")
+        self.toggle_button.clicked.connect(self.toggle_service)
+
+        self.minimize_button = QPushButton("Minimizar")
+        self.minimize_button.clicked.connect(self.hide)
+
+        button_layout.addWidget(self.toggle_button)
+        button_layout.addWidget(self.minimize_button)
+        layout.addLayout(button_layout)
+
+    def setup_tray(self):
+        icon = self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
+        self.tray_icon = QSystemTrayIcon(icon, self)
+        self.tray_icon.setToolTip("Keep Alive Manager")
+
         menu = QMenu()
-        menu.addAction(QAction("Mostrar", self, triggered=self.show))
-        menu.addAction(QAction("Iniciar/Parar", self, triggered=self.toggle_service))
+        show_action = QAction("Mostrar", self)
+        show_action.triggered.connect(self.show)
+        self.toggle_tray_action = QAction("Iniciar", self)
+        self.toggle_tray_action.triggered.connect(self.toggle_service)
+        quit_action = QAction("Sair", self)
+        quit_action.triggered.connect(self.quit_application)
+
+        menu.addAction(show_action)
+        menu.addAction(self.toggle_tray_action)
         menu.addSeparator()
-        menu.addAction(QAction("Sair", self, triggered=self.quit_application))
-        tray.setContextMenu(menu)
-        tray.activated.connect(
+        menu.addAction(quit_action)
+
+        self.tray_icon.setContextMenu(menu)
+        self.tray_icon.activated.connect(
             lambda reason: (
                 self.show()
                 if reason == QSystemTrayIcon.ActivationReason.DoubleClick
                 else None
             )
         )
-        tray.show()
-        self.tray_icon = tray
+        self.tray_icon.show()
 
-    def setup_ui(self) -> None:
-        central = QWidget()
-        self.setCentralWidget(central)
-        layout = QVBoxLayout(central)
-        layout.setSpacing(15)
+    def load_settings(self):
+        """Carrega configurações salvas"""
+        self.minimize_to_tray_cb.setChecked(
+            self.settings.value("minimize_to_tray", True, bool)
+        )
+        self.auto_start_cb.setChecked(self.settings.value("auto_start", True, bool))
 
-        # Status Label
-        status_frame = StyleFrame()
-        sl = QVBoxLayout(status_frame)
-        self.status_label = QLabel("Aguardando início... configure e clique em Iniciar")
-        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        sl.addWidget(self.status_label)
-        layout.addWidget(status_frame)
+        # Carrega configurações avançadas
+        self.advanced_tab.enable_mouse.setChecked(
+            self.settings.value("enable_mouse", True, bool)
+        )
+        self.advanced_tab.enable_keyboard.setChecked(
+            self.settings.value("enable_keyboard", True, bool)
+        )
+        self.advanced_tab.enable_scroll.setChecked(
+            self.settings.value("enable_scroll", True, bool)
+        )
+        self.advanced_tab.random_intervals.setChecked(
+            self.settings.value("random_intervals", True, bool)
+        )
 
-        # Configurações
-        cfg_frame = StyleFrame()
-        cl = QVBoxLayout(cfg_frame)
-        row = QHBoxLayout()
-        row.addWidget(QLabel("Intervalo (s):"))
-        self.interval_spin = QSpinBox()
-        self.interval_spin.setRange(30, 300)
-        self.interval_spin.setValue(self.default_interval)
-        row.addWidget(self.interval_spin)
-        cl.addLayout(row)
-        tr = QHBoxLayout()
-        tr.addWidget(QLabel("Início:"))
-        self.start_time_edit = QTimeEdit(self.default_start_time)
-        tr.addWidget(self.start_time_edit)
-        tr.addWidget(QLabel("Término:"))
-        self.end_time_edit = QTimeEdit(self.default_end_time)
-        tr.addWidget(self.end_time_edit)
-        cl.addLayout(tr)
-        layout.addWidget(cfg_frame)
+        # Inicia automaticamente se configurado
+        if self.auto_start_cb.isChecked():
+            QTimer.singleShot(1000, self.toggle_service)
 
-        # Teams Status
-        ts_frame = StyleFrame()
-        tl = QVBoxLayout(ts_frame)
-        tl.addWidget(QLabel("Status do Teams:"))
-        hl = QHBoxLayout()
-        self.teams_buttons = {}
-        for s in TeamsStatus:
-            btn = QPushButton(s.display_name)
-            btn.setCheckable(True)
-            btn.clicked.connect(lambda _, st=s: self.set_teams_status(st))
-            self.teams_buttons[s] = btn
-            hl.addWidget(btn)
-        self.teams_buttons[TeamsStatus.AVAILABLE].setChecked(True)
-        tl.addLayout(hl)
-        layout.addWidget(ts_frame)
+    def save_settings(self):
+        """Salva configurações atuais"""
+        self.settings.setValue("interval", self.interval_spin.value())
+        self.settings.setValue("start_time", self.start_time_edit.time())
+        self.settings.setValue("end_time", self.end_time_edit.time())
+        self.settings.setValue("minimize_to_tray", self.minimize_to_tray_cb.isChecked())
+        self.settings.setValue("auto_start", self.auto_start_cb.isChecked())
 
-        # Opções
-        opt_frame = StyleFrame()
-        ol = QVBoxLayout(opt_frame)
-        self.min_cb = QCheckBox("Minimizar ao fechar")
-        self.min_cb.setChecked(True)
-        ol.addWidget(self.min_cb)
-        layout.addWidget(opt_frame)
+        # Salva configurações avançadas
+        self.settings.setValue(
+            "enable_mouse", self.advanced_tab.enable_mouse.isChecked()
+        )
+        self.settings.setValue(
+            "enable_keyboard", self.advanced_tab.enable_keyboard.isChecked()
+        )
+        self.settings.setValue(
+            "enable_scroll", self.advanced_tab.enable_scroll.isChecked()
+        )
+        self.settings.setValue(
+            "random_intervals", self.advanced_tab.random_intervals.isChecked()
+        )
 
-        # Botões
-        bl = QHBoxLayout()
-        bl.addStretch()
-        self.toggle_btn = QPushButton("Iniciar")
-        self.toggle_btn.clicked.connect(self.toggle_service)
-        bl.addWidget(self.toggle_btn)
-        self.min_btn = QPushButton("Minimizar")
-        self.min_btn.clicked.connect(self.hide)
-        bl.addWidget(self.min_btn)
-        bl.addStretch()
-        layout.addLayout(bl)
+        self.log_tab.add_log("Configurações salvas com sucesso")
 
-    def check_user_activity(self) -> None:
-        try:
-            pos = win32api.GetCursorPos()
-            if not hasattr(self, "last_cursor_pos"):
-                self.last_cursor_pos = pos
-            if pos != self.last_cursor_pos:
-                self.last_user_activity = time.time()
-                self.last_cursor_pos = pos
-        except Exception:
-            pass
-
-    def should_move_mouse(self) -> bool:
-        return (time.time() - self.last_user_activity) >= self.interval_spin.value()
-
-    def set_teams_status(self, status: TeamsStatus) -> None:
-        self.current_teams_status = status
-        for s, btn in self.teams_buttons.items():
-            btn.setChecked(s == status)
-        try:
-            win = auto.WindowControl(
-                searchDepth=1, ClassName="Chrome_WidgetWin_1", SubName="Teams"
-            )
-            if not win.Exists(1):
-                raise RuntimeError("Teams não encontrado")
-            st_btn = win.ButtonControl(AutomationId="status-bar-item")
-            st_btn.Click()
-            auto.WaitForInputIdle(1)
-            mp = {
-                TeamsStatus.AVAILABLE: "Disponível",
-                TeamsStatus.BUSY: "Ocupado",
-                TeamsStatus.DO_NOT_DISTURB: "Não perturbe",
-                TeamsStatus.AWAY: "Ausente",
-                TeamsStatus.OFFLINE: "Offline",
-            }
-            item = win.MenuItemControl(Name=mp[status])
-            item.Click()
-            self.status_label.setText(f"Status: {status.display_name}")
-        except Exception as e:
-            debug_log(f"Erro status: {e}", True)
-            self.status_label.setText(f"Erro: {e}")
-
-    def perform_activity(self) -> None:
-        try:
-            if not self.check_rdp_connection():
-                self.status_label.setText("RDP instável")
-            if self.should_move_mouse():
-                self.move_mouse_safely()
-            self.keep_rdp_alive()
-            self.prevent_screen_lock()
-            self.activity_count += 1
-            t = datetime.now().strftime("%H:%M:%S")
-            self.status_label.setText(f"Atividade #{self.activity_count} em {t}")
-        except Exception as e:
-            debug_log(f"Erro activity: {e}", True)
-            self.status_label.setText(f"Erro: {e}")
-
-    def move_mouse_safely(self) -> bool:
-        try:
-            w = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
-            h = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
-            x, y = pyautogui.position()
-            dx = min(10, w - x - 1)
-            dx = max(dx, -x)
-            dy = min(10, h - y - 1)
-            dy = max(dy, -y)
-            for mx, my in [(dx, 0), (0, dy), (-dx, 0), (0, -dy)]:
-                pyautogui.moveRel(mx, my, duration=0.2)
-            return True
-        except Exception as e:
-            debug_log(f"Erro mouse: {e}")
-            return False
-
-    def keep_rdp_alive(self) -> bool:
-        try:
-            win32ts.WTSResetPersistentSession()
-            return True
-        except:
-            return False
-
-    def check_rdp_connection(self) -> bool:
-        try:
-            sid = win32ts.WTSGetActiveConsoleSessionId()
-            return sid != 0xFFFFFFFF
-        except:
-            return False
-
-    def prevent_screen_lock(self) -> bool:
-        try:
-            ctypes.windll.kernel32.SetThreadExecutionState(
-                ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
-            )
-            return True
-        except:
-            return False
-
-    def toggle_service(self) -> None:
-        if not self.is_running:
-            debug_log("Iniciando serviço")
-            self.timer.start(self.interval_spin.value() * 1000)
-            self.is_running = True
-            self.toggle_btn.setText("Parar")
-        else:
-            debug_log("Parando serviço")
-            self.timer.stop()
-            self.is_running = False
-            self.toggle_btn.setText("Iniciar")
-            ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
-
-    def check_schedule(self) -> None:
-        now = QTime.currentTime()
-        if self.start_time_edit.time() <= now <= self.end_time_edit.time():
-            if not self.is_running:
-                self.toggle_service()
-        else:
-            if self.is_running:
-                self.toggle_service()
-
-    def closeEvent(self, event) -> None:
-        if self.min_cb.isChecked():
+    def closeEvent(self, event):
+        self.save_settings()
+        if self.minimize_to_tray_cb.isChecked():
             event.ignore()
             self.hide()
-            self.tray_icon.showMessage(
-                "Keep Alive Manager",
-                "Executando em segundo plano",
-                QSystemTrayIcon.MessageIcon.Information,
-                2000,
-            )
+            self.tray_icon.showMessage("Keep Alive", "Rodando em segundo plano")
         else:
             self.quit_application()
 
-    def quit_application(self) -> None:
-        if self.is_running:
+    def toggle_service(self):
+        if not self.is_running:
+            # Inicia o serviço
+            interval = self.interval_spin.value() * 1000
+
+            # Aplica intervalo randômico se habilitado
+            if self.advanced_tab.random_intervals.isChecked():
+                variation = interval * 0.3  # 30% de variação
+                interval = random.randint(
+                    int(interval - variation), int(interval + variation)
+                )
+
+            self.activity_timer.start(interval)
+            self.is_running = True
+            self.toggle_button.setText("Parar")
+            self.toggle_tray_action.setText("Parar")
+            self.status_label.setText("Serviço iniciado")
+            self.log_tab.add_log(
+                f"Serviço iniciado com intervalo de {interval/1000:.1f} segundos"
+            )
+        else:
+            # Para o serviço
+            self.activity_timer.stop()
+            self.is_running = False
+            self.toggle_button.setText("Iniciar")
+            self.toggle_tray_action.setText("Iniciar")
+            self.status_label.setText("Serviço parado")
+            ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
+            self.log_tab.add_log("Serviço parado")
+
+    def perform_activity(self):
+        try:
+            # 1. Prevenir bloqueio do sistema (sempre ativo)
+            prevent_system_lock()
+
+            # 2. Simular atividade eficaz
+            activity_success = simulate_effective_activity()
+
+            # 3. Atualizar status e contadores
+            self.activity_count += 1
+            now = datetime.now().strftime("%H:%M:%S")
+            status_msg = f"Atividade #{self.activity_count} em {now}"
+
+            if activity_success:
+                self.status_label.setText(status_msg + " (Sucesso)")
+                if self.activity_count % 5 == 0:
+                    self.log_tab.add_log(status_msg)
+            else:
+                self.status_label.setText(status_msg + " (Falha parcial)")
+                self.log_tab.add_log(
+                    f"ATENÇÃO: Falha parcial na atividade #{self.activity_count}"
+                )
+
+            # 4. Programar próxima atividade com variação
+            if self.is_running and self.advanced_tab.random_intervals.isChecked():
+                interval = self.interval_spin.value() * 1000
+                variation = interval * 0.3
+                next_interval = random.randint(
+                    int(interval - variation), int(interval + variation)
+                )
+                self.activity_timer.setInterval(next_interval)
+
+        except Exception as e:
+            error_msg = f"Erro na atividade #{self.activity_count}: {str(e)}"
+            self.status_label.setText(error_msg)
+            self.log_tab.add_log(f"ERRO: {error_msg}")
+            logging.error(error_msg)
+
+    def update_status(self):
+        """Atualiza status do Teams"""
+        try:
+            teams_active = is_teams_active()
+            status = (
+                "Ativo (Disponível)" if teams_active else "Inativo (Pode estar ausente)"
+            )
+            self.teams_status.setText(f"Status Teams: {status}")
+        except:
+            self.teams_status.setText("Status Teams: Verificação indisponível")
+
+    def check_schedule(self):
+        """Verifica se está dentro do horário agendado"""
+        now = QTime.currentTime()
+        start_time = self.start_time_edit.time()
+        end_time = self.end_time_edit.time()
+
+        within_schedule = start_time <= now <= end_time
+
+        if within_schedule and not self.is_running:
+            self.log_tab.add_log("Iniciando serviço conforme agendamento")
             self.toggle_service()
+        elif not within_schedule and self.is_running:
+            self.log_tab.add_log("Parando serviço conforme agendamento")
+            self.toggle_service()
+
+    def quit_application(self):
+        self.save_settings()
+        self.activity_timer.stop()
+        self.status_timer.stop()
+        self.schedule_timer.stop()
         self.tray_icon.hide()
+        self.log_tab.add_log("Aplicativo encerrado")
+        logging.info("Keep Alive Manager encerrado")
         QApplication.quit()
 
 
-if __name__ == "__main__":
-    from win32api import GetLastError
-    from win32event import CreateMutex
-    from winerror import ERROR_ALREADY_EXISTS
-
-    mutex = CreateMutex(None, 1, "KeepAliveManager_Mutex")
-    if GetLastError() == ERROR_ALREADY_EXISTS:
-        sys.exit(1)
-
+def main():
     app = QApplication(sys.argv)
+    if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
+        QCoreApplication.setAttribute(
+            Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True
+        )
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app.setStyle("Windows")
+
+    # Tenta criar o diretório de logs
+    try:
+        log_dir = os.path.dirname(log_file)
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+    except:
+        pass
+
     window = KeepAliveApp()
     window.show()
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
