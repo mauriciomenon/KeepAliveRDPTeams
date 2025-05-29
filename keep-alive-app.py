@@ -8,7 +8,7 @@ simulando interações do usuário para manter o RDP ativo e gerenciar o status 
 
 Características principais:
 - Usa PyAutoGUI para simulação de mouse e teclado
-- Requer que a janela do Teams seja trazida para primeiro plano durante a mudança de status
+- Requer que a janela do Teams seja trazada para primeiro plano durante a mudança de status
 - Interface gráfica em PyQt6 com suporte a system tray
 - Suporte a múltiplos idiomas nos comandos do Teams (PT-BR, EN-US, ES)
 - Sistema de logs para debug
@@ -39,48 +39,64 @@ Data: Janeiro/2024
 Versão: 1.0
 """
 
-import sys
+import ctypes
 import os
-import uiautomation as auto
-from PyQt6.QtCore import Qt, QCoreApplication
+import sys
+import time
+from datetime import datetime
+from datetime import time as dt_time
+from enum import Enum, auto
 
+import keyboard
+import pyautogui
+import uiautomation as auto
+import win32api
+import win32con
+import win32gui
+import win32ts
+from PyQt6.QtCore import QCoreApplication, Qt, QTime, QTimer
+from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QMenu,
+    QPushButton,
+    QSpinBox,
+    QStyle,
+    QSystemTrayIcon,
+    QTimeEdit,
+    QVBoxLayout,
+    QWidget,
+)
+
+# Ajustes de DPI no Qt
 if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
     QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
 if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
     QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
-from datetime import datetime, time as dt_time
-import time
-import keyboard  # Adicionar no topo do arquivo junto com outros imports
-import pyautogui
-from PyQt6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QLabel,
-    QSpinBox,
-    QTimeEdit,
-    QCheckBox,
-    QPushButton,
-    QSystemTrayIcon,
-    QMenu,
-    QStyle,
-    QFrame,
-    QButtonGroup,
-)
-from PyQt6.QtCore import QTimer, Qt, QTime
-from PyQt6.QtGui import QIcon, QAction
-import win32gui
-import win32con
-import win32api
-import win32ts
-import ctypes
-from ctypes import wintypes
-from enum import Enum, auto
-import time
+
+# Função de log de debug
+def debug_log(message: str, to_console: bool = False) -> None:
+    """
+    Registra mensagens de debug com timestamp em arquivo e opcionalmente no console.
+    """
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_msg = f"[{timestamp}] {message}"
+    log_file = os.path.join(os.path.dirname(__file__), "keep_alive_manager.log")
+    try:
+        with open(log_file, "a", encoding="utf-8") as f:
+            f.write(log_msg + "\n")
+    except Exception:
+        pass
+    if to_console:
+        print(log_msg)
+
 
 # Configurações do sistema
 ES_CONTINUOUS = 0x80000000
@@ -145,320 +161,199 @@ class KeepAliveApp(QMainWindow):
         # Timer para verificar atividade
         self.activity_timer = QTimer()
         self.activity_timer.timeout.connect(self.check_user_activity)
-        self.activity_timer.start(1000)  # Verifica a cada segundo
+        self.activity_timer.start(1000)  # checa a cada segundo
 
-        # Timer principal
+        # Timer principal de keep-alive
         self.timer = QTimer()
         self.timer.timeout.connect(self.perform_activity)
 
-        # Timer para horário
+        # Timer de schedule
         self.schedule_timer = QTimer()
         self.schedule_timer.timeout.connect(self.check_schedule)
-        self.schedule_timer.start(60000)
+        self.schedule_timer.start(60000)  # a cada 60s
 
         self.setup_ui()
         self.setup_tray(app_icon)
         self.check_schedule()
-
-        # Definir status inicial do Teams como Disponível
         self.set_teams_status(TeamsStatus.AVAILABLE)
 
-    def setup_tray(self, icon):
-        """Configura o ícone na bandeja do sistema"""
-        self.tray_icon = QSystemTrayIcon(icon, self)
-        self.tray_icon.setToolTip("Keep Alive Manager")
-
-        tray_menu = QMenu()
-        show_action = QAction("Mostrar", self)
-        quit_action = QAction("Sair", self)
-        toggle_action = QAction("Iniciar", self)
-
-        show_action.triggered.connect(self.show)
-        quit_action.triggered.connect(self.quit_application)
-        toggle_action.triggered.connect(self.toggle_service)
-
-        tray_menu.addAction(show_action)
-        tray_menu.addAction(toggle_action)
-        tray_menu.addSeparator()
-        tray_menu.addAction(quit_action)
-
-        self.tray_icon.setContextMenu(tray_menu)
-        self.tray_icon.show()
-
-        # Duplo clique no ícone mostra a janela
-        self.tray_icon.activated.connect(
+    def setup_tray(self, icon: QIcon) -> None:
+        tray = QSystemTrayIcon(icon, self)
+        tray.setToolTip("Keep Alive Manager")
+        menu = QMenu()
+        menu.addAction(QAction("Mostrar", self, triggered=self.show))
+        menu.addAction(QAction("Iniciar/Parar", self, triggered=self.toggle_service))
+        menu.addSeparator()
+        menu.addAction(QAction("Sair", self, triggered=self.quit_application))
+        tray.setContextMenu(menu)
+        tray.activated.connect(
             lambda reason: (
                 self.show()
                 if reason == QSystemTrayIcon.ActivationReason.DoubleClick
                 else None
             )
         )
+        tray.show()
+        self.tray_icon = tray
 
-    def setup_ui(self):
-        """Configura a interface do usuário"""
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
+    def setup_ui(self) -> None:
+        central = QWidget()
+        self.setCentralWidget(central)
+        layout = QVBoxLayout(central)
         layout.setSpacing(15)
 
-        # Status Frame
+        # Status Label
         status_frame = StyleFrame()
-        status_layout = QVBoxLayout(status_frame)
-        self.status_label = QLabel(
-            "Aguardando início do serviço\n"
-            "Configure os parâmetros abaixo e clique em 'Iniciar'\n"
-            "O programa funcionará em segundo plano"
-        )
+        sl = QVBoxLayout(status_frame)
+        self.status_label = QLabel("Aguardando início... configure e clique em Iniciar")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        status_layout.addWidget(self.status_label)
+        sl.addWidget(self.status_label)
         layout.addWidget(status_frame)
 
-        # Configurações Frame
-        config_frame = StyleFrame()
-        config_layout = QVBoxLayout(config_frame)
-
-        # Intervalo
-        interval_layout = QHBoxLayout()
-        interval_layout.addWidget(QLabel("Intervalo entre ações (segundos):"))
+        # Configurações
+        cfg_frame = StyleFrame()
+        cl = QVBoxLayout(cfg_frame)
+        row = QHBoxLayout()
+        row.addWidget(QLabel("Intervalo (s):"))
         self.interval_spin = QSpinBox()
         self.interval_spin.setRange(30, 300)
         self.interval_spin.setValue(self.default_interval)
-        interval_layout.addWidget(self.interval_spin)
-        config_layout.addLayout(interval_layout)
+        row.addWidget(self.interval_spin)
+        cl.addLayout(row)
+        tr = QHBoxLayout()
+        tr.addWidget(QLabel("Início:"))
+        self.start_time_edit = QTimeEdit(self.default_start_time)
+        tr.addWidget(self.start_time_edit)
+        tr.addWidget(QLabel("Término:"))
+        self.end_time_edit = QTimeEdit(self.default_end_time)
+        tr.addWidget(self.end_time_edit)
+        cl.addLayout(tr)
+        layout.addWidget(cfg_frame)
 
-        # Horários
-        time_layout = QHBoxLayout()
-        time_layout.addWidget(QLabel("Início:"))
-        self.start_time_edit = QTimeEdit()
-        self.start_time_edit.setTime(self.default_start_time)
-        time_layout.addWidget(self.start_time_edit)
-
-        time_layout.addWidget(QLabel("Término:"))
-        self.end_time_edit = QTimeEdit()
-        self.end_time_edit.setTime(self.default_end_time)
-        time_layout.addWidget(self.end_time_edit)
-        config_layout.addLayout(time_layout)
-
-        layout.addWidget(config_frame)
-
-        # Teams Status Frame
-        teams_frame = StyleFrame()
-        teams_layout = QVBoxLayout(teams_frame)
-        teams_layout.addWidget(QLabel("Status do Teams:"))
-
-        # Botões de status do Teams
-        status_button_layout = QHBoxLayout()
+        # Teams Status
+        ts_frame = StyleFrame()
+        tl = QVBoxLayout(ts_frame)
+        tl.addWidget(QLabel("Status do Teams:"))
+        hl = QHBoxLayout()
         self.teams_buttons = {}
-
-        for status in TeamsStatus:
-            btn = QPushButton(status.display_name)
+        for s in TeamsStatus:
+            btn = QPushButton(s.display_name)
             btn.setCheckable(True)
-            btn.clicked.connect(lambda checked, s=status: self.set_teams_status(s))
-            self.teams_buttons[status] = btn
-            status_button_layout.addWidget(btn)
-
-        # Marcar botão "Disponível" como selecionado inicialmente
+            btn.clicked.connect(lambda _, st=s: self.set_teams_status(st))
+            self.teams_buttons[s] = btn
+            hl.addWidget(btn)
         self.teams_buttons[TeamsStatus.AVAILABLE].setChecked(True)
+        tl.addLayout(hl)
+        layout.addWidget(ts_frame)
 
-        teams_layout.addLayout(status_button_layout)
-        layout.addWidget(teams_frame)
+        # Opções
+        opt_frame = StyleFrame()
+        ol = QVBoxLayout(opt_frame)
+        self.min_cb = QCheckBox("Minimizar ao fechar")
+        self.min_cb.setChecked(True)
+        ol.addWidget(self.min_cb)
+        layout.addWidget(opt_frame)
 
-        # Opções Frame
-        options_frame = StyleFrame()
-        options_layout = QVBoxLayout(options_frame)
-        self.minimize_to_tray_cb = QCheckBox(
-            "Minimizar para bandeja do sistema ao fechar"
-        )
-        self.minimize_to_tray_cb.setChecked(True)
-        options_layout.addWidget(self.minimize_to_tray_cb)
-        layout.addWidget(options_frame)
+        # Botões
+        bl = QHBoxLayout()
+        bl.addStretch()
+        self.toggle_btn = QPushButton("Iniciar")
+        self.toggle_btn.clicked.connect(self.toggle_service)
+        bl.addWidget(self.toggle_btn)
+        self.min_btn = QPushButton("Minimizar")
+        self.min_btn.clicked.connect(self.hide)
+        bl.addWidget(self.min_btn)
+        bl.addStretch()
+        layout.addLayout(bl)
 
-        # Botões de controle
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-
-        self.toggle_button = QPushButton("Iniciar")
-        self.toggle_button.clicked.connect(self.toggle_service)
-        self.toggle_button.setFixedWidth(100)
-        button_layout.addWidget(self.toggle_button)
-
-        self.minimize_button = QPushButton("Minimizar")
-        self.minimize_button.clicked.connect(self.hide)
-        self.minimize_button.setFixedWidth(100)
-        button_layout.addWidget(self.minimize_button)
-
-        button_layout.addStretch()
-        layout.addLayout(button_layout)
-
-    def check_user_activity(self):
-        """Verifica se houve atividade do usuário"""
+    def check_user_activity(self) -> None:
         try:
-            current_pos = win32api.GetCursorPos()
+            pos = win32api.GetCursorPos()
             if not hasattr(self, "last_cursor_pos"):
-                self.last_cursor_pos = current_pos
-
-            # Se a posição do cursor mudou, atualizar timestamp
-            if current_pos != self.last_cursor_pos:
+                self.last_cursor_pos = pos
+            if pos != self.last_cursor_pos:
                 self.last_user_activity = time.time()
-                self.last_cursor_pos = current_pos
-        except:
+                self.last_cursor_pos = pos
+        except Exception:
             pass
 
-    def should_move_mouse(self):
-        """Verifica se deve mover o mouse baseado na última atividade"""
-        return time.time() - self.last_user_activity >= self.interval_spin.value()
+    def should_move_mouse(self) -> bool:
+        return (time.time() - self.last_user_activity) >= self.interval_spin.value()
 
-    def set_teams_status(self, status):
-        """Define o status do Teams usando UI Automation"""
+    def set_teams_status(self, status: TeamsStatus) -> None:
         self.current_teams_status = status
-
-        # Atualizar botões
         for s, btn in self.teams_buttons.items():
             btn.setChecked(s == status)
-
         try:
-            # Procurar a janela do Teams
-            teams_window = auto.WindowControl(
+            win = auto.WindowControl(
                 searchDepth=1, ClassName="Chrome_WidgetWin_1", SubName="Teams"
             )
-            if not teams_window.Exists(1):
-                raise Exception("Janela do Teams não encontrada")
-
-            # Encontrar e clicar no botão de status
-            status_button = teams_window.ButtonControl(AutomationId="status-bar-item")
-            if not status_button.Exists(1):
-                raise Exception("Botão de status não encontrado")
-
-            status_button.Click()
+            if not win.Exists(1):
+                raise RuntimeError("Teams não encontrado")
+            st_btn = win.ButtonControl(AutomationId="status-bar-item")
+            st_btn.Click()
             auto.WaitForInputIdle(1)
-
-            # Mapeamento de status para texto do menu
-            status_menu_items = {
+            mp = {
                 TeamsStatus.AVAILABLE: "Disponível",
                 TeamsStatus.BUSY: "Ocupado",
                 TeamsStatus.DO_NOT_DISTURB: "Não perturbe",
                 TeamsStatus.AWAY: "Ausente",
                 TeamsStatus.OFFLINE: "Offline",
             }
-
-            # Encontrar e clicar no item de menu correspondente
-            menu_item = teams_window.MenuItemControl(Name=status_menu_items[status])
-            if not menu_item.Exists(1):
-                raise Exception(
-                    f"Opção de status '{status_menu_items[status]}' não encontrada"
-                )
-
-            menu_item.Click()
-            print(f"Status do Teams alterado para: {status.display_name}")
-
-            # Atualizar o label de status
-            self.status_label.setText(
-                f"Status do Teams alterado para: {status.display_name}\n"
-                "O programa continua mantendo suas conexões ativas"
-            )
-
+            item = win.MenuItemControl(Name=mp[status])
+            item.Click()
+            self.status_label.setText(f"Status: {status.display_name}")
         except Exception as e:
-            error_msg = f"Erro ao alterar status do Teams: {e}"
-            print(error_msg)
-            self.status_label.setText(
-                f"{error_msg}\n" "O programa continua mantendo suas conexões ativas"
-            )
+            debug_log(f"Erro status: {e}", True)
+            self.status_label.setText(f"Erro: {e}")
 
-        except Exception as e:
-            error_msg = f"Erro ao alterar status do Teams: {e}"
-            print(error_msg)
-            self.status_label.setText(
-                f"{error_msg}\n" "O programa continua mantendo suas conexões ativas"
-            )
-
-    def perform_activity(self):
-        """Executa as atividades de keep-alive"""
+    def perform_activity(self) -> None:
         try:
-            success = False
-
-            # Verificar conexão RDP
             if not self.check_rdp_connection():
-                self.status_label.setText(
-                    "Aviso: Conexão RDP pode estar instável\n"
-                    "Verificando métodos alternativos..."
-                )
-
-            # Só move o mouse se não houve atividade recente
+                self.status_label.setText("RDP instável")
             if self.should_move_mouse():
-                success = self.move_mouse_safely()
-            else:
-                success = True  # Considera sucesso se houve atividade recente
-
-            # Sempre tenta manter a sessão RDP ativa
+                self.move_mouse_safely()
             self.keep_rdp_alive()
             self.prevent_screen_lock()
-
             self.activity_count += 1
-            current_time = datetime.now().strftime("%H:%M:%S")
-
-            self.status_label.setText(
-                f"Mantendo conexões ativas\n"
-                f"Última atividade: {current_time} (#{self.activity_count})\n"
-                f"Próxima ação em {self.interval_spin.value()} segundos\n"
-                f"Status do Teams: {self.current_teams_status.display_name}"
-            )
-
+            t = datetime.now().strftime("%H:%M:%S")
+            self.status_label.setText(f"Atividade #{self.activity_count} em {t}")
         except Exception as e:
-            error_msg = f"Erro ao executar atividade: {str(e)}"
-            debug_log(error_msg, True)
-            self.status_label.setText(
-                f"{error_msg}\n" "Tentando métodos alternativos..."
-            )
+            debug_log(f"Erro activity: {e}", True)
+            self.status_label.setText(f"Erro: {e}")
 
-    def move_mouse_safely(self):
-        """Movimento do mouse em um pequeno quadrado"""
+    def move_mouse_safely(self) -> bool:
         try:
-            debug_log("Iniciando movimento seguro do mouse")
-            screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
-            screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
-            current_pos = pyautogui.position()
-
-            # Definir um quadrado de 20x20 pixels centrado na posição atual
-            max_movement = 10  # 10 pixels para cada lado = quadrado de 20x20
-
-            # Calcular movimentos seguros dentro dos limites da tela
-            x_move = min(max_movement, screen_width - current_pos[0] - 1)
-            x_move = max(x_move, -current_pos[0])
-            y_move = min(max_movement, screen_height - current_pos[1] - 1)
-            y_move = max(y_move, -current_pos[1])
-
-            # Movimento suave em pequeno quadrado
-            moves = [(x_move, 0), (0, y_move), (-x_move, 0), (0, -y_move)]
-
-            for dx, dy in moves:
-                debug_log(f"Movendo mouse: ({dx}, {dy})")
-                pyautogui.moveRel(dx, dy, duration=0.2)
-
+            w = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
+            h = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
+            x, y = pyautogui.position()
+            dx = min(10, w - x - 1)
+            dx = max(dx, -x)
+            dy = min(10, h - y - 1)
+            dy = max(dy, -y)
+            for mx, my in [(dx, 0), (0, dy), (-dx, 0), (0, -dy)]:
+                pyautogui.moveRel(mx, my, duration=0.2)
             return True
         except Exception as e:
-            debug_log(f"Erro ao mover mouse: {str(e)}")
+            debug_log(f"Erro mouse: {e}")
             return False
 
-    def keep_rdp_alive(self):
-        """Manter sessão RDP ativa usando API do Terminal Services"""
+    def keep_rdp_alive(self) -> bool:
         try:
             win32ts.WTSResetPersistentSession()
             return True
         except:
             return False
 
-    def check_rdp_connection(self):
-        """Verificar estado da conexão RDP"""
+    def check_rdp_connection(self) -> bool:
         try:
-            session_id = win32ts.WTSGetActiveConsoleSessionId()
-            return session_id != 0xFFFFFFFF
+            sid = win32ts.WTSGetActiveConsoleSessionId()
+            return sid != 0xFFFFFFFF
         except:
             return False
 
-    def prevent_screen_lock(self):
-        """Prevenir bloqueio de tela usando API do Windows"""
+    def prevent_screen_lock(self) -> bool:
         try:
-            debug_log("Prevenindo bloqueio de tela")
             ctypes.windll.kernel32.SetThreadExecutionState(
                 ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
             )
@@ -466,61 +361,42 @@ class KeepAliveApp(QMainWindow):
         except:
             return False
 
-    def toggle_service(self):
-        """Inicia ou para o serviço de keep-alive"""
+    def toggle_service(self) -> None:
         if not self.is_running:
             debug_log("Iniciando serviço")
             self.timer.start(self.interval_spin.value() * 1000)
             self.is_running = True
-            self.toggle_button.setText("Parar")
-            self.status_label.setText(
-                "Serviço iniciado\n"
-                "Mantendo suas conexões ativas\n"
-                "O programa está funcionando em segundo plano"
-            )
+            self.toggle_btn.setText("Parar")
         else:
             debug_log("Parando serviço")
             self.timer.stop()
             self.is_running = False
-            self.toggle_button.setText("Iniciar")
-            self.status_label.setText(
-                "Serviço parado\n"
-                "Suas conexões não estão sendo mantidas ativas\n"
-                "Clique em 'Iniciar' para retomar"
-            )
+            self.toggle_btn.setText("Iniciar")
             ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
 
-    def check_schedule(self):
-        """Verifica se deve estar rodando baseado no horário configurado"""
-        current_time = QTime.currentTime()
-        start_time = self.start_time_edit.time()
-        end_time = self.end_time_edit.time()
-
-        if start_time <= current_time <= end_time:
-            if not self.is_running and self.toggle_button.text() == "Iniciar":
+    def check_schedule(self) -> None:
+        now = QTime.currentTime()
+        if self.start_time_edit.time() <= now <= self.end_time_edit.time():
+            if not self.is_running:
                 self.toggle_service()
         else:
             if self.is_running:
                 self.toggle_service()
 
-    def closeEvent(self, event):
-        """Trata o evento de fechamento da janela"""
-        if self.minimize_to_tray_cb.isChecked():
-            debug_log("Minimizando para a bandeja")
+    def closeEvent(self, event) -> None:
+        if self.min_cb.isChecked():
             event.ignore()
             self.hide()
             self.tray_icon.showMessage(
                 "Keep Alive Manager",
-                "O programa continua rodando em segundo plano",
+                "Executando em segundo plano",
                 QSystemTrayIcon.MessageIcon.Information,
                 2000,
             )
         else:
-            debug_log("Fechando aplicação")
             self.quit_application()
 
-    def quit_application(self):
-        """Encerra a aplicação adequadamente"""
+    def quit_application(self) -> None:
         if self.is_running:
             self.toggle_service()
         self.tray_icon.hide()
@@ -528,12 +404,11 @@ class KeepAliveApp(QMainWindow):
 
 
 if __name__ == "__main__":
-    # Prevenir múltiplas instâncias
-    from win32event import CreateMutex
     from win32api import GetLastError
+    from win32event import CreateMutex
     from winerror import ERROR_ALREADY_EXISTS
 
-    handle = CreateMutex(None, 1, "KeepAliveManager_Mutex")
+    mutex = CreateMutex(None, 1, "KeepAliveManager_Mutex")
     if GetLastError() == ERROR_ALREADY_EXISTS:
         sys.exit(1)
 
