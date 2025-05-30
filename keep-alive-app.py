@@ -1,9 +1,9 @@
 # pylint: disable=E0602,E0102,E1101
 
 """
-Keep Alive Manager - RDP & Teams 2.0.3
+Keep Alive Manager - RDP & Teams 2.0.4
 Manter conexão RDP ativa e status do Teams
-- corrigido bug com ponteiro no canto da tela
+- Corrigido pequenos bugs do linter
 """
 
 import ctypes
@@ -60,17 +60,18 @@ mutex = None
 
 
 def is_already_running():
+    """Verifica se outra instância do aplicativo já está em execução"""
     global mutex
     app_name = "KeepAliveManager_RDP_Teams"
     try:
         mutex = win32event.CreateMutex(None, False, app_name)
         return win32api.GetLastError() == win32con.ERROR_ALREADY_EXISTS
-    except:
+    except Exception:
         return False
 
 
 def prevent_system_lock():
-    """Previne bloqueio de tela e hibernação de forma mais eficaz"""
+    """Previne bloqueio de tela e hibernação"""
     try:
         ctypes.windll.kernel32.SetThreadExecutionState(
             ES_CONTINUOUS
@@ -156,6 +157,7 @@ def simulate_effective_activity():
         return True, "Atividade simulada com sucesso"
     except pyautogui.FailSafeException:
         # Se ocorrer fail-safe, move o mouse para o centro da tela
+        screen_width, screen_height = pyautogui.size()
         center_x = screen_width // 2
         center_y = screen_height // 2
         pyautogui.moveTo(center_x, center_y, duration=0.5)
@@ -219,12 +221,15 @@ class LogTab(QWidget):
         layout.addLayout(button_layout)
 
     def add_log(self, message):
-        """Adiciona mensagem ao log"""
+        """Adiciona mensagem ao log com timestamp"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.log_text.append(f"[{timestamp}] {message}")
-        self.log_text.verticalScrollBar().setValue(
-            self.log_text.verticalScrollBar().maximum()
-        )
+
+        # Rola para o final do log
+        scrollbar = self.log_text.verticalScrollBar()
+        if scrollbar:
+            scrollbar.setValue(scrollbar.maximum())
+
         logging.info(message)
 
     def clear_log(self):
@@ -232,7 +237,7 @@ class LogTab(QWidget):
         self.log_text.clear()
 
     def save_log(self):
-        """Salva o log em um arquivo"""
+        """Salva o log em um arquivo na área de trabalho"""
         try:
             desktop = os.path.join(os.path.expanduser("~"), "Desktop")
             filename = os.path.join(
@@ -251,6 +256,7 @@ class AdvancedTab(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.log_tab = QTextEdit()
         layout = QVBoxLayout(self)
 
         # Grupo de opções de simulação
@@ -284,26 +290,32 @@ class AdvancedTab(QWidget):
         layout.addStretch()
 
     def test_simulation(self):
-        """Testa a simulação de atividade uma vez"""
+        """Testa a simulação de atividade uma vez com tratamento seguro de erros"""
         try:
             success, message = simulate_effective_activity()
+            log_msg = (
+                "Teste de simulação executado com sucesso"
+                if success
+                else f"Teste de simulação pulado: {message}"
+            )
+
+            # Logging apropriado
             if success:
-                logging.info("Teste de simulação executado com sucesso")
-                                main_window = self.window()
-                                if hasattr(main_window, 'log_tab'):
-                                    main_window.log_tab.add_log(
-                                        "Teste de simulação executado com sucesso"
-                                    )
-                logging.warning(f"Teste de simulação pulado: {message}")
-                                main_window = self.window()
-                                if hasattr(main_window, 'log_tab'):
-                                    main_window.log_tab.add_log(f"Teste pulado: {message}")
-            logging.error(f"Erro no teste de simulação: {str(e)}")
-                        main_window = self.window()
-                        if hasattr(main_window, 'log_tab'):
-                            main_window.log_tab.add_log(f"Erro no teste: {str(e)}")
-            if self.parent().parent().log_tab:
-                self.parent().parent().log_tab.add_log(f"Erro no teste: {str(e)}")
+                logging.info(log_msg)
+            else:
+                logging.warning(log_msg)
+
+            # Adiciona ao log visual se disponível
+            main_window = self.window()
+            if hasattr(main_window, "log_tab") and main_window.log_tab is not None:
+                main_window.log_tab.add_log(log_msg)
+
+        except Exception as e:
+            error_msg = f"Erro no teste de simulação: {str(e)}"
+            logging.error(error_msg)
+            main_window = self.window()
+            if hasattr(main_window, "log_tab") and main_window.log_tab is not None:
+                main_window.log_tab.add_log(error_msg)
 
 
 class KeepAliveApp(QMainWindow):
@@ -446,37 +458,43 @@ class KeepAliveApp(QMainWindow):
         layout.addLayout(button_layout)
 
     def setup_tray(self):
-        icon = self.style().standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
-        self.tray_icon = QSystemTrayIcon(icon, self)
-        self.tray_icon.setToolTip("Keep Alive Manager - RDP & Teams")
+        """Configura o ícone na bandeja do sistema com tratamento seguro"""
+        try:
+            # Obtém ícone seguro mesmo se self.style() for None
+            app_style = QApplication.style()
+            icon = app_style.standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
+            self.tray_icon = QSystemTrayIcon(icon, self)
+            self.tray_icon.setToolTip("Keep Alive Manager - RDP & Teams")
 
-        menu = QMenu()
-        show_action = QAction("Mostrar", self)
-        show_action.triggered.connect(self.show)
-        self.toggle_tray_action = QAction("Iniciar", self)
-        self.toggle_tray_action.triggered.connect(self.toggle_service)
+            menu = QMenu()
+            show_action = QAction("Mostrar", self)
+            show_action.triggered.connect(self.show)
+            self.toggle_tray_action = QAction("Iniciar", self)
+            self.toggle_tray_action.triggered.connect(self.toggle_service)
 
-        stop_completely_action = QAction("Parar Completamente", self)
-        stop_completely_action.triggered.connect(self.stop_completely)
+            stop_completely_action = QAction("Parar Completamente", self)
+            stop_completely_action.triggered.connect(self.stop_completely)
 
-        quit_action = QAction("Sair", self)
-        quit_action.triggered.connect(self.quit_application)
+            quit_action = QAction("Sair", self)
+            quit_action.triggered.connect(self.quit_application)
 
-        menu.addAction(show_action)
-        menu.addAction(self.toggle_tray_action)
-        menu.addAction(stop_completely_action)
-        menu.addSeparator()
-        menu.addAction(quit_action)
+            menu.addAction(show_action)
+            menu.addAction(self.toggle_tray_action)
+            menu.addAction(stop_completely_action)
+            menu.addSeparator()
+            menu.addAction(quit_action)
 
-        self.tray_icon.setContextMenu(menu)
-        self.tray_icon.activated.connect(
-            lambda reason: (
-                self.show()
-                if reason == QSystemTrayIcon.ActivationReason.DoubleClick
-                else None
+            self.tray_icon.setContextMenu(menu)
+            self.tray_icon.activated.connect(
+                lambda reason: (
+                    self.show()
+                    if reason == QSystemTrayIcon.ActivationReason.DoubleClick
+                    else None
+                )
             )
-        )
-        self.tray_icon.show()
+            self.tray_icon.show()
+        except Exception as e:
+            logging.error(f"Erro ao configurar bandeja do sistema: {str(e)}")
 
     def load_settings(self):
         """Carrega configurações salvas"""
@@ -503,7 +521,6 @@ class KeepAliveApp(QMainWindow):
         # Aplica parada completa se estiver marcada
         if self.completely_stopped:
             self.status_label.setText("Serviço completamente parado até amanhã")
-            # Não desativamos os botões para permitir reinício manual
         # Inicia automaticamente se configurado e dentro do horário
         elif self.auto_start_cb.isChecked():
             # Verifica se está dentro do horário agendado
@@ -692,7 +709,7 @@ class KeepAliveApp(QMainWindow):
             self.idle_status.setText(
                 f"Inatividade do usuário: {idle_time:.1f} segundos"
             )
-        except:
+        except Exception:
             self.teams_status.setText("Status Teams: Verificação indisponível")
             self.idle_status.setText("Inatividade: Verificação indisponível")
 
@@ -742,7 +759,10 @@ class KeepAliveApp(QMainWindow):
 
 
 def main():
+    """Função principal de inicialização da aplicação"""
     app = QApplication(sys.argv)
+
+    # Configurações High DPI para diferentes ambientes
     if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
         app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
     if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
@@ -755,8 +775,8 @@ def main():
         log_dir = os.path.dirname(log_file)
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
-    except:
-        pass
+    except Exception:
+        pass  # Continua mesmo se não conseguir criar o diretório
 
     window = KeepAliveApp()
     window.show()
