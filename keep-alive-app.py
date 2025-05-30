@@ -1,9 +1,9 @@
 # pylint: disable=E0602,E0102,E1101
 
 """
-Keep Alive Manager - RDP & Teams 2.0.2
+Keep Alive Manager - RDP & Teams 2.0.3
 Manter conexão RDP ativa e status do Teams
-- corrigido bug com logica de inicio manual
+- corrigido bug com ponteiro no canto da tela
 """
 
 import ctypes
@@ -117,21 +117,50 @@ def simulate_effective_activity():
             )
             return False, "Usuário ativo - pulando simulação"
 
-        # 1. Movimento de mouse significativo mas discreto
+        # 1. Movimento de mouse seguro (evita cantos da tela)
         screen_width, screen_height = pyautogui.size()
-        target_x = random.randint(100, screen_width - 100)
-        target_y = random.randint(100, screen_height - 100)
-        pyautogui.moveTo(target_x, target_y, duration=0.3)
+
+        # Define uma margem segura (5% da tela) para evitar cantos
+        margin = int(min(screen_width, screen_height) * 0.05)
+        safe_left = margin
+        safe_right = screen_width - margin
+        safe_top = margin
+        safe_bottom = screen_height - margin
+
+        # Posição aleatória dentro da área segura
+        target_x = random.randint(safe_left, safe_right)
+        target_y = random.randint(safe_top, safe_bottom)
+
+        # Movimento mais suave e natural
+        pyautogui.moveTo(target_x, target_y, duration=random.uniform(0.2, 0.5))
 
         # 2. Eventos de teclado seguros (não interferem com o usuário)
         keys = ["shift", "ctrl", "numlock"]
         key = random.choice(keys)
         pyautogui.press(key)
 
-        # 3. Pequeno movimento adicional
-        pyautogui.moveRel(random.randint(-3, 3), random.randint(-3, 3), duration=0.1)
+        # 3. Movimento adicional controlado
+        move_x = random.randint(-10, 10)
+        move_y = random.randint(-10, 10)
+
+        # Verifica se o movimento não levará para perto dos cantos
+        new_x = target_x + move_x
+        new_y = target_y + move_y
+
+        if safe_left <= new_x <= safe_right and safe_top <= new_y <= safe_bottom:
+            pyautogui.moveRel(move_x, move_y, duration=random.uniform(0.1, 0.2))
+        else:
+            # Se estiver perto da borda, move na direção oposta
+            pyautogui.moveRel(-move_x, -move_y, duration=random.uniform(0.1, 0.2))
 
         return True, "Atividade simulada com sucesso"
+    except pyautogui.FailSafeException:
+        # Se ocorrer fail-safe, move o mouse para o centro da tela
+        center_x = screen_width // 2
+        center_y = screen_height // 2
+        pyautogui.moveTo(center_x, center_y, duration=0.5)
+        logging.warning("Fail-safe acionado. Mouse movido para o centro.")
+        return False, "Fail-safe acionado - mouse movido para o centro"
     except Exception as e:
         logging.error(f"Erro na simulação de atividade: {str(e)}")
         return False, f"Erro: {str(e)}"
@@ -260,16 +289,19 @@ class AdvancedTab(QWidget):
             success, message = simulate_effective_activity()
             if success:
                 logging.info("Teste de simulação executado com sucesso")
-                if self.parent().parent().log_tab:
-                    self.parent().parent().log_tab.add_log(
-                        "Teste de simulação executado com sucesso"
-                    )
-            else:
+                                main_window = self.window()
+                                if hasattr(main_window, 'log_tab'):
+                                    main_window.log_tab.add_log(
+                                        "Teste de simulação executado com sucesso"
+                                    )
                 logging.warning(f"Teste de simulação pulado: {message}")
-                if self.parent().parent().log_tab:
-                    self.parent().parent().log_tab.add_log(f"Teste pulado: {message}")
-        except Exception as e:
+                                main_window = self.window()
+                                if hasattr(main_window, 'log_tab'):
+                                    main_window.log_tab.add_log(f"Teste pulado: {message}")
             logging.error(f"Erro no teste de simulação: {str(e)}")
+                        main_window = self.window()
+                        if hasattr(main_window, 'log_tab'):
+                            main_window.log_tab.add_log(f"Erro no teste: {str(e)}")
             if self.parent().parent().log_tab:
                 self.parent().parent().log_tab.add_log(f"Erro no teste: {str(e)}")
 
