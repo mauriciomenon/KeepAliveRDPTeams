@@ -8,3 +8,16 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+build/KeepAliveManager/Analysis-00.toc
+build/KeepAliveManager/EXE-00.toc
+build/KeepAliveManager/KeepAliveManager.pkg
+build/KeepAliveManager/PKG-00.toc
+build/KeepAliveManager/PYZ-00.pyz
+build/KeepAliveManager/PYZ-00.toc
+build/KeepAliveManager/warn-KeepAliveManager.txt
+build/KeepAliveManager/xref-KeepAliveManager.html
+build/KeepAliveManager/localpycs/pyimod01_archive.pyc
+build/KeepAliveManager/localpycs/pyimod02_importers.pyc
+build/KeepAliveManager/localpycs/pyimod03_ctypes.pyc
+build/KeepAliveManager/localpycs/pyimod04_pywin32.pyc
+build/KeepAliveManager/localpycs/struct.pyc
