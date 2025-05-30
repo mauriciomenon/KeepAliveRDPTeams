@@ -1,8 +1,9 @@
 # pylint: disable=E0602,E0102,E1101
 
 """
-Keep Alive Manager - RDP & Teams 2.0.1
-Foco principal em manter conexão RDP ativa e status do Teams como "Disponível"
+Keep Alive Manager - RDP & Teams 2.0.2
+Manter conexão RDP ativa e status do Teams
+- corrigido bug com logica de inicio manual
 """
 
 import ctypes
@@ -298,6 +299,7 @@ class KeepAliveApp(QMainWindow):
         self.is_running = False
         self.activity_count = 0
         self.completely_stopped = self.settings.value("completely_stopped", False, bool)
+        self.manual_start = False  # Flag para controle de início manual
 
         # Timers
         self.activity_timer = QTimer()
@@ -544,6 +546,8 @@ class KeepAliveApp(QMainWindow):
 
                 if reply == QMessageBox.StandardButton.Yes:
                     self.start_service()
+                    # Marca como início manual para não ser parado pelo agendamento
+                    self.manual_start = True
                 else:
                     self.log_tab.add_log(
                         "Início fora do horário cancelado pelo usuário"
@@ -576,6 +580,7 @@ class KeepAliveApp(QMainWindow):
         """Para o serviço de keep-alive"""
         self.activity_timer.stop()
         self.is_running = False
+        self.manual_start = False  # Reseta o flag de início manual
         self.toggle_button.setText("Iniciar")
         self.toggle_tray_action.setText("Iniciar")
         self.status_label.setText("Serviço parado")
@@ -685,12 +690,13 @@ class KeepAliveApp(QMainWindow):
 
         within_schedule = start_time <= now <= end_time
 
-        if within_schedule and not self.is_running:
-            self.log_tab.add_log("Iniciando serviço conforme agendamento")
-            self.toggle_service()  # Vai iniciar (dentro do horário, sem confirmação)
-        elif not within_schedule and self.is_running:
+        # Não para serviços iniciados manualmente
+        if not within_schedule and self.is_running and not self.manual_start:
             self.log_tab.add_log("Parando serviço conforme agendamento")
             self.stop_service()
+        elif within_schedule and not self.is_running and not self.completely_stopped:
+            self.log_tab.add_log("Iniciando serviço conforme agendamento")
+            self.start_service()
 
     def quit_application(self):
         self.save_settings()
