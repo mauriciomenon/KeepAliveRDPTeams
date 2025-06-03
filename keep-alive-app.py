@@ -1,9 +1,13 @@
 # pylint: disable=E0602,E0102,E1101
 
 """
-Keep Alive Manager - RDP & Teams 2.0.4
+Keep Alive RDP Connection 2.0.6
 Manter conexão RDP ativa e status do Teams
 - Corrigido pequenos bugs do linter
+- Adicionada aba About e controle de inicialização
+Maurício Menon + IA (Deepseek R1) para revisão
+Foz do Iguaçu 02/06/2025
+https://github.com/mauriciomenon/KeepAliveRDPTeams
 """
 
 import ctypes
@@ -62,7 +66,7 @@ mutex = None
 def is_already_running():
     """Verifica se outra instância do aplicativo já está em execução"""
     global mutex
-    app_name = "KeepAliveManager_RDP_Teams"
+    app_name = "KeepAlive_RDP"
     try:
         mutex = win32event.CreateMutex(None, False, app_name)
         return win32api.GetLastError() == win32con.ERROR_ALREADY_EXISTS
@@ -256,7 +260,6 @@ class AdvancedTab(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.log_tab = QTextEdit()
         layout = QVBoxLayout(self)
 
         # Grupo de opções de simulação
@@ -318,10 +321,28 @@ class AdvancedTab(QWidget):
                 main_window.log_tab.add_log(error_msg)
 
 
+class AboutTab(QWidget):
+    """Aba 'About' com informações do projeto"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        about_text = QLabel()
+        about_text.setText(
+            "Keep Alive RDP Connection 2.0.6\n\n"
+            "Maurício Menon + IA (Deepseek R1)\n"
+            "https://github.com/mauriciomenon/KeepAliveRDPTeams\n"
+            "Foz do Iguaçu 02/06/2025\n"
+        )
+        about_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(about_text)
+        layout.addStretch()
+
+
 class KeepAliveApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Keep Alive Manager - RDP & Teams")
+        self.setWindowTitle("Keep Alive RDP Connection")
         self.setFixedSize(500, 500)
 
         # Verifica se já está rodando
@@ -329,7 +350,7 @@ class KeepAliveApp(QMainWindow):
             QMessageBox.warning(
                 None,
                 "Aviso",
-                "O Keep Alive Manager já está em execução!\n"
+                "O Keep Alive já está em execução!\n"
                 "Verifique a bandeja do sistema ou o gerenciador de tarefas.",
             )
             sys.exit(1)
@@ -358,7 +379,7 @@ class KeepAliveApp(QMainWindow):
         self.status_timer.timeout.connect(self.update_status)
         self.status_timer.start(5000)
 
-        logging.info("Keep Alive Manager iniciado")
+        logging.info("Keep Alive RDP Connection iniciado")
 
         self.setup_ui()
         self.setup_tray()
@@ -441,20 +462,28 @@ class KeepAliveApp(QMainWindow):
         self.log_tab = LogTab(self.tab_widget)
         self.tab_widget.addTab(self.log_tab, "Log")
 
+        # Aba About
+        about_tab = AboutTab(self.tab_widget)
+        self.tab_widget.addTab(about_tab, "About")
+
         # Botões
         button_layout = QHBoxLayout()
         self.toggle_button = QPushButton("Iniciar")
         self.toggle_button.clicked.connect(self.toggle_service)
 
+        self.stop_completely_button = QPushButton("Parar até Amanhã")
+        self.stop_completely_button.clicked.connect(self.stop_completely)
+
+        self.close_button = QPushButton("Fechar Completamente")
+        self.close_button.clicked.connect(self.quit_application)
+
         self.minimize_button = QPushButton("Minimizar")
         self.minimize_button.clicked.connect(self.hide)
 
-        self.stop_completely_button = QPushButton("Parar Completamente")
-        self.stop_completely_button.clicked.connect(self.stop_completely)
-
         button_layout.addWidget(self.toggle_button)
-        button_layout.addWidget(self.minimize_button)
         button_layout.addWidget(self.stop_completely_button)
+        button_layout.addWidget(self.close_button)
+        button_layout.addWidget(self.minimize_button)
         layout.addLayout(button_layout)
 
     def setup_tray(self):
@@ -464,7 +493,7 @@ class KeepAliveApp(QMainWindow):
             app_style = QApplication.style()
             icon = app_style.standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
             self.tray_icon = QSystemTrayIcon(icon, self)
-            self.tray_icon.setToolTip("Keep Alive Manager - RDP & Teams")
+            self.tray_icon.setToolTip("Keep Alive RDP Connection")
 
             menu = QMenu()
             show_action = QAction("Mostrar", self)
@@ -472,8 +501,11 @@ class KeepAliveApp(QMainWindow):
             self.toggle_tray_action = QAction("Iniciar", self)
             self.toggle_tray_action.triggered.connect(self.toggle_service)
 
-            stop_completely_action = QAction("Parar Completamente", self)
+            stop_completely_action = QAction("Parar até Amanhã", self)
             stop_completely_action.triggered.connect(self.stop_completely)
+
+            close_action = QAction("Fechar Completamente", self)
+            close_action.triggered.connect(self.quit_application)
 
             quit_action = QAction("Sair", self)
             quit_action.triggered.connect(self.quit_application)
@@ -481,6 +513,14 @@ class KeepAliveApp(QMainWindow):
             menu.addAction(show_action)
             menu.addAction(self.toggle_tray_action)
             menu.addAction(stop_completely_action)
+            menu.addAction(close_action)
+            menu.addSeparator()
+            menu.addAction(quit_action)
+
+            menu.addAction(show_action)
+            menu.addAction(self.toggle_tray_action)
+            menu.addAction(stop_completely_action)
+            menu.addAction(close_action)
             menu.addSeparator()
             menu.addAction(quit_action)
 
@@ -518,22 +558,38 @@ class KeepAliveApp(QMainWindow):
             self.settings.value("random_intervals", True, bool)
         )
 
-        # Aplica parada completa se estiver marcada
+    def ask_initial_action(self):
+        """Pergunta ao usuário na inicialização se deseja iniciar imediatamente ou conforme agenda"""
+        # Se estiver completamente parado, não pergunta
         if self.completely_stopped:
             self.status_label.setText("Serviço completamente parado até amanhã")
-        # Inicia automaticamente se configurado e dentro do horário
-        elif self.auto_start_cb.isChecked():
-            # Verifica se está dentro do horário agendado
-            now = QTime.currentTime()
-            start_time = self.start_time_edit.time()
-            end_time = self.end_time_edit.time()
+            return
 
-            if start_time <= now <= end_time:
-                QTimer.singleShot(1000, self.toggle_service)
-            else:
-                self.log_tab.add_log(
-                    "Fora do horário agendado - aguardando início automático"
-                )
+        # Verifica se está dentro do horário agendado
+        now = QTime.currentTime()
+        start_time = self.start_time_edit.time()
+        end_time = self.end_time_edit.time()
+
+        if start_time <= now <= end_time:
+            # Dentro do horário: pergunta se quer iniciar agora
+            reply = QMessageBox.question(
+                self,
+                "Iniciar serviço?",
+                "Deseja iniciar o serviço imediatamente?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.Yes,
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                self.toggle_service()  # Inicia o serviço
+        else:
+            # Fora do horário: informa que pode iniciar manualmente
+            self.log_tab.add_log("Fora do horário agendado - aguardando início manual")
+            QMessageBox.information(
+                self,
+                "Fora do horário",
+                f"Atualmente está fora do horário agendado ({start_time.toString('HH:mm')} - {end_time.toString('HH:mm')}).\n"
+                "Você pode iniciar manualmente quando desejar.",
+            )
 
     def save_settings(self):
         """Salva configurações atuais"""
@@ -566,7 +622,7 @@ class KeepAliveApp(QMainWindow):
             event.ignore()
             self.hide()
             self.tray_icon.showMessage(
-                "Keep Alive - RDP & Teams",
+                "Keep Alive RDP Connection",
                 "Rodando em segundo plano",
                 QSystemTrayIcon.MessageIcon.Information,
                 2000,
@@ -607,23 +663,30 @@ class KeepAliveApp(QMainWindow):
 
     def start_service(self):
         """Inicia o serviço de keep-alive"""
-        interval = self.interval_spin.value() * 1000
+        base_interval = self.interval_spin.value()
+        base_interval_ms = base_interval * 1000  # Converte para milissegundos
 
         # Aplica intervalo randômico se habilitado
         if self.advanced_tab.random_intervals.isChecked():
-            variation = interval * 0.3  # 30% de variação
-            interval = random.randint(
-                int(interval - variation), int(interval + variation)
+            variation = base_interval_ms * 0.3  # 30% de variação
+            next_interval = random.randint(
+                int(base_interval_ms - variation), int(base_interval_ms + variation)
             )
+        else:
+            # Garante que o intervalo base seja respeitado
+            next_interval = base_interval_ms
 
-        self.activity_timer.start(interval)
+        self.activity_timer.start(next_interval)
         self.is_running = True
         self.toggle_button.setText("Parar")
         self.toggle_tray_action.setText("Parar")
         self.status_label.setText("Serviço iniciado")
-        self.log_tab.add_log(
-            f"Serviço iniciado com intervalo de {interval/1000:.1f} segundos"
-        )
+
+        # Mensagem de log mais informativa
+        log_msg = f"Serviço iniciado com intervalo base de {base_interval}s"
+        if self.advanced_tab.random_intervals.isChecked():
+            log_msg += " (±30%)"
+        self.log_tab.add_log(log_msg)
 
     def stop_service(self):
         """Para o serviço de keep-alive"""
@@ -638,25 +701,35 @@ class KeepAliveApp(QMainWindow):
 
     def stop_completely(self):
         """Para completamente o serviço até o próximo dia"""
-        if self.is_running:
-            self.stop_service()  # Para o serviço se estiver rodando
+        try:
+            if self.is_running:
+                self.stop_service()  # Para o serviço se estiver rodando
 
-        self.completely_stopped = True
-        self.status_label.setText("Serviço completamente parado até amanhã")
+            self.completely_stopped = True
+            self.status_label.setText("Serviço completamente parado até amanhã")
 
-        # Salva a hora atual para resetar amanhã
-        self.settings.setValue("completely_stopped_time", datetime.now().isoformat())
+            # Salva a hora atual para resetar amanhã
+            self.settings.setValue(
+                "completely_stopped_time", datetime.now().isoformat()
+            )
 
-        self.log_tab.add_log("Serviço completamente parado até amanhã")
-        self.save_settings()
+            # Salva as configurações antes de adicionar ao log
+            self.save_settings()
 
-        # Mostra mensagem no tray
-        self.tray_icon.showMessage(
-            "Keep Alive - Parado",
-            "Serviço completamente parado até amanhã",
-            QSystemTrayIcon.MessageIcon.Information,
-            3000,
-        )
+            self.log_tab.add_log("Serviço completamente parado até amanhã")
+
+            # Mostra mensagem no tray
+            self.tray_icon.showMessage(
+                "Keep Alive - Parado",
+                "Serviço completamente parado até amanhã",
+                QSystemTrayIcon.MessageIcon.Information,
+                3000,
+            )
+        except Exception as e:
+            logging.error(f"Erro ao parar completamente: {str(e)}")
+            QMessageBox.critical(
+                self, "Erro", f"Ocorreu um erro ao parar o serviço: {str(e)}"
+            )
 
     def perform_activity(self):
         try:
@@ -682,10 +755,10 @@ class KeepAliveApp(QMainWindow):
 
             # 4. Programar próxima atividade com variação
             if self.is_running and self.advanced_tab.random_intervals.isChecked():
-                interval = self.interval_spin.value() * 1000
-                variation = interval * 0.3
+                base_interval = self.interval_spin.value() * 1000
+                variation = base_interval * 0.3
                 next_interval = random.randint(
-                    int(interval - variation), int(interval + variation)
+                    int(base_interval - variation), int(base_interval + variation)
                 )
                 self.activity_timer.setInterval(next_interval)
 
@@ -698,10 +771,13 @@ class KeepAliveApp(QMainWindow):
     def update_status(self):
         """Atualiza status do Teams e inatividade do usuário"""
         try:
+            # Atraso inicial apenas na primeira execução
+            if not hasattr(self, "_teams_initial_delay"):
+                time.sleep(10)  # Aguarda () segundos para estabilização inicial
+                self._teams_initial_delay = True
+
             teams_active = is_teams_active()
-            status = (
-                "Ativo (Disponível)" if teams_active else "Inativo (Pode estar ausente)"
-            )
+            status = "Ativo (Disponível)" if teams_active else "Inativo/Ausente)"
             self.teams_status.setText(f"Status Teams: {status}")
 
             # Atualiza status de inatividade
@@ -748,13 +824,21 @@ class KeepAliveApp(QMainWindow):
             self.start_service()
 
     def quit_application(self):
-        self.save_settings()
-        self.activity_timer.stop()
-        self.status_timer.stop()
-        self.schedule_timer.stop()
-        self.tray_icon.hide()
-        self.log_tab.add_log("Aplicativo encerrado")
-        logging.info("Keep Alive Manager encerrado")
+        try:
+            self.save_settings()
+            self.log_tab.add_log("Aplicativo encerrado")
+        except Exception as e:
+            logging.error(f"Erro ao salvar configurações: {str(e)}")
+
+        try:
+            self.activity_timer.stop()
+            self.status_timer.stop()
+            self.schedule_timer.stop()
+            self.tray_icon.hide()
+            logging.info("Keep Alive encerrado")
+        except Exception as e:
+            logging.error(f"Erro ao encerrar timers: {str(e)}")
+
         QApplication.quit()
 
 
@@ -763,10 +847,15 @@ def main():
     app = QApplication(sys.argv)
 
     # Configurações High DPI para diferentes ambientes
-    if hasattr(Qt.ApplicationAttribute, "AA_EnableHighDpiScaling"):
-        app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-    if hasattr(Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-        app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+    if hasattr(Qt, "AA_EnableHighDpiScaling"):
+        app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    if hasattr(Qt, "AA_UseHighDpiPixmaps"):
+        app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
+    # Solução para erro de DPI no Windows
+    if sys.platform == "win32":
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)  # Per-monitor v2
+
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app.setStyle("Windows")
 
@@ -779,7 +868,15 @@ def main():
         pass  # Continua mesmo se não conseguir criar o diretório
 
     window = KeepAliveApp()
-    window.show()
+    window.show()  # Garante que a janela seja exibida na abertura
+
+    # Mensagem de boas-vindas
+    window.log_tab.add_log("Bem-vindo ao Keep Alive RDP Connection")
+    window.log_tab.add_log("Configure as opções e clique em 'Iniciar' para começar")
+
+    # Agendar a pergunta inicial para após a exibição da janela principal
+    QTimer.singleShot(500, window.ask_initial_action)
+
     sys.exit(app.exec())
 
 
