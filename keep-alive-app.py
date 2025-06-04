@@ -173,7 +173,7 @@ def simulate_effective_activity():
 
 
 def is_teams_active():
-    """Verifica se o Teams está com status 'Disponível'"""
+    """Verifica se o Teams está com status 'Disponível' - Versão Simples e Robusta"""
     try:
         from win32gui import GetForegroundWindow, GetWindowText
 
@@ -183,11 +183,23 @@ def is_teams_active():
         if "teams" in active_window:
             return True
 
-        # Verificação adicional: se o mouse está sobre a janela do Teams
+        # Verificação do mouse sobre a janela do Teams
         teams_rect = None
+        teams_patterns = ["teams", "microsoft teams"]
+
         for window in pyautogui.getAllWindows():
-            if "teams" in window.title.lower():
-                teams_rect = (window.left, window.top, window.width, window.height)
+            if not window or not hasattr(window, "title"):
+                continue
+
+            window_title = window.title.lower().strip()
+            if len(window_title) == 0:
+                continue
+
+            for pattern in teams_patterns:
+                if pattern in window_title and window.width > 0 and window.height > 0:
+                    teams_rect = (window.left, window.top, window.width, window.height)
+                    break
+            if teams_rect:
                 break
 
         if teams_rect:
@@ -199,9 +211,10 @@ def is_teams_active():
                 return True
 
         return False
+
     except Exception as e:
         logging.warning(f"Erro ao verificar status do Teams: {str(e)}")
-        return True
+        return True  # Em caso de erro, assume ativo para não interromper o serviço
 
 
 class LogTab(QWidget):
@@ -256,7 +269,7 @@ class LogTab(QWidget):
 
 
 class AdvancedTab(QWidget):
-    """Aba para configurações avançadas de atividade"""
+    """Aba para configurações avançadas de atividade - Versão Simplificada"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -284,40 +297,91 @@ class AdvancedTab(QWidget):
 
         layout.addWidget(sim_group)
 
-        # Botão de teste
+        # Botões de teste - SIMPLIFICADOS
+        test_group = QGroupBox("Testes")
+        test_layout = QVBoxLayout(test_group)
+
         test_button = QPushButton("Testar Simulação Agora")
         test_button.clicked.connect(self.test_simulation)
-        layout.addWidget(test_button)
+        test_layout.addWidget(test_button)
+
+        test_teams_button = QPushButton("Testar Detecção do Teams")
+        test_teams_button.clicked.connect(self.test_teams_detection)
+        test_layout.addWidget(test_teams_button)
+
+        layout.addWidget(test_group)
 
         # Espaçador
         layout.addStretch()
 
-    def test_simulation(self):
-        """Testa a simulação de atividade uma vez com tratamento seguro de erros"""
+    def test_teams_detection(self):
+        """Testa detecção do Teams - EXECUÇÃO IMEDIATA"""
         try:
-            success, message = simulate_effective_activity()
-            log_msg = (
-                "Teste de simulação executado com sucesso"
-                if success
-                else f"Teste de simulação pulado: {message}"
-            )
-
-            # Logging apropriado
-            if success:
-                logging.info(log_msg)
-            else:
-                logging.warning(log_msg)
-
-            # Adiciona ao log visual se disponível
             main_window = self.window()
-            if hasattr(main_window, "log_tab") and main_window.log_tab is not None:
-                main_window.log_tab.add_log(log_msg)
+
+            # Força atualização do cache
+            if hasattr(main_window, "teams_window_cache"):
+                main_window.teams_window_cache = None
+                main_window.cache_time = 0
+
+            # Teste da função original
+            original_result = is_teams_active()
+
+            # Teste da função melhorada
+            improved_result = "Não disponível"
+            if hasattr(main_window, "is_teams_active_improved"):
+                improved_result = main_window.is_teams_active_improved()
+
+            # Log imediato dos resultados
+            test_msg = f"Detecção do Teams - Original: {original_result} | Melhorada: {improved_result}"
+
+            if hasattr(main_window, "log_tab") and main_window.log_tab:
+                main_window.log_tab.add_log("Teste de detecção do Teams")
+                main_window.log_tab.add_log(test_msg)
+
+            logging.info(test_msg)
+
+        except Exception as e:
+            error_msg = f"Erro no teste de detecção: {str(e)}"
+            logging.error(error_msg)
+            print(f"ERRO CRÍTICO: {error_msg}")  # Console apenas para erros críticos
+            main_window = self.window()
+            if hasattr(main_window, "log_tab") and main_window.log_tab:
+                main_window.log_tab.add_log(error_msg)
+
+    def test_simulation(self):
+        """Testa simulação - EXECUÇÃO IMEDIATA"""
+        try:
+            # Executa a simulação imediatamente
+            success, message = simulate_effective_activity()
+
+            # Log imediato
+            if success:
+                result_msg = "Teste de simulação executado com sucesso"
+                logging.info(result_msg)
+            else:
+                if "pulando simulação" in message:
+                    result_msg = "Usuário ativo - simulação cancelada"
+                else:
+                    result_msg = f"Simulação não executada: {message}"
+                logging.warning(result_msg)
+
+            # Adiciona ao log visual imediatamente
+            main_window = self.window()
+            if hasattr(main_window, "log_tab") and main_window.log_tab:
+                main_window.log_tab.add_log("Teste de simulação")
+                main_window.log_tab.add_log(result_msg)
+
+                # Info do usuário
+                idle_time = get_user_activity_timeout()
+                main_window.log_tab.add_log(f"Inatividade atual: {idle_time:.1f}s")
 
         except Exception as e:
             error_msg = f"Erro no teste de simulação: {str(e)}"
             logging.error(error_msg)
+            print(f"ERRO CRÍTICO: {error_msg}")  # Console apenas para erros críticos
             main_window = self.window()
-            if hasattr(main_window, "log_tab") and main_window.log_tab is not None:
+            if hasattr(main_window, "log_tab") and main_window.log_tab:
                 main_window.log_tab.add_log(error_msg)
 
 
@@ -366,6 +430,14 @@ class KeepAliveApp(QMainWindow):
         self.completely_stopped = self.settings.value("completely_stopped", False, bool)
         self.manual_start = False  # Flag para controle de início manual
 
+        # === MELHORIAS SIMPLIFICADAS ===
+        # Cache simples da janela do Teams (apenas para performance)
+        self.teams_window_cache = None
+        self.cache_time = 0
+
+        # Controle de inicialização
+        self._initial_delay_done = False
+
         # Timers
         self.activity_timer = QTimer()
         self.activity_timer.timeout.connect(self.perform_activity)
@@ -376,14 +448,110 @@ class KeepAliveApp(QMainWindow):
 
         # Status check timer
         self.status_timer = QTimer()
-        self.status_timer.timeout.connect(self.update_status)
+        self.status_timer.timeout.connect(self.update_status_from_timer)
         self.status_timer.start(5000)
+
+        # Atualiza status imediatamente na abertura
+        QTimer.singleShot(500, self.update_status)
 
         logging.info("Keep Alive RDP Connection iniciado")
 
         self.setup_ui()
         self.setup_tray()
         self.load_settings()
+
+    def find_teams_window_simple(self):
+        """Busca simples e eficaz pela janela do Teams"""
+        teams_patterns = ["teams", "microsoft teams"]
+
+        try:
+            for window in pyautogui.getAllWindows():
+                if not window or not hasattr(window, "title"):
+                    continue
+
+                window_title = window.title.lower().strip()
+                if len(window_title) == 0:
+                    continue
+
+                for pattern in teams_patterns:
+                    if (
+                        pattern in window_title
+                        and window.width > 0
+                        and window.height > 0
+                    ):
+                        return (window.left, window.top, window.width, window.height)
+
+        except Exception as e:
+            logging.warning(f"Erro na busca do Teams: {str(e)}")
+
+        return None
+
+    def is_teams_active_improved(self):
+        """Detecção melhorada mas simplificada do Teams"""
+        try:
+            from win32gui import GetForegroundWindow, GetWindowText
+
+            # 1. Verifica se o Teams está em foco (método mais confiável)
+            active_window = GetWindowText(GetForegroundWindow()).lower()
+            if "teams" in active_window:
+                return True
+
+            # 2. Atualiza cache se necessário (a cada 15 segundos para não sobrecarregar)
+            now = time.time()
+            if not self.teams_window_cache or (now - self.cache_time) > 15:
+                self.teams_window_cache = self.find_teams_window_simple()
+                self.cache_time = now
+
+            # 3. Verifica posição do mouse (backup)
+            if self.teams_window_cache:
+                x, y = pyautogui.position()
+                rect = self.teams_window_cache
+                if (
+                    rect[0] <= x <= rect[0] + rect[2]
+                    and rect[1] <= y <= rect[1] + rect[3]
+                ):
+                    return True
+
+            return False
+
+        except Exception as e:
+            logging.warning(f"Erro na detecção do Teams: {str(e)}")
+            # Fallback simples
+            return is_teams_active()
+
+    def update_status_from_timer(self):
+        """Chamada pelo timer - tem atraso inicial"""
+        self._from_timer = True
+        self.update_status()
+        delattr(self, "_from_timer")
+
+    def update_status(self):
+        """Atualiza status do Teams e inatividade - versão simplificada"""
+        try:
+            # Atraso inicial APENAS para o timer automático, não para atualização manual
+            if not self._initial_delay_done and hasattr(self, "_from_timer"):
+                time.sleep(3)
+                self._initial_delay_done = True
+
+            # Status do Teams - TEXTO SIMPLES
+            teams_active = self.is_teams_active_improved()
+            if teams_active:
+                self.teams_status.setText("Status Teams: Ativo (Disponível)")
+            else:
+                self.teams_status.setText("Status Teams: Inativo (Pode estar ausente)")
+
+            # Status de inatividade - SEM ÍCONES
+            idle_time = get_user_activity_timeout()
+            self.idle_status.setText(
+                f"Inatividade do usuário: {idle_time:.1f} segundos"
+            )
+
+        except Exception as e:
+            error_msg = f"Erro na atualização de status: {str(e)}"
+            logging.error(error_msg)
+            print(f"ERRO CRÍTICO DE STATUS: {error_msg}")  # Console para erro crítico
+            self.teams_status.setText("Status Teams: Erro na verificação")
+            self.idle_status.setText("Inatividade: Erro na verificação")
 
     def setup_ui(self):
         central_widget = QWidget()
@@ -421,25 +589,32 @@ class KeepAliveApp(QMainWindow):
         config_layout = QVBoxLayout(config_frame)
 
         interval_layout = QHBoxLayout()
+        interval_layout.setSpacing(5)  # Espaçamento menor entre elementos
         interval_label = QLabel("Intervalo (segundos):")
+        interval_label.setMinimumWidth(130)
         self.interval_spin = QSpinBox()
         self.interval_spin.setRange(15, 180)  # Intervalo mais curto
         self.interval_spin.setValue(self.default_interval)  # Valor padrão 30s
         interval_layout.addWidget(interval_label)
         interval_layout.addWidget(self.interval_spin)
+        interval_layout.addStretch()  # Empurra elementos para a esquerda
         config_layout.addLayout(interval_layout)
 
         time_layout = QHBoxLayout()
+        time_layout.setSpacing(5)  # Espaçamento menor entre elementos
         start_label = QLabel("Início:")
+        start_label.setMinimumWidth(50)
         self.start_time_edit = QTimeEdit()
         self.start_time_edit.setTime(self.default_start_time)
         end_label = QLabel("Término:")
+        end_label.setMinimumWidth(60)
         self.end_time_edit = QTimeEdit()
         self.end_time_edit.setTime(self.default_end_time)
         time_layout.addWidget(start_label)
         time_layout.addWidget(self.start_time_edit)
         time_layout.addWidget(end_label)
         time_layout.addWidget(self.end_time_edit)
+        time_layout.addStretch()  # Empurra elementos para a esquerda
         config_layout.addLayout(time_layout)
 
         self.minimize_to_tray_cb = QCheckBox("Minimizar para bandeja ao fechar")
@@ -517,13 +692,6 @@ class KeepAliveApp(QMainWindow):
             menu.addSeparator()
             menu.addAction(quit_action)
 
-            menu.addAction(show_action)
-            menu.addAction(self.toggle_tray_action)
-            menu.addAction(stop_completely_action)
-            menu.addAction(close_action)
-            menu.addSeparator()
-            menu.addAction(quit_action)
-
             self.tray_icon.setContextMenu(menu)
             self.tray_icon.activated.connect(
                 lambda reason: (
@@ -559,37 +727,23 @@ class KeepAliveApp(QMainWindow):
         )
 
     def ask_initial_action(self):
-        """Pergunta ao usuário na inicialização se deseja iniciar imediatamente ou conforme agenda"""
+        """Pergunta ao usuário na inicialização - SEMPRE MOSTRA"""
         # Se estiver completamente parado, não pergunta
         if self.completely_stopped:
             self.status_label.setText("Serviço completamente parado até amanhã")
             return
 
-        # Verifica se está dentro do horário agendado
-        now = QTime.currentTime()
-        start_time = self.start_time_edit.time()
-        end_time = self.end_time_edit.time()
+        # SEMPRE pergunta se quer iniciar, independente do horário
+        reply = QMessageBox.question(
+            self,
+            "Iniciar serviço?",
+            "Deseja iniciar o serviço Keep Alive agora?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes,
+        )
 
-        if start_time <= now <= end_time:
-            # Dentro do horário: pergunta se quer iniciar agora
-            reply = QMessageBox.question(
-                self,
-                "Iniciar serviço?",
-                "Deseja iniciar o serviço imediatamente?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.Yes,
-            )
-            if reply == QMessageBox.StandardButton.Yes:
-                self.toggle_service()  # Inicia o serviço
-        else:
-            # Fora do horário: informa que pode iniciar manualmente
-            self.log_tab.add_log("Fora do horário agendado - aguardando início manual")
-            QMessageBox.information(
-                self,
-                "Fora do horário",
-                f"Atualmente está fora do horário agendado ({start_time.toString('HH:mm')} - {end_time.toString('HH:mm')}).\n"
-                "Você pode iniciar manualmente quando desejar.",
-            )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.toggle_service()
 
     def save_settings(self):
         """Salva configurações atuais"""
@@ -672,9 +826,13 @@ class KeepAliveApp(QMainWindow):
             next_interval = random.randint(
                 int(base_interval_ms - variation), int(base_interval_ms + variation)
             )
+            next_seconds = next_interval / 1000
+            log_msg = f"Serviço iniciado com intervalo base de {base_interval}s (±30%)"
+            self.log_tab.add_log(f"Primeiro intervalo: {next_seconds:.1f}s")
         else:
             # Garante que o intervalo base seja respeitado
             next_interval = base_interval_ms
+            log_msg = f"Serviço iniciado com intervalo fixo de {base_interval}s"
 
         self.activity_timer.start(next_interval)
         self.is_running = True
@@ -682,10 +840,6 @@ class KeepAliveApp(QMainWindow):
         self.toggle_tray_action.setText("Parar")
         self.status_label.setText("Serviço iniciado")
 
-        # Mensagem de log mais informativa
-        log_msg = f"Serviço iniciado com intervalo base de {base_interval}s"
-        if self.advanced_tab.random_intervals.isChecked():
-            log_msg += " (±30%)"
         self.log_tab.add_log(log_msg)
 
     def stop_service(self):
@@ -726,7 +880,11 @@ class KeepAliveApp(QMainWindow):
                 3000,
             )
         except Exception as e:
-            logging.error(f"Erro ao parar completamente: {str(e)}")
+            error_msg = f"Erro ao parar completamente: {str(e)}"
+            logging.error(error_msg)
+            print(
+                f"ERRO CRÍTICO AO PARAR SERVIÇO: {error_msg}"
+            )  # Console para erro crítico
             QMessageBox.critical(
                 self, "Erro", f"Ocorreu um erro ao parar o serviço: {str(e)}"
             )
@@ -749,11 +907,14 @@ class KeepAliveApp(QMainWindow):
                 if self.activity_count % 5 == 0:
                     self.log_tab.add_log(status_msg)
             else:
-                self.status_label.setText(status_msg + f" ({activity_message})")
-                if "pulando" not in activity_message:
+                if "pulando simulação" in activity_message:
+                    short_msg = "Usuário ativo - simulação cancelada"
+                    self.status_label.setText(status_msg + f" ({short_msg})")
+                else:
+                    self.status_label.setText(status_msg + f" ({activity_message})")
                     self.log_tab.add_log(f"ATENÇÃO: {activity_message}")
 
-            # 4. Programar próxima atividade com variação
+            # 4. Programar próxima atividade com variação e log de intervalo
             if self.is_running and self.advanced_tab.random_intervals.isChecked():
                 base_interval = self.interval_spin.value() * 1000
                 variation = base_interval * 0.3
@@ -762,32 +923,19 @@ class KeepAliveApp(QMainWindow):
                 )
                 self.activity_timer.setInterval(next_interval)
 
+                # Log do próximo intervalo a cada 10 atividades
+                if self.activity_count % 10 == 0:
+                    next_seconds = next_interval / 1000
+                    self.log_tab.add_log(f"Próximo intervalo: {next_seconds:.1f}s")
+
         except Exception as e:
             error_msg = f"Erro na atividade #{self.activity_count}: {str(e)}"
             self.status_label.setText(error_msg)
             self.log_tab.add_log(f"ERRO: {error_msg}")
             logging.error(error_msg)
-
-    def update_status(self):
-        """Atualiza status do Teams e inatividade do usuário"""
-        try:
-            # Atraso inicial apenas na primeira execução
-            if not hasattr(self, "_teams_initial_delay"):
-                time.sleep(10)  # Aguarda () segundos para estabilização inicial
-                self._teams_initial_delay = True
-
-            teams_active = is_teams_active()
-            status = "Ativo (Disponível)" if teams_active else "Inativo/Ausente)"
-            self.teams_status.setText(f"Status Teams: {status}")
-
-            # Atualiza status de inatividade
-            idle_time = get_user_activity_timeout()
-            self.idle_status.setText(
-                f"Inatividade do usuário: {idle_time:.1f} segundos"
-            )
-        except Exception:
-            self.teams_status.setText("Status Teams: Verificação indisponível")
-            self.idle_status.setText("Inatividade: Verificação indisponível")
+            print(
+                f"ERRO CRÍTICO DE ATIVIDADE: {error_msg}"
+            )  # Console para erros críticos
 
     def check_schedule(self):
         """Verifica se está dentro do horário agendado e se a parada completa já expirou"""
@@ -828,7 +976,11 @@ class KeepAliveApp(QMainWindow):
             self.save_settings()
             self.log_tab.add_log("Aplicativo encerrado")
         except Exception as e:
-            logging.error(f"Erro ao salvar configurações: {str(e)}")
+            error_msg = f"Erro ao salvar configurações: {str(e)}"
+            logging.error(error_msg)
+            print(
+                f"ERRO CRÍTICO AO SALVAR: {error_msg}"
+            )  # Console apenas para erro crítico
 
         try:
             self.activity_timer.stop()
@@ -837,7 +989,11 @@ class KeepAliveApp(QMainWindow):
             self.tray_icon.hide()
             logging.info("Keep Alive encerrado")
         except Exception as e:
-            logging.error(f"Erro ao encerrar timers: {str(e)}")
+            error_msg = f"Erro ao encerrar timers: {str(e)}"
+            logging.error(error_msg)
+            print(
+                f"ERRO CRÍTICO AO ENCERRAR: {error_msg}"
+            )  # Console apenas para erro crítico
 
         QApplication.quit()
 
@@ -854,7 +1010,12 @@ def main():
 
     # Solução para erro de DPI no Windows
     if sys.platform == "win32":
-        ctypes.windll.shcore.SetProcessDpiAwareness(2)  # Per-monitor v2
+        try:
+            ctypes.windll.shcore.SetProcessDpiAwareness(2)  # Per-monitor v2
+        except Exception as e:
+            print(
+                f"ERRO CRÍTICO DE DPI: {e}"
+            )  # Console apenas para erro crítico de inicialização
 
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     app.setStyle("Windows")
@@ -874,8 +1035,8 @@ def main():
     window.log_tab.add_log("Bem-vindo ao Keep Alive RDP Connection")
     window.log_tab.add_log("Configure as opções e clique em 'Iniciar' para começar")
 
-    # Agendar a pergunta inicial para após a exibição da janela principal
-    QTimer.singleShot(500, window.ask_initial_action)
+    # GARANTIA: Pergunta inicial SEMPRE aparece após 1 segundo
+    QTimer.singleShot(1000, window.ask_initial_action)
 
     sys.exit(app.exec())
 
