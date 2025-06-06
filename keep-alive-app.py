@@ -1,9 +1,9 @@
 # pylint: disable=E0602,E0102,E1101
 
 """
-Keep Alive RDP Connection 2.1.5
+Keep Alive RDP Connection 2.1.7
 Maurício Menon
-Foz do Iguaçu 04/06/2025
+Foz do Iguaçu 06/06/2025
 https://github.com/mauriciomenon/KeepAliveRDPTeams
 """
 
@@ -278,13 +278,13 @@ def get_teams_status():
 
             if windows_found:
                 if "STATUS_AUSENTE" in windows_found:
-                    return "AUSENTE", "Teams detectado com status ausente"
+                    return "AUSENTE", "Ausente"
                 elif "STATUS_DISPONIVEL" in windows_found:
-                    return "DISPONÍVEL", "Teams detectado com status disponível"
+                    return "DISPONÍVEL", "Disponível"
                 else:
                     return (
                         "ATIVO",
-                        f"Teams detectado mas status indeterminado - {len(windows_found)} janela(s)",
+                        f"Indeterminado - {len(windows_found)} janela(s)",
                     )
 
         except Exception:
@@ -304,7 +304,7 @@ def get_teams_status():
                         break
 
             if teams_found:
-                return "DETECTADO", "Teams detectado (método fallback)"
+                return "DETECTADO", "Detectado (método fallback)"
 
         except Exception:
             pass
@@ -468,7 +468,7 @@ class AboutTab(QWidget):
         layout = QVBoxLayout(self)
         about_text = QLabel()
         about_text.setText(
-            "Keep Alive RDP Connection 2.1.5\n\n"
+            "Keep Alive RDP Connection 2.1.7\n\n"
             "- Correção temporização.\n"
             "- Mudança no layout de abas.\n"
             "Maurício Menon\n"
@@ -626,12 +626,12 @@ class KeepAliveApp(QMainWindow):
         explanation_text.setMaximumHeight(160)
         explanation_text.setReadOnly(True)
         explanation_text.setText(
-            "Intervalos\n\n"
-            "• Intervalo: O programa 'acorda' e verifica se deve simular.'\n"
-            "• Inatividade: Quando acorda só simula se usuário está parado há X segundos\n\n"
-            "Exemplo: Intervalo=120s, Inatividade=60s\n"
-            "12:00 → Acorda 12:02\n"
-            "Se usuário parado há 60s+ = Simula, senão Cancela"
+            "\n"
+            "Intervalo entre tentativas: temporização entre verificações.\n\n"
+            "Inatividade mínima: tempo de inatividade do usuário quando o Intervalo entre tentativas é atingido.\n\n"
+            "Intervalo entre tentativas = 120s, Inatividade mínima = 60s\n"
+            "12:00 → verificação em 12:02\n"
+            "Se em 12:02 usuário parado há mais de 60s = Simula"
         )
         explanation_text.setStyleSheet(
             "background-color: #000000; color: #ffffff; border: 1px solid #000000;"
@@ -754,18 +754,16 @@ class KeepAliveApp(QMainWindow):
             self.teams_check_count += 1
 
             # Print simples para debug (posteriormente comentar)
-            print(f"DEBUG TEAMS: {teams_status} - {teams_message}")
+            print(f"DEBUG: {teams_status} - {teams_message}")
 
             # Só loga se tiver informação confiável
-            if teams_status and teams_status != "INDETERMINADO":
+            if teams_status and teams_status != "Indeterminado":
                 # Para status importantes, loga sempre
-                if teams_status in ["AUSENTE", "OCUPADO", "INATIVO"]:
-                    self.log_tab.add_log(
-                        f"Status Teams: {teams_status} - {teams_message}"
-                    )
+                if teams_status in ["Ausente", "Ocupado", "Inativo"]:
+                    self.log_tab.add_log(f"Teams: {teams_status} - {teams_message}")
                 # Para status normal (disponível/ativo), loga a cada 4 verificações
                 elif (
-                    teams_status in ["DISPONÍVEL", "ATIVO", "DETECTADO"]
+                    teams_status in ["Disponível", "Ativo", "Detectado"]
                     and self.teams_check_count % 4 == 0
                 ):
                     self.log_tab.add_log(
@@ -808,7 +806,9 @@ class KeepAliveApp(QMainWindow):
             next_interval = random.randint(
                 int(base_interval_ms - variation), int(base_interval_ms + variation)
             )
-            log_msg = f"Serviço iniciado - intervalo: {base_interval}s (±30%) = {next_interval/1000:.1f}s"
+            log_msg = (
+                f"Serviço iniciado\n{base_interval}s (±30%) = {next_interval/1000:.1f}s"
+            )
         else:
             next_interval = base_interval_ms
             log_msg = f"Serviço iniciado - intervalo fixo: {base_interval}s"
@@ -845,7 +845,7 @@ class KeepAliveApp(QMainWindow):
                 # Usuário ativo - cancela simulação
                 self.activity_count += 1
                 self.log_tab.add_log(
-                    f"CANCELADA: Usuário ativo (inatividade: {idle_time:.1f}s < {timeout_limit}s)"
+                    f"Cancelado: Usuário ativo (inatividade: {idle_time:.1f}s < {timeout_limit}s)"
                 )
 
                 # Calcula próximo intervalo mesmo assim
@@ -866,7 +866,7 @@ class KeepAliveApp(QMainWindow):
 
             if activity_success:
                 self.status_label.setText(status_msg + " (Sucesso)")
-                self.log_tab.add_log("Simulação executada com sucesso")
+                self.log_tab.add_log("Simulação executada")
             else:
                 self.status_label.setText(status_msg + f" ({activity_message})")
                 self.log_tab.add_log(f"ERRO: {activity_message}")
@@ -904,7 +904,7 @@ class KeepAliveApp(QMainWindow):
         # Calcula e loga próxima execução
         next_time = datetime.now() + timedelta(milliseconds=next_interval)
         self.log_tab.add_log(
-            f"Próxima atividade agendada para: {next_time.strftime('%H:%M:%S')} ({interval_text})"
+            f"Próxima atividade: {next_time.strftime('%H:%M:%S')} ({interval_text})"
         )
 
     def quit_application(self):
