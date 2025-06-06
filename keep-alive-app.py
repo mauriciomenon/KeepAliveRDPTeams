@@ -49,12 +49,21 @@ from PyQt6.QtWidgets import (
 # =============================================================================
 DEFAULT_INTERVAL = 60  # Segundos entre cada "despertar" do programa
 DEFAULT_USER_TIMEOUT = 60  # Segundos de inatividade necessária para executar
-DEFAULT_AUTOSTART_DELAY = 5000  # Milissegundos para auto-start (5 segundos)
 TEAMS_CHECK_INTERVAL = 60000  # Milissegundos entre verificações do Teams (60s)
+INACTIVE_LOG_INTERVAL = 300000  # Milissegundos para log quando inativo (5 minutos)
+
+# Ranges dos sliders
+INTERVAL_MIN = 30  # Mínimo para intervalo entre tentativas
+INTERVAL_MAX = 300  # Máximo para intervalo entre tentativas
+USER_TIMEOUT_MIN = 30  # Mínimo para inatividade do usuário
+USER_TIMEOUT_MAX = 300  # Máximo para inatividade do usuário
+
+# Horários padrão
 DEFAULT_START_TIME_HOUR = 8  # Hora de início padrão
 DEFAULT_START_TIME_MINUTE = 0  # Minuto de início padrão
 DEFAULT_END_TIME_HOUR = 18  # Hora de término padrão
 DEFAULT_END_TIME_MINUTE = 0  # Minuto de término padrão
+
 MUTEX_NAME = "KeepAlive_RDP_Unique_Instance_2025"
 
 # Configurações para prevenir bloqueios de tela
@@ -336,9 +345,20 @@ class LogTab(QWidget):
         layout.addLayout(button_layout)
 
     def add_log(self, message):
-        """Adiciona mensagem ao log com timestamp - APENAS na interface"""
+        """Adiciona mensagem ao log com timestamp - LIMITADO A 1000 LINHAS"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.log_text.append(f"[{timestamp}] {message}")
+        new_line = f"[{timestamp}] {message}"
+
+        # Adiciona nova linha
+        self.log_text.append(new_line)
+
+        # Verifica se excedeu 1000 linhas
+        text_content = self.log_text.toPlainText()
+        lines = text_content.split("\n")
+        if len(lines) > 1000:
+            # Remove as linhas mais antigas (FIFO)
+            lines = lines[-1000:]  # Mantém apenas as últimas 1000
+            self.log_text.setPlainText("\n".join(lines))
 
         # Rola para o final do log
         scrollbar = self.log_text.verticalScrollBar()
@@ -466,18 +486,41 @@ class AboutTab(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
+
+        # 1/4 do espaço vertical antes da caixa
+        layout.addStretch(2)
+
+        # Caixa com o texto
+        about_frame = QFrame()
+        about_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        about_layout = QVBoxLayout(about_frame)
+
         about_text = QLabel()
         about_text.setText(
             "Keep Alive RDP Connection 2.1.7\n\n"
-            "- Correção temporização.\n"
+            "\n"
             "- Mudança no layout de abas.\n"
             "Maurício Menon\n"
-            "https://github.com/mauriciomenon/KeepAliveRDPTeams\n"
-            "Foz do Iguaçu 05/06/2025\n"
         )
         about_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(about_text)
-        layout.addStretch()
+        about_layout.addWidget(about_text)
+
+        # Link clicável
+        link_label = QLabel(
+            '<a href="https://github.com/mauriciomenon/KeepAliveRDPTeams">https://github.com/mauriciomenon/KeepAliveRDPTeams</a>'
+        )
+        link_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        link_label.setOpenExternalLinks(True)
+        about_layout.addWidget(link_label)
+
+        date_text = QLabel("Foz do Iguaçu 05/06/2025")
+        date_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        about_layout.addWidget(date_text)
+
+        layout.addWidget(about_frame)
+
+        # 3/4 do espaço vertical após a caixa
+        layout.addStretch(3)
 
 
 class KeepAliveApp(QMainWindow):
@@ -486,7 +529,7 @@ class KeepAliveApp(QMainWindow):
         self.setWindowTitle("Keep Alive RDP Connection")
         self.setFixedSize(500, 600)
 
-        # Verifica se já está rodando - MELHORADO
+        # Verifica se já está rodando
         if is_already_running():
             QMessageBox.warning(
                 None,
@@ -513,6 +556,7 @@ class KeepAliveApp(QMainWindow):
         )
 
         self.is_running = False
+        self.use_schedule = True  # Por padrão usar agendamento
         self.activity_count = 0
         self.teams_check_count = 0
 
@@ -525,20 +569,22 @@ class KeepAliveApp(QMainWindow):
         self.teams_timer.timeout.connect(self.check_teams_status)
         self.teams_timer.start(TEAMS_CHECK_INTERVAL)
 
+        # Timer para log de inatividade a cada 5 minutos
+        self.inactive_log_timer = QTimer()
+        self.inactive_log_timer.timeout.connect(self.log_inactive_status)
+        self.inactive_log_timer.start(INACTIVE_LOG_INTERVAL)
+
         # Configura interface PRIMEIRO
         self.setup_ui()
         self.setup_tray()
         self.load_settings()
-
-        # AUTO-START em 5 segundos como solicitado
-        QTimer.singleShot(DEFAULT_AUTOSTART_DELAY, self.start_service)
 
     def setup_ui(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
-        # Status principal - SEM status do Teams
+        # Status principal
         status_frame = QFrame()
         status_frame.setFrameShape(QFrame.Shape.StyledPanel)
         status_layout = QVBoxLayout(status_frame)
@@ -546,6 +592,10 @@ class KeepAliveApp(QMainWindow):
         self.status_label = QLabel("Aguardando início do serviço")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         status_layout.addWidget(self.status_label)
+
+        self.execution_type_label = QLabel("")
+        self.execution_type_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        status_layout.addWidget(self.execution_type_label)
 
         layout.addWidget(status_frame)
 
@@ -560,21 +610,7 @@ class KeepAliveApp(QMainWindow):
         # Espaço de uma linha
         main_layout.addWidget(QLabel(""))
 
-        # Intervalo
-        interval_layout = QHBoxLayout()
-        interval_label = QLabel("Intervalo entre tentativas (segundos):")
-        self.interval_spin = QSpinBox()
-        self.interval_spin.setRange(30, 300)  # Entre 30s e 5min
-        self.interval_spin.setValue(self.default_interval)
-        interval_layout.addWidget(interval_label)
-        interval_layout.addWidget(self.interval_spin)
-        interval_layout.addStretch()
-        main_layout.addLayout(interval_layout)
-
-        # Espaço de uma linha
-        main_layout.addWidget(QLabel(""))
-
-        # Horários com tab entre textos
+        # Horários alinhados à direita (primeiro)
         time_layout = QHBoxLayout()
         start_label = QLabel("Início:")
         self.start_time_edit = QTimeEdit()
@@ -591,52 +627,93 @@ class KeepAliveApp(QMainWindow):
         time_layout.addWidget(tab_label)
         time_layout.addWidget(end_label)
         time_layout.addWidget(self.end_time_edit)
-        time_layout.addStretch()
         main_layout.addLayout(time_layout)
 
-        # Espaço de uma linha
+        # Espaço vertical
         main_layout.addWidget(QLabel(""))
 
-        # Verificação de usuário ativo
-        user_group = QGroupBox("Verificação de Atividade do Usuário")
-        user_layout = QVBoxLayout(user_group)
+        # Slider de intervalo entre tentativas
+        interval_layout = QVBoxLayout()
+        interval_text_layout = QHBoxLayout()
+        self.interval_label = QLabel("Intervalo entre tentativas (segundos):")
+        self.interval_label.setToolTip(
+            "Intervalo entre tentativas: temporização entre verificações."
+        )
+        interval_text_layout.addWidget(self.interval_label)
+        interval_text_layout.addStretch()
+        interval_layout.addLayout(interval_text_layout)
 
-        user_info = QLabel("\nInatividade mínima necessária para simular:")
-        user_layout.addWidget(user_info)
+        interval_slider_layout = QHBoxLayout()
+        interval_min_label = QLabel(str(INTERVAL_MIN))
+        self.interval_slider = QSlider(Qt.Orientation.Horizontal)
+        self.interval_slider.setMinimum(INTERVAL_MIN)
+        self.interval_slider.setMaximum(INTERVAL_MAX)
+        self.interval_slider.setValue(DEFAULT_INTERVAL)
+        self.interval_slider.setSingleStep(5)
+        self.interval_slider.setPageStep(5)
+        self.interval_slider.setTickInterval(5)
+        self.interval_slider.valueChanged.connect(self.update_interval_label)
+        interval_max_label = QLabel(str(INTERVAL_MAX))
 
-        # Barra imediatamente abaixo
-        slider_layout = QHBoxLayout()
-        slider_layout.setSpacing(5)
+        interval_slider_layout.addWidget(interval_min_label)
+        interval_slider_layout.addWidget(self.interval_slider)
+        interval_slider_layout.addWidget(interval_max_label)
+        interval_layout.addLayout(interval_slider_layout)
+        main_layout.addLayout(interval_layout)
+
+        # Espaço vertical
+        main_layout.addWidget(QLabel(""))
+
+        # Slider de inatividade mínima
+        user_layout = QVBoxLayout()
+        user_text_layout = QHBoxLayout()
+        self.user_info = QLabel(
+            "Inatividade mínima necessária para simular (segundos):"
+        )
+        self.user_info.setToolTip(
+            "Inatividade mínima: tempo de inatividade do usuário quando o Intervalo entre tentativas é atingido."
+        )
+        user_text_layout.addWidget(self.user_info)
+        user_text_layout.addStretch()
+        user_layout.addLayout(user_text_layout)
+
+        user_slider_layout = QHBoxLayout()
+        user_min_label = QLabel(str(USER_TIMEOUT_MIN))
         self.user_timeout_slider = QSlider(Qt.Orientation.Horizontal)
-        self.user_timeout_slider.setMinimum(5)  # 5 segundos mínimo
-        self.user_timeout_slider.setMaximum(300)  # 5 minutos máximo
-        self.user_timeout_slider.setValue(self.default_user_timeout)
+        self.user_timeout_slider.setMinimum(USER_TIMEOUT_MIN)
+        self.user_timeout_slider.setMaximum(USER_TIMEOUT_MAX)
+        self.user_timeout_slider.setValue(DEFAULT_USER_TIMEOUT)
+        self.user_timeout_slider.setSingleStep(5)
+        self.user_timeout_slider.setPageStep(5)
+        self.user_timeout_slider.setTickInterval(5)
         self.user_timeout_slider.valueChanged.connect(self.update_timeout_label)
+        user_max_label = QLabel(str(USER_TIMEOUT_MAX))
 
-        self.timeout_label = QLabel(f"{self.default_user_timeout} segundos\n")
-        self.timeout_label.setMinimumWidth(80)
+        user_slider_layout.addWidget(user_min_label)
+        user_slider_layout.addWidget(self.user_timeout_slider)
+        user_slider_layout.addWidget(user_max_label)
+        user_layout.addLayout(user_slider_layout)
+        main_layout.addLayout(user_layout)
 
-        slider_layout.addWidget(self.user_timeout_slider)
-        slider_layout.addWidget(self.timeout_label)
-        slider_layout.addStretch()
-        user_layout.addLayout(slider_layout)
-
-        # Explicação clara dos tempos - caixa maior
-        explanation_text = QTextEdit()
-        explanation_text.setMaximumHeight(160)
-        explanation_text.setReadOnly(True)
-        explanation_text.setText(
-            "\n"
-            "Intervalo entre tentativas: temporização entre verificações.\n\n"
-            "Inatividade mínima: tempo de inatividade do usuário quando o Intervalo entre tentativas é atingido.\n\n"
-            "Intervalo entre tentativas = 120s, Inatividade mínima = 60s\n"
-            "12:00 → verificação em 12:02\n"
-            "Se em 12:02 usuário parado há mais de 60s = Simula"
+        # Atualiza labels com valores corretos dos sliders
+        self.interval_label.setText(
+            f"Intervalo entre tentativas (segundos): {self.interval_slider.value()}"
         )
-        explanation_text.setStyleSheet(
-            "background-color: #000000; color: #ffffff; border: 1px solid #000000;"
+        self.user_info.setText(
+            f"Inatividade mínima necessária para simular (segundos): {self.user_timeout_slider.value()}"
         )
-        user_layout.addWidget(explanation_text)
+
+        # Espaço vertical
+        main_layout.addWidget(QLabel(""))
+
+        # Verificação de usuário ativo - expandindo todo espaço disponível
+        user_group = QGroupBox("Verificação de Atividade do Usuário")
+        user_group_layout = QVBoxLayout(user_group)
+
+        # Log dentro da caixa - novo QTextEdit
+        self.main_log_text = QTextEdit()
+        self.main_log_text.setReadOnly(True)
+        user_group_layout.addWidget(self.main_log_text)
 
         main_layout.addWidget(user_group)
         main_layout.addStretch()
@@ -655,8 +732,11 @@ class KeepAliveApp(QMainWindow):
 
         # Botões
         button_layout = QHBoxLayout()
-        self.toggle_button = QPushButton("Iniciar")
-        self.toggle_button.clicked.connect(self.toggle_service)
+        self.toggle_button = QPushButton("Iniciar ∞")
+        self.toggle_button.clicked.connect(self.toggle_service_no_schedule)
+
+        self.schedule_button = QPushButton("Iniciar Agendamento")
+        self.schedule_button.clicked.connect(self.toggle_service_with_schedule)
 
         self.close_button = QPushButton("Fechar Completamente")
         self.close_button.clicked.connect(self.quit_application)
@@ -665,13 +745,54 @@ class KeepAliveApp(QMainWindow):
         self.minimize_button.clicked.connect(self.hide)
 
         button_layout.addWidget(self.toggle_button)
+        button_layout.addWidget(self.schedule_button)
         button_layout.addWidget(self.close_button)
         button_layout.addWidget(self.minimize_button)
         layout.addLayout(button_layout)
 
+    def add_main_log(self, message):
+        """Adiciona mensagem ao log da aba principal - COPIA EXATA do log original - LIMITADO A 11 LINHAS"""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        new_line = f"[{timestamp}] {message}"
+
+        # Adiciona nova linha
+        self.main_log_text.append(new_line)
+
+        # Verifica se excedeu 11 linhas
+        text_content = self.main_log_text.toPlainText()
+        lines = text_content.split("\n")
+        if len(lines) > 11:
+            # Remove as linhas mais antigas (FIFO)
+            lines = lines[-11:]  # Mantém apenas as últimas 11
+            self.main_log_text.setPlainText("\n".join(lines))
+
+        # Rola para o final do log
+        scrollbar = self.main_log_text.verticalScrollBar()
+        if scrollbar:
+            scrollbar.setValue(scrollbar.maximum())
+
+    def update_interval_label(self, value):
+        """Atualiza label do intervalo"""
+        self.interval_label.setText(f"Intervalo entre tentativas (segundos): {value}")
+
     def update_timeout_label(self, value):
         """Atualiza label do timeout"""
-        self.timeout_label.setText(f"{value} segundos")
+        self.user_info.setText(
+            f"Inatividade mínima necessária para simular (segundos): {value}"
+        )
+
+    def update_execution_type_label(self):
+        """Atualiza o label do tipo de execução"""
+        if not self.is_running:
+            self.execution_type_label.setText("")
+        elif not self.use_schedule:
+            self.execution_type_label.setText("Execução sem Interrupção")
+        else:
+            start_time = self.start_time_edit.time().toString("HH:mm")
+            end_time = self.end_time_edit.time().toString("HH:mm")
+            self.execution_type_label.setText(
+                f"Execução no intervalo {start_time} - {end_time}"
+            )
 
     def setup_tray(self):
         """Configura o ícone na bandeja do sistema"""
@@ -684,8 +805,8 @@ class KeepAliveApp(QMainWindow):
             menu = QMenu()
             show_action = QAction("Mostrar", self)
             show_action.triggered.connect(self.show)
-            self.toggle_tray_action = QAction("Iniciar", self)
-            self.toggle_tray_action.triggered.connect(self.toggle_service)
+            self.toggle_tray_action = QAction("Iniciar ∞", self)
+            self.toggle_tray_action.triggered.connect(self.toggle_service_no_schedule)
 
             close_action = QAction("Fechar", self)
             close_action.triggered.connect(self.quit_application)
@@ -726,7 +847,7 @@ class KeepAliveApp(QMainWindow):
 
     def save_settings(self):
         """Salva configurações"""
-        self.settings.setValue("interval", self.interval_spin.value())
+        self.settings.setValue("interval", self.interval_slider.value())
         self.settings.setValue("user_timeout", self.user_timeout_slider.value())
         self.settings.setValue("start_time", self.start_time_edit.time())
         self.settings.setValue("end_time", self.end_time_edit.time())
@@ -746,6 +867,23 @@ class KeepAliveApp(QMainWindow):
         )
 
         self.log_tab.add_log("Configurações salvas")
+        self.add_main_log("Configurações salvas")
+
+    def check_schedule(self):
+        """Verifica se está no horário de funcionamento"""
+        if not self.use_schedule:
+            return True
+
+        current_time = QTime.currentTime()
+        start_time = self.start_time_edit.time()
+        end_time = self.end_time_edit.time()
+
+        if start_time <= end_time:
+            # Mesmo dia
+            return start_time <= current_time <= end_time
+        else:
+            # Horário noturno (atravessa meia-noite)
+            return current_time >= start_time or current_time <= end_time
 
     def check_teams_status(self):
         """Verifica status do Teams e loga se necessário"""
@@ -760,20 +898,28 @@ class KeepAliveApp(QMainWindow):
             if teams_status and teams_status != "Indeterminado":
                 # Para status importantes, loga sempre
                 if teams_status in ["Ausente", "Ocupado", "Inativo"]:
-                    self.log_tab.add_log(f"Teams: {teams_status} - {teams_message}")
+                    log_message = f"Teams: {teams_status} - {teams_message}"
+                    self.log_tab.add_log(log_message)
+                    self.add_main_log(log_message)
                 # Para status normal (disponível/ativo), loga a cada 4 verificações
                 elif (
                     teams_status in ["Disponível", "Ativo", "Detectado"]
                     and self.teams_check_count % 4 == 0
                 ):
-                    self.log_tab.add_log(
-                        f"Status Teams: {teams_status} - {teams_message}"
-                    )
+                    log_message = f"Status Teams: {teams_status} - {teams_message}"
+                    self.log_tab.add_log(log_message)
+                    self.add_main_log(log_message)
             # Se teams_status é None ou INDETERMINADO, não loga pois não é confiável
 
         except Exception:
             # Em caso de erro, não loga status não confiável
             pass
+
+    def log_inactive_status(self):
+        """Loga status de inatividade a cada 5 minutos"""
+        if not self.is_running:
+            self.log_tab.add_log("Serviço parado")
+            self.add_main_log("Serviço parado")
 
     def closeEvent(self, event):
         self.save_settings()
@@ -789,15 +935,52 @@ class KeepAliveApp(QMainWindow):
         else:
             self.quit_application()
 
-    def toggle_service(self):
+    def toggle_service_no_schedule(self):
+        """Iniciar/Parar sem agendamento"""
         if not self.is_running:
+            self.use_schedule = False
             self.start_service()
+            self.toggle_button.setText("Parar")
+            self.toggle_tray_action.setText("Parar")
         else:
             self.stop_service()
+            self.toggle_button.setText("Iniciar ∞")
+            self.toggle_tray_action.setText("Iniciar ∞")
+
+    def toggle_service_with_schedule(self):
+        """Iniciar/Parar com agendamento"""
+        if not self.is_running:
+            self.start_service_with_schedule()
+        else:
+            self.stop_service()
+            self.schedule_button.setText("Iniciar Agendamento")
+
+    def start_service_with_schedule(self):
+        """Inicia o serviço com verificação de agendamento"""
+        self.use_schedule = True
+
+        # Log de início do agendamento
+        self.log_tab.add_log("Iniciado agendamento")
+        self.add_main_log("Iniciado agendamento")
+
+        if self.check_schedule():
+            self.start_service()
+            self.schedule_button.setText("Parar")
+        else:
+            # Agendamento ativo mas fora do horário
+            start_time = self.start_time_edit.time().toString("HH:mm")
+            end_time = self.end_time_edit.time().toString("HH:mm")
+            self.status_label.setText("Serviço parado")
+            self.update_execution_type_label()
+
+            # Log específico para fora do horário
+            self.log_tab.add_log("Serviço parado - fora do horário de agendamento")
+            self.add_main_log("Serviço parado - fora do horário de agendamento")
+            self.schedule_button.setText("Parar")
 
     def start_service(self):
         """Inicia o serviço"""
-        base_interval = self.interval_spin.value()
+        base_interval = self.interval_slider.value()
         base_interval_ms = base_interval * 1000
 
         # Aplica variação se habilitado
@@ -806,9 +989,7 @@ class KeepAliveApp(QMainWindow):
             next_interval = random.randint(
                 int(base_interval_ms - variation), int(base_interval_ms + variation)
             )
-            log_msg = (
-                f"Serviço iniciado\n{base_interval}s (±30%) = {next_interval/1000:.1f}s"
-            )
+            log_msg = f"Serviço iniciado - {base_interval}s (±30%) = {next_interval/1000:.1f}s"
         else:
             next_interval = base_interval_ms
             log_msg = f"Serviço iniciado - intervalo fixo: {base_interval}s"
@@ -819,24 +1000,37 @@ class KeepAliveApp(QMainWindow):
 
         self.activity_timer.start(next_interval)
         self.is_running = True
-        self.toggle_button.setText("Parar")
-        self.toggle_tray_action.setText("Parar")
-        self.status_label.setText("Serviço rodando")
+
+        if not self.use_schedule:
+            self.toggle_button.setText("Parar")
+            self.toggle_tray_action.setText("Parar")
+
+        self.status_label.setText("Serviço em execução")
+        self.update_execution_type_label()
 
         self.log_tab.add_log(log_msg)
+        self.add_main_log(log_msg)
 
     def stop_service(self):
         """Para o serviço"""
         self.activity_timer.stop()
         self.is_running = False
-        self.toggle_button.setText("Iniciar")
-        self.toggle_tray_action.setText("Iniciar")
+        self.toggle_button.setText("Iniciar ∞")
+        self.toggle_tray_action.setText("Iniciar ∞")
+        self.schedule_button.setText("Iniciar Agendamento")
         self.status_label.setText("Serviço parado")
+        self.update_execution_type_label()
         ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
         self.log_tab.add_log("Serviço parado")
+        self.add_main_log("Serviço parado")
 
     def perform_activity(self):
         try:
+            # Verificar agendamento se habilitado
+            if self.use_schedule and not self.check_schedule():
+                self.stop_service()
+                return
+
             # Verificar se usuário está ativo
             idle_time = get_user_activity_timeout()
             timeout_limit = self.user_timeout_slider.value()
@@ -844,9 +1038,9 @@ class KeepAliveApp(QMainWindow):
             if idle_time < timeout_limit:
                 # Usuário ativo - cancela simulação
                 self.activity_count += 1
-                self.log_tab.add_log(
-                    f"Cancelado: Usuário ativo (inatividade: {idle_time:.1f}s < {timeout_limit}s)"
-                )
+                cancel_message = f"Cancelado: Usuário ativo (inatividade: {idle_time:.1f}s < {timeout_limit}s)"
+                self.log_tab.add_log(cancel_message)
+                self.add_main_log(cancel_message)
 
                 # Calcula próximo intervalo mesmo assim
                 if self.is_running:
@@ -867,9 +1061,12 @@ class KeepAliveApp(QMainWindow):
             if activity_success:
                 self.status_label.setText(status_msg + " (Sucesso)")
                 self.log_tab.add_log("Simulação executada")
+                self.add_main_log("Simulação executada")
             else:
                 self.status_label.setText(status_msg + f" ({activity_message})")
-                self.log_tab.add_log(f"ERRO: {activity_message}")
+                error_message = f"ERRO: {activity_message}"
+                self.log_tab.add_log(error_message)
+                self.add_main_log(error_message)
 
             # Agendar próxima atividade
             if self.is_running:
@@ -878,13 +1075,15 @@ class KeepAliveApp(QMainWindow):
         except Exception as e:
             error_msg = f"Erro na atividade #{self.activity_count}: {str(e)}"
             self.status_label.setText(error_msg)
-            self.log_tab.add_log(f"ERRO CRÍTICO: {error_msg}")
+            critical_error = f"ERRO CRÍTICO: {error_msg}"
+            self.log_tab.add_log(critical_error)
+            self.add_main_log(critical_error)
 
     def schedule_next_activity(self):
         """Agenda próxima atividade com log do horário"""
         self.activity_timer.stop()  # Para o timer atual
 
-        base_interval = self.interval_spin.value() * 1000
+        base_interval = self.interval_slider.value() * 1000
 
         if self.advanced_tab.random_intervals.isChecked():
             variation = base_interval * 0.3
@@ -892,31 +1091,35 @@ class KeepAliveApp(QMainWindow):
                 int(base_interval - variation), int(base_interval + variation)
             )
             interval_text = (
-                f"{self.interval_spin.value()}s (±30%) = {next_interval/1000:.1f}s"
+                f"{self.interval_slider.value()}s (±30%) = {next_interval/1000:.1f}s"
             )
         else:
             next_interval = base_interval
-            interval_text = f"{self.interval_spin.value()}s fixo"
+            interval_text = f"{self.interval_slider.value()}s fixo"
 
         self.activity_timer.setInterval(next_interval)
         self.activity_timer.start()  # Reinicia com novo intervalo
 
         # Calcula e loga próxima execução
         next_time = datetime.now() + timedelta(milliseconds=next_interval)
-        self.log_tab.add_log(
+        next_message = (
             f"Próxima atividade: {next_time.strftime('%H:%M:%S')} ({interval_text})"
         )
+        self.log_tab.add_log(next_message)
+        self.add_main_log(next_message)
 
     def quit_application(self):
         try:
             self.save_settings()
             self.log_tab.add_log("Aplicativo encerrado")
+            self.add_main_log("Aplicativo encerrado")
         except Exception:
             pass
 
         try:
             self.activity_timer.stop()
             self.teams_timer.stop()
+            self.inactive_log_timer.stop()
             self.tray_icon.hide()
             cleanup_lock()
         except Exception:
@@ -940,7 +1143,10 @@ def main():
 
     # Mensagem de boas-vindas
     window.log_tab.add_log("Keep Alive RDP Connection iniciado")
-    window.log_tab.add_log("Auto-start configurado para 5 segundos")
+    window.add_main_log("Keep Alive RDP Connection iniciado")
+
+    # Log inicial de inatividade
+    window.log_inactive_status()
 
     sys.exit(app.exec())
 
