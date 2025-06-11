@@ -1,7 +1,7 @@
 # pylint: disable=E0602,E0102,E1101
 
 """
-Keep Alive RDP Connection 2.1.7
+Keep Alive RDP Connection 2.1.9
 Maurício Menon
 Foz do Iguaçu 06/06/2025
 https://github.com/mauriciomenon/KeepAliveRDPTeams
@@ -21,7 +21,7 @@ import win32con
 import win32event
 import win32gui
 from PyQt6.QtCore import QSettings, Qt, QTime, QTimer
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QFont
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -45,12 +45,21 @@ from PyQt6.QtWidgets import (
 )
 
 # =============================================================================
+# INFORMAÇÕES DO PROGRAMA - DEFINIDAS NO INÍCIO
+# =============================================================================
+APP_NAME = "Keep Alive RDP Connection"
+APP_VERSION = "2.1.7"
+APP_AUTHOR = "Maurício Menon"
+APP_DATE = "Foz do Iguaçu 09/06/2025"
+APP_URL = "https://github.com/mauriciomenon/KeepAliveRDPTeams"
+
+# =============================================================================
 # CONFIGURAÇÕES PADRÃO - DEFINIDAS NO INÍCIO
 # =============================================================================
 DEFAULT_INTERVAL = 60  # Segundos entre cada "despertar" do programa
 DEFAULT_USER_TIMEOUT = 60  # Segundos de inatividade necessária para executar
 TEAMS_CHECK_INTERVAL = 60000  # Milissegundos entre verificações do Teams (60s)
-INACTIVE_LOG_INTERVAL = 300000  # Milissegundos para log quando inativo (5 minutos)
+INACTIVE_LOG_INTERVAL = 900000  # Milissegundos para log quando inativo (15 minutos)
 
 # Ranges dos sliders
 INTERVAL_MIN = 30  # Mínimo para intervalo entre tentativas
@@ -100,7 +109,7 @@ def is_already_running():
             def enum_windows_callback(hwnd, windows):
                 if win32gui.IsWindowVisible(hwnd):
                     window_text = win32gui.GetWindowText(hwnd)
-                    if "Keep Alive RDP Connection" in window_text:
+                    if APP_NAME in window_text:
                         windows.append(hwnd)
                 return True
 
@@ -220,10 +229,13 @@ def get_teams_status():
     try:
         import subprocess
 
+        print("DEBUG TEAMS: Iniciando verificação de status do Teams...")
+
         # Método 1: Verificar processo do Teams
+        print("DEBUG TEAMS: Método 1 - Verificando processos do Teams...")
+        teams_processes = []
         try:
-            # Verifica se Teams está rodando
-            teams_processes = []
+            print("DEBUG TEAMS: Procurando ms-teams.exe...")
             for proc in subprocess.run(
                 ["tasklist", "/FI", "IMAGENAME eq ms-teams.exe", "/FO", "CSV"],
                 capture_output=True,
@@ -232,10 +244,13 @@ def get_teams_status():
             ).stdout.split("\n"):
                 if "ms-teams.exe" in proc.lower():
                     teams_processes.append(proc)
+                    print(f"DEBUG TEAMS: Encontrado ms-teams.exe: {proc.strip()}")
 
-            # Se não tem processo do Teams, não está ativo
+            # Se não tem processo do Teams, tenta o clássico
             if not teams_processes:
-                # Tenta o Teams clássico
+                print(
+                    "DEBUG TEAMS: ms-teams.exe não encontrado, procurando Teams.exe clássico..."
+                )
                 for proc in subprocess.run(
                     ["tasklist", "/FI", "IMAGENAME eq Teams.exe", "/FO", "CSV"],
                     capture_output=True,
@@ -244,14 +259,22 @@ def get_teams_status():
                 ).stdout.split("\n"):
                     if "Teams.exe" in proc.lower():
                         teams_processes.append(proc)
+                        print(f"DEBUG TEAMS: Encontrado Teams.exe: {proc.strip()}")
 
-                if not teams_processes:
-                    return "INATIVO", "Teams não está em execução"
+            if not teams_processes:
+                print("DEBUG TEAMS: Nenhum processo Teams encontrado")
+                return "INATIVO", "Teams não está em execução"
+            else:
+                print(
+                    f"DEBUG TEAMS: {len(teams_processes)} processo(s) Teams encontrado(s)"
+                )
 
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"DEBUG TEAMS: Erro no Método 1: {str(e)}")
 
         # Método 2: Verificar janelas do Teams e título para status
+        print("DEBUG TEAMS: Método 2 - Verificando janelas do Teams...")
+        teams_windows = []
         try:
 
             def enum_windows_callback(hwnd, results):
@@ -259,68 +282,138 @@ def get_teams_status():
                     if win32gui.IsWindowVisible(hwnd):
                         window_text = win32gui.GetWindowText(hwnd)
                         if "teams" in window_text.lower() and len(window_text) > 5:
-                            # Verifica se a janela tem tamanho razoável
-                            rect = win32gui.GetWindowRect(hwnd)
-                            width = rect[2] - rect[0]
-                            height = rect[3] - rect[1]
-                            if width > 100 and height > 100:
-                                results.append(window_text)
+                            # Filtra janelas que realmente são do Teams (não VS Code)
+                            if "microsoft teams" in window_text.lower():
+                                print(
+                                    f"DEBUG TEAMS: Janela TEAMS REAL encontrada: '{window_text}'"
+                                )
+                                # Verifica se a janela tem tamanho razoável
+                                rect = win32gui.GetWindowRect(hwnd)
+                                width = rect[2] - rect[0]
+                                height = rect[3] - rect[1]
+                                print(
+                                    f"DEBUG TEAMS: Tamanho da janela: {width}x{height}"
+                                )
+                                if width > 100 and height > 100:
+                                    results.append(window_text)
 
-                                # Tenta detectar status no título da janela
-                                title_lower = window_text.lower()
-                                if any(
-                                    word in title_lower
-                                    for word in ["away", "ausente", "busy", "ocupado"]
-                                ):
-                                    results.append("STATUS_AUSENTE")
-                                elif any(
-                                    word in title_lower
-                                    for word in ["available", "disponível", "online"]
-                                ):
-                                    results.append("STATUS_DISPONIVEL")
-                except Exception:
-                    pass
+                                    # Tenta detectar status no título da janela
+                                    title_lower = window_text.lower()
+                                    print(
+                                        f"DEBUG TEAMS: Analisando título: '{title_lower}'"
+                                    )
+
+                                    # Palavras de status ausente/ocupado
+                                    away_words = [
+                                        "away",
+                                        "ausente",
+                                        "busy",
+                                        "ocupado",
+                                        "offline",
+                                        "não disponível",
+                                    ]
+                                    # Palavras de status disponível
+                                    available_words = [
+                                        "available",
+                                        "disponível",
+                                        "online",
+                                        "ativo",
+                                    ]
+
+                                    if any(word in title_lower for word in away_words):
+                                        print(
+                                            f"DEBUG TEAMS: Status AUSENTE detectado no título (palavra encontrada)"
+                                        )
+                                        results.append("STATUS_AUSENTE")
+                                    elif any(
+                                        word in title_lower for word in available_words
+                                    ):
+                                        print(
+                                            f"DEBUG TEAMS: Status DISPONÍVEL detectado no título (palavra encontrada)"
+                                        )
+                                        results.append("STATUS_DISPONIVEL")
+                                    else:
+                                        print(
+                                            "DEBUG TEAMS: Nenhum status específico detectado no título - assumindo ATIVO"
+                                        )
+                                        # Se encontrou janela Teams mas sem status no título, assume ativo
+                                        results.append("STATUS_ATIVO_SEM_INDICACAO")
+                                else:
+                                    print(
+                                        "DEBUG TEAMS: Janela muito pequena, ignorando"
+                                    )
+                            else:
+                                print(
+                                    f"DEBUG TEAMS: Janela ignorada (não é Teams real): '{window_text}'"
+                                )
+                except Exception as e:
+                    print(f"DEBUG TEAMS: Erro ao processar janela: {str(e)}")
                 return True
 
             windows_found = []
             win32gui.EnumWindows(enum_windows_callback, windows_found)
 
-            if windows_found:
-                if "STATUS_AUSENTE" in windows_found:
-                    return "AUSENTE", "Ausente"
-                elif "STATUS_DISPONIVEL" in windows_found:
-                    return "DISPONÍVEL", "Disponível"
-                else:
-                    return (
-                        "ATIVO",
-                        f"Indeterminado - {len(windows_found)} janela(s)",
-                    )
+            teams_windows = [w for w in windows_found if not w.startswith("STATUS_")]
+            status_flags = [w for w in windows_found if w.startswith("STATUS_")]
 
-        except Exception:
-            pass
+            print(f"DEBUG TEAMS: Total de janelas Teams reais: {len(teams_windows)}")
+            print(f"DEBUG TEAMS: Status encontrados: {status_flags}")
+
+            if teams_windows:
+                if "STATUS_AUSENTE" in status_flags:
+                    print("DEBUG TEAMS: Resultado final - AUSENTE")
+                    return "AUSENTE", "Ausente"
+                elif "STATUS_DISPONIVEL" in status_flags:
+                    print("DEBUG TEAMS: Resultado final - DISPONÍVEL")
+                    return "DISPONÍVEL", "Disponível"
+                elif "STATUS_ATIVO_SEM_INDICACAO" in status_flags:
+                    print(
+                        "DEBUG TEAMS: Resultado final - ATIVO (sem indicação no título)"
+                    )
+                    return "ATIVO", f"Ativo - {len(teams_windows)} janela(s) Teams"
+                else:
+                    print("DEBUG TEAMS: Resultado final - ATIVO (indeterminado)")
+                    return "ATIVO", f"Indeterminado - {len(teams_windows)} janela(s)"
+
+        except Exception as e:
+            print(f"DEBUG TEAMS: Erro no Método 2: {str(e)}")
 
         # Método 3: Fallback simples - só verifica se está rodando
+        print("DEBUG TEAMS: Método 3 - Fallback com pyautogui...")
         try:
             teams_found = False
+            windows_count = 0
             for window in pyautogui.getAllWindows():
                 if hasattr(window, "title") and window.title:
                     if (
-                        "teams" in window.title.lower()
+                        "microsoft teams" in window.title.lower()
                         and window.width > 100
                         and window.height > 100
                     ):
+                        print(
+                            f"DEBUG TEAMS: Janela pyautogui Teams: '{window.title}' {window.width}x{window.height}"
+                        )
                         teams_found = True
-                        break
+                        windows_count += 1
 
+            print(f"DEBUG TEAMS: Método 3 encontrou {windows_count} janela(s) Teams")
             if teams_found:
-                return "DETECTADO", "Detectado (método fallback)"
+                print("DEBUG TEAMS: Resultado final - DETECTADO (fallback)")
+                return "DETECTADO", f"Detectado (fallback) - {windows_count} janela(s)"
 
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"DEBUG TEAMS: Erro no Método 3: {str(e)}")
 
+        # Se chegou até aqui mas tem processo, Teams está rodando mas sem janelas visíveis
+        if teams_processes:
+            print("DEBUG TEAMS: Resultado final - PROCESSO SEM JANELA")
+            return "PROCESSO", "Processo ativo mas sem janelas visíveis"
+
+        print("DEBUG TEAMS: Resultado final - INDETERMINADO")
         return "INDETERMINADO", "Não foi possível determinar status do Teams"
 
     except Exception as e:
+        print(f"DEBUG TEAMS: Erro geral: {str(e)}")
         return None, f"Erro na verificação: {str(e)}"
 
 
@@ -344,13 +437,18 @@ class LogTab(QWidget):
         button_layout.addWidget(save_button)
         layout.addLayout(button_layout)
 
-    def add_log(self, message):
+    def add_log(self, message, is_orientation=False):
         """Adiciona mensagem ao log com timestamp - LIMITADO A 1000 LINHAS"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        new_line = f"[{timestamp}] {message}"
+        log_message = f"[{timestamp}] {message}"
 
-        # Adiciona nova linha
-        self.log_text.append(new_line)
+        if is_orientation:
+            # Formatação especial para orientação: fundo azul escuro + negrito
+            formatted_text = f'<span style="background-color: #1a237e; color: white; font-weight: bold; padding: 2px 4px; border-radius: 3px;">{log_message}</span>'
+            self.log_text.append(formatted_text)
+        else:
+            # Adiciona nova linha normal
+            self.log_text.append(log_message)
 
         # Verifica se excedeu 1000 linhas
         text_content = self.log_text.toPlainText()
@@ -403,7 +501,7 @@ class AdvancedTab(QWidget):
         self.enable_keyboard.setChecked(True)
         options_layout.addWidget(self.enable_keyboard)
 
-        self.random_intervals = QCheckBox("Usar intervalos variáveis (±30%)")
+        self.random_intervals = QCheckBox("Usar intervalos variáveis (Δ%)")
         self.random_intervals.setChecked(True)
         options_layout.addWidget(self.random_intervals)
 
@@ -488,45 +586,67 @@ class AboutTab(QWidget):
         layout = QVBoxLayout(self)
 
         # 1/4 do espaço vertical antes da caixa
-        layout.addStretch(2)
+        layout.addStretch(1)
 
-        # Caixa com o texto
+        # Caixa com informações do programa apenas
         about_frame = QFrame()
         about_frame.setFrameShape(QFrame.Shape.StyledPanel)
         about_layout = QVBoxLayout(about_frame)
 
         about_text = QLabel()
         about_text.setText(
-            "Keep Alive RDP Connection 2.1.7\n\n"
-            "\n"
+            f"{APP_NAME} {APP_VERSION}\n\n"
+            "- Correção temporização.\n"
             "- Mudança no layout de abas.\n"
-            "Maurício Menon\n"
+            f"{APP_AUTHOR}\n"
         )
         about_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         about_layout.addWidget(about_text)
 
         # Link clicável
-        link_label = QLabel(
-            '<a href="https://github.com/mauriciomenon/KeepAliveRDPTeams">https://github.com/mauriciomenon/KeepAliveRDPTeams</a>'
-        )
+        link_label = QLabel(f'<a href="{APP_URL}">{APP_URL}</a>')
         link_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         link_label.setOpenExternalLinks(True)
         about_layout.addWidget(link_label)
 
-        date_text = QLabel("Foz do Iguaçu 05/06/2025")
+        date_text = QLabel(APP_DATE)
         date_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
         about_layout.addWidget(date_text)
 
         layout.addWidget(about_frame)
 
-        # 3/4 do espaço vertical após a caixa
-        layout.addStretch(3)
+        # Espaçamento entre as caixas
+        layout.addSpacing(20)
+
+        # Caixa separada para "Como usar"
+        help_frame = QFrame()
+        help_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        help_layout = QVBoxLayout(help_frame)
+
+        help_title = QLabel("Como usar:")
+        help_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        help_title.setStyleSheet("font-weight: bold;")
+        help_layout.addWidget(help_title)
+
+        help_text = QLabel(
+            "• Utilize 'Iniciar Contínuo' para execução imediata contínua, sem interrupções\n"
+            "• Utilize 'Iniciar Agendamento' para execução nos horários definidos\n"
+            "• Configure intervalos e inatividade mínima na aba Principal\n"
+            "• Ajuste opções avançadas na aba Opções"
+        )
+        help_text.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        help_layout.addWidget(help_text)
+
+        layout.addWidget(help_frame)
+
+        # Resto do espaço
+        layout.addStretch(2)
 
 
 class KeepAliveApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Keep Alive RDP Connection")
+        self.setWindowTitle(APP_NAME)
         self.setFixedSize(500, 600)
 
         # Verifica se já está rodando
@@ -534,7 +654,7 @@ class KeepAliveApp(QMainWindow):
             QMessageBox.warning(
                 None,
                 "Aviso",
-                "O Keep Alive já está em execução!\n"
+                f"O {APP_NAME} já está em execução!\n"
                 "Verifique a bandeja do sistema ou o gerenciador de tarefas.\n"
                 "Se o problema persistir, reinicie o computador.",
             )
@@ -574,6 +694,11 @@ class KeepAliveApp(QMainWindow):
         self.inactive_log_timer.timeout.connect(self.log_inactive_status)
         self.inactive_log_timer.start(INACTIVE_LOG_INTERVAL)
 
+        # Timer para mensagem de orientação (mesmo intervalo)
+        self.help_timer = QTimer()
+        self.help_timer.timeout.connect(self.log_help_message_if_inactive)
+        self.help_timer.start(INACTIVE_LOG_INTERVAL)
+
         # Configura interface PRIMEIRO
         self.setup_ui()
         self.setup_tray()
@@ -589,7 +714,7 @@ class KeepAliveApp(QMainWindow):
         status_frame.setFrameShape(QFrame.Shape.StyledPanel)
         status_layout = QVBoxLayout(status_frame)
 
-        self.status_label = QLabel("Aguardando início do serviço")
+        self.status_label = QLabel("⭕ Aguardando início do serviço")
         self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         status_layout.addWidget(self.status_label)
 
@@ -632,7 +757,7 @@ class KeepAliveApp(QMainWindow):
         # Espaço vertical
         main_layout.addWidget(QLabel(""))
 
-        # Slider de intervalo entre tentativas
+        # Slider de intervalo entre tentativas - MELHORADO
         interval_layout = QVBoxLayout()
         interval_text_layout = QHBoxLayout()
         self.interval_label = QLabel("Intervalo entre tentativas (segundos):")
@@ -642,6 +767,10 @@ class KeepAliveApp(QMainWindow):
         interval_text_layout.addWidget(self.interval_label)
         interval_text_layout.addStretch()
         interval_layout.addLayout(interval_text_layout)
+
+        # Container para centralizar o slider horizontalmente (2/3 do espaço)
+        interval_container = QHBoxLayout()
+        interval_container.addStretch(1)  # 1/6 do espaço à esquerda
 
         interval_slider_layout = QHBoxLayout()
         interval_min_label = QLabel(str(INTERVAL_MIN))
@@ -658,13 +787,19 @@ class KeepAliveApp(QMainWindow):
         interval_slider_layout.addWidget(interval_min_label)
         interval_slider_layout.addWidget(self.interval_slider)
         interval_slider_layout.addWidget(interval_max_label)
-        interval_layout.addLayout(interval_slider_layout)
+
+        interval_container.addLayout(
+            interval_slider_layout, 2
+        )  # 2/3 do espaço para o slider
+        interval_container.addStretch(1)  # 1/6 do espaço à direita
+
+        interval_layout.addLayout(interval_container)
         main_layout.addLayout(interval_layout)
 
         # Espaço vertical
         main_layout.addWidget(QLabel(""))
 
-        # Slider de inatividade mínima
+        # Slider de inatividade mínima - MELHORADO
         user_layout = QVBoxLayout()
         user_text_layout = QHBoxLayout()
         self.user_info = QLabel(
@@ -676,6 +811,9 @@ class KeepAliveApp(QMainWindow):
         user_text_layout.addWidget(self.user_info)
         user_text_layout.addStretch()
         user_layout.addLayout(user_text_layout)
+
+        user_container = QHBoxLayout()
+        user_container.addStretch(1)
 
         user_slider_layout = QHBoxLayout()
         user_min_label = QLabel(str(USER_TIMEOUT_MIN))
@@ -692,15 +830,19 @@ class KeepAliveApp(QMainWindow):
         user_slider_layout.addWidget(user_min_label)
         user_slider_layout.addWidget(self.user_timeout_slider)
         user_slider_layout.addWidget(user_max_label)
-        user_layout.addLayout(user_slider_layout)
+
+        user_container.addLayout(user_slider_layout, 2)  # 2/3 do espaço para o slider
+        user_container.addStretch(1)  # 1/6 do espaço à direita
+
+        user_layout.addLayout(user_container)
         main_layout.addLayout(user_layout)
 
-        # Atualiza labels com valores corretos dos sliders
+        # Atualiza labels com valores corretos dos sliders - MELHORADO
         self.interval_label.setText(
-            f"Intervalo entre tentativas (segundos): {self.interval_slider.value()}"
+            f"Intervalo entre tentativas (segundos):    <b>{self.interval_slider.value()}</b>"
         )
         self.user_info.setText(
-            f"Inatividade mínima necessária para simular (segundos): {self.user_timeout_slider.value()}"
+            f"Inatividade mínima necessária para simular (segundos):    <b>{self.user_timeout_slider.value()}</b>"
         )
 
         # Espaço vertical
@@ -732,13 +874,17 @@ class KeepAliveApp(QMainWindow):
 
         # Botões
         button_layout = QHBoxLayout()
-        self.toggle_button = QPushButton("Iniciar ∞")
+        self.toggle_button = QPushButton()
+        # Formatação HTML para aumentar APENAS o símbolo de infinito
+        self.toggle_button.setText("Iniciar Contínuo")
+        self.toggle_button.setStyleSheet("font-weight: bold;")
+        self.toggle_button.setStyleSheet("font-weight: bold;")
         self.toggle_button.clicked.connect(self.toggle_service_no_schedule)
 
         self.schedule_button = QPushButton("Iniciar Agendamento")
         self.schedule_button.clicked.connect(self.toggle_service_with_schedule)
 
-        self.close_button = QPushButton("Fechar Completamente")
+        self.close_button = QPushButton("Encerrar")
         self.close_button.clicked.connect(self.quit_application)
 
         self.minimize_button = QPushButton("Minimizar")
@@ -750,13 +896,18 @@ class KeepAliveApp(QMainWindow):
         button_layout.addWidget(self.minimize_button)
         layout.addLayout(button_layout)
 
-    def add_main_log(self, message):
-        """Adiciona mensagem ao log da aba principal - COPIA EXATA do log original - LIMITADO A 11 LINHAS"""
+    def add_main_log(self, message, is_orientation=False):
+        """Adiciona mensagem ao log da aba principal - 11 Linhas"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        new_line = f"[{timestamp}] {message}"
+        log_message = f"[{timestamp}] {message}"
 
-        # Adiciona nova linha
-        self.main_log_text.append(new_line)
+        if is_orientation:
+            # Formatação especial para orientação: fundo azul escuro + negrito
+            formatted_text = f'<span style="background-color: #1a237e; color: white; font-weight: bold; padding: 2px 4px; border-radius: 3px;">{log_message}</span>'
+            self.main_log_text.append(formatted_text)
+        else:
+            # Adiciona nova linha normal
+            self.main_log_text.append(log_message)
 
         # Verifica se excedeu 11 linhas
         text_content = self.main_log_text.toPlainText()
@@ -773,12 +924,14 @@ class KeepAliveApp(QMainWindow):
 
     def update_interval_label(self, value):
         """Atualiza label do intervalo"""
-        self.interval_label.setText(f"Intervalo entre tentativas (segundos): {value}")
+        self.interval_label.setText(
+            f"Intervalo entre tentativas (segundos):    <b>{value}</b>"
+        )
 
     def update_timeout_label(self, value):
         """Atualiza label do timeout"""
         self.user_info.setText(
-            f"Inatividade mínima necessária para simular (segundos): {value}"
+            f"Inatividade mínima necessária para simular (segundos):    <b>{value}</b>"
         )
 
     def update_execution_type_label(self):
@@ -800,12 +953,12 @@ class KeepAliveApp(QMainWindow):
             app_style = QApplication.style()
             icon = app_style.standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
             self.tray_icon = QSystemTrayIcon(icon, self)
-            self.tray_icon.setToolTip("Keep Alive RDP Connection")
+            self.tray_icon.setToolTip(APP_NAME)
 
             menu = QMenu()
             show_action = QAction("Mostrar", self)
             show_action.triggered.connect(self.show)
-            self.toggle_tray_action = QAction("Iniciar ∞", self)
+            self.toggle_tray_action = QAction("Iniciar Contínuo", self)
             self.toggle_tray_action.triggered.connect(self.toggle_service_no_schedule)
 
             close_action = QAction("Fechar", self)
@@ -892,7 +1045,7 @@ class KeepAliveApp(QMainWindow):
             self.teams_check_count += 1
 
             # Print simples para debug (posteriormente comentar)
-            print(f"DEBUG: {teams_status} - {teams_message}")
+            # print(f"DEBUG: {teams_status} - {teams_message}")
 
             # Só loga se tiver informação confiável
             if teams_status and teams_status != "Indeterminado":
@@ -916,10 +1069,31 @@ class KeepAliveApp(QMainWindow):
             pass
 
     def log_inactive_status(self):
-        """Loga status de inatividade a cada 5 minutos"""
+        """Loga status de inatividade a cada x minutos"""
         if not self.is_running:
-            self.log_tab.add_log("Serviço parado")
-            self.add_main_log("Serviço parado")
+            status_msg = "Serviço parado"
+            help_msg = "<b>Inicie o programa clicando na opção desejada</b>"
+
+            self.log_tab.add_log(status_msg)
+            self.add_main_log(status_msg)
+
+            # Adiciona a mensagem de ajuda em HTML para negrito
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            formatted_help = f"[{timestamp}] {help_msg}"
+            self.log_tab.log_text.append(formatted_help)
+            self.main_log_text.append(formatted_help)
+
+    def log_help_message(self):
+        """Loga mensagem de orientação sempre quando chamada"""
+        help_msg = "Utilize 'Iniciar Contínuo' para execução imediata contínua ou 'Iniciar Agendamento' para execução no horário selecionado."
+        # Adiciona no log com formatação especial
+        self.log_tab.add_log(help_msg, is_orientation=True)
+        self.add_main_log(help_msg, is_orientation=True)
+
+    def log_help_message_if_inactive(self):
+        """Loga mensagem de orientação a cada 5 minutos quando inativo"""
+        if not self.is_running:
+            self.log_help_message()
 
     def closeEvent(self, event):
         self.save_settings()
@@ -927,7 +1101,7 @@ class KeepAliveApp(QMainWindow):
             event.ignore()
             self.hide()
             self.tray_icon.showMessage(
-                "Keep Alive RDP Connection",
+                APP_NAME,
                 "Rodando em segundo plano",
                 QSystemTrayIcon.MessageIcon.Information,
                 2000,
@@ -944,8 +1118,8 @@ class KeepAliveApp(QMainWindow):
             self.toggle_tray_action.setText("Parar")
         else:
             self.stop_service()
-            self.toggle_button.setText("Iniciar ∞")
-            self.toggle_tray_action.setText("Iniciar ∞")
+            self.toggle_button.setText("Iniciar Contínuo")
+            self.toggle_tray_action.setText("Iniciar Contínuo")
 
     def toggle_service_with_schedule(self):
         """Iniciar/Parar com agendamento"""
@@ -974,8 +1148,8 @@ class KeepAliveApp(QMainWindow):
             self.update_execution_type_label()
 
             # Log específico para fora do horário
-            self.log_tab.add_log("Serviço parado - fora do horário de agendamento")
-            self.add_main_log("Serviço parado - fora do horário de agendamento")
+            self.log_tab.add_log("Serviço parado - Fora do horário de agendamento")
+            self.add_main_log("Serviço parado - Fora do horário de agendamento")
             self.schedule_button.setText("Parar")
 
     def start_service(self):
@@ -989,7 +1163,7 @@ class KeepAliveApp(QMainWindow):
             next_interval = random.randint(
                 int(base_interval_ms - variation), int(base_interval_ms + variation)
             )
-            log_msg = f"Serviço iniciado - {base_interval}s (±30%) = {next_interval/1000:.1f}s"
+            log_msg = f"Serviço iniciado \n Intervalo{base_interval}s (±Δ) = {next_interval/1000:.1f}s"
         else:
             next_interval = base_interval_ms
             log_msg = f"Serviço iniciado - intervalo fixo: {base_interval}s"
@@ -1015,14 +1189,14 @@ class KeepAliveApp(QMainWindow):
         """Para o serviço"""
         self.activity_timer.stop()
         self.is_running = False
-        self.toggle_button.setText("Iniciar ∞")
-        self.toggle_tray_action.setText("Iniciar ∞")
+        self.toggle_button.setText("Iniciar Contínuo")
+        self.toggle_tray_action.setText("Iniciar Contínuo")
         self.schedule_button.setText("Iniciar Agendamento")
-        self.status_label.setText("Serviço parado")
+        self.status_label.setText("Serviço Parado")
         self.update_execution_type_label()
         ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
-        self.log_tab.add_log("Serviço parado")
-        self.add_main_log("Serviço parado")
+        self.log_tab.add_log("Serviço Parado")
+        self.add_main_log("Serviço Parado")
 
     def perform_activity(self):
         try:
@@ -1120,6 +1294,7 @@ class KeepAliveApp(QMainWindow):
             self.activity_timer.stop()
             self.teams_timer.stop()
             self.inactive_log_timer.stop()
+            self.help_timer.stop()
             self.tray_icon.hide()
             cleanup_lock()
         except Exception:
@@ -1142,11 +1317,14 @@ def main():
     window.show()
 
     # Mensagem de boas-vindas
-    window.log_tab.add_log("Keep Alive RDP Connection iniciado")
-    window.add_main_log("Keep Alive RDP Connection iniciado")
+    window.log_tab.add_log(f"{APP_NAME} iniciado")
+    window.add_main_log(f"{APP_NAME} iniciado")
 
     # Log inicial de inatividade
     window.log_inactive_status()
+
+    # Log inicial de orientação
+    window.log_help_message()
 
     sys.exit(app.exec())
 
