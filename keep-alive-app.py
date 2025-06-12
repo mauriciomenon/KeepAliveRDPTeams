@@ -1,10 +1,11 @@
 # pylint: disable=E0602,E0102,E1101
 
+
 """
-Keep Alive RDP Connection 2.1.9
+Keep Alive RDP Connection 2.2.1
 Maurício Menon
-Foz do Iguaçu 06/06/2025
-https://github.com/mauriciomenon/KeepAliveRDPTeams
+Foz do Iguaçu 11/06/2025
+https://github.com/mauriciomenon/KeepAliveRDP
 """
 
 import ctypes
@@ -20,11 +21,12 @@ import win32api
 import win32con
 import win32event
 import win32gui
-from PyQt6.QtCore import QSettings, Qt, QTime, QTimer
+from PyQt6.QtCore import QLoggingCategory, QSettings, Qt, QTime, QTimer
 from PyQt6.QtGui import QAction, QFont
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
+    QFileDialog,
     QFrame,
     QGroupBox,
     QHBoxLayout,
@@ -33,6 +35,7 @@ from PyQt6.QtWidgets import (
     QMenu,
     QMessageBox,
     QPushButton,
+    QSizePolicy,
     QSlider,
     QSpinBox,
     QStyle,
@@ -45,21 +48,23 @@ from PyQt6.QtWidgets import (
 )
 
 # =============================================================================
-# INFORMAÇÕES DO PROGRAMA - DEFINIDAS NO INÍCIO
+# CONSTANTES E CONFIGURAÇÕES
 # =============================================================================
+# Informações do programa
 APP_NAME = "Keep Alive RDP Connection"
-APP_VERSION = "2.1.7"
+APP_VERSION = "2.2.1"
 APP_AUTHOR = "Maurício Menon"
-APP_DATE = "Foz do Iguaçu 09/06/2025"
-APP_URL = "https://github.com/mauriciomenon/KeepAliveRDPTeams"
+APP_DATE = "Foz do Iguaçu 11/06/2025"
+APP_URL = "https://github.com/mauriciomenon/KeepAliveRDP"
 
-# =============================================================================
-# CONFIGURAÇÕES PADRÃO - DEFINIDAS NO INÍCIO
-# =============================================================================
-DEFAULT_INTERVAL = 60  # Segundos entre cada "despertar" do programa
-DEFAULT_USER_TIMEOUT = 60  # Segundos de inatividade necessária para executar
-TEAMS_CHECK_INTERVAL = 60000  # Milissegundos entre verificações do Teams (60s)
-INACTIVE_LOG_INTERVAL = 900000  # Milissegundos para log quando inativo (15 minutos)
+# Windows
+SPI_GETSCREENSAVETIMEOUT = 0x000E  # SystemParametersInfo action code
+DEFAULT_SCREENSAVER_TIMEOUT = 900  # 15 min (padrão Windows)
+
+# Configurações padrão
+DEFAULT_INTERVAL = 60  # Segundos entre cada "despertar"
+DEFAULT_USER_TIMEOUT = 60  # Segundos de inatividade necessária
+INACTIVE_LOG_INTERVAL = 900000  # Milissegundos para log inativo (15 min)
 
 # Ranges dos sliders
 INTERVAL_MIN = 30  # Mínimo para intervalo entre tentativas
@@ -68,39 +73,57 @@ USER_TIMEOUT_MIN = 30  # Mínimo para inatividade do usuário
 USER_TIMEOUT_MAX = 300  # Máximo para inatividade do usuário
 
 # Horários padrão
-DEFAULT_START_TIME_HOUR = 8  # Hora de início padrão
-DEFAULT_START_TIME_MINUTE = 0  # Minuto de início padrão
-DEFAULT_END_TIME_HOUR = 18  # Hora de término padrão
-DEFAULT_END_TIME_MINUTE = 0  # Minuto de término padrão
+DEFAULT_START_TIME_HOUR = 8  # Hora de início
+DEFAULT_START_TIME_MINUTE = 0  # Minuto de início
+DEFAULT_END_TIME_HOUR = 18  # Hora de término
+DEFAULT_END_TIME_MINUTE = 0  # Minuto de término
 
 MUTEX_NAME = "KeepAlive_RDP_Unique_Instance_2025"
 
-# Configurações para prevenir bloqueios de tela
+# Strings constantes
+STR_SERVICE_RUNNING = "Serviço em Execução"
+STR_SERVICE_STOPPED = "Serviço Parado"
+STR_SCHEDULE_RUNNING = "Execução no Intervalo {} - {}"
+STR_CONTINUOUS_RUNNING = "Execução sem Interrupção"
+STR_START_CONTINUOUS = "Iniciar Contínuo"
+STR_START_SCHEDULED = "Iniciar Agendado"
+STR_STOP_SERVICE = "Pausar"
+STR_RESTART_APP = "Reiniciar Programa"
+STR_MINIMIZE = "Minimizar"
+STR_QUIT = "Fechar Completamente"
+STR_NEXT_ACTIVITY = "Próxima Atividade: {} ({}s)"
+STR_SIMULATION_SUCCESS = "Simulação Executada"
+STR_SERVICE_STARTED = "Serviço Iniciado"
+STR_SERVICE_STOPPED_LOG = "Serviço Parado"
+STR_USER_ACTIVE = "Usuário Ativo (inatividade: {:.1f}s < {}s)"
+STR_SETTINGS_SAVED = "Configurações Salvas"
+
+# Configurações para prevenir bloqueios
 ES_CONTINUOUS = 0x80000000
 ES_SYSTEM_REQUIRED = 0x00000001
 ES_DISPLAY_REQUIRED = 0x00000002
 ES_AWAYMODE_REQUIRED = 0x00000040
 
-# Desabilita o fail-safe do PyAutoGUI para evitar problemas
+# Desabilita fail-safe do PyAutoGUI
 pyautogui.FAILSAFE = False
 
-# Configuração básica de logging (apenas console para debug)
+# Configuração básica de logging
 logging.basicConfig(
     level=logging.WARNING,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-# Verificação de instância única com melhoria e fallback
+# Verificação de instância única
 mutex = None
 
 
 def is_already_running():
-    """Verifica se outra instância do aplicativo já está em execução"""
+    """Verifica se outra instância está em execução"""
     global mutex
     try:
         # Método 1: Mutex
         mutex = win32event.CreateMutex(None, False, MUTEX_NAME)
-        if win32api.GetLastError() == 183:  # ERROR_ALREADY_EXISTS = 183
+        if win32api.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
             return True
 
         # Método 2: Fallback - verificar por janela
@@ -116,25 +139,21 @@ def is_already_running():
             windows = []
             win32gui.EnumWindows(enum_windows_callback, windows)
             return len(windows) > 0
-
         except Exception:
             pass
 
         return False
-
     except Exception as e:
         logging.warning(f"Erro na verificação de instância: {str(e)}")
-        # Método 3: Fallback final - verificar por arquivo de lock
+        # Método 3: Fallback final - arquivo de lock
         try:
             lock_file = os.path.join(os.path.expanduser("~"), ".keepalive_running")
             if os.path.exists(lock_file):
-                # Verifica se o arquivo é muito antigo (mais de 1 hora)
                 if time.time() - os.path.getmtime(lock_file) > 3600:
                     os.remove(lock_file)
                     return False
                 return True
             else:
-                # Cria arquivo de lock
                 with open(lock_file, "w") as f:
                     f.write(str(os.getpid()))
                 return False
@@ -167,7 +186,7 @@ def prevent_system_lock():
 
 
 def get_user_activity_timeout():
-    """Obtém o tempo de inatividade do usuário em segundos"""
+    """Obtém tempo de inatividade do usuário em segundos"""
     try:
 
         class LASTINPUTINFO(ctypes.Structure):
@@ -184,24 +203,120 @@ def get_user_activity_timeout():
         return 0
 
 
-def simulate_safe_activity():
+def get_screen_saver_timeout() -> int:
     """
-    Simula atividade SEGURA com verificação de usuário
+    Fallback:
+    1. SystemParametersInfo → valor efetivo (respeita GPO/AD).
+    2. Registro HKCU\Control Panel\Desktop\ScreenSaveTimeOut.
+    3. DEFAULT_SCREENSAVER_TIMEOUT (avisa em stderr; remova o print depois).
+    0 indica protetor de tela desativado.
     """
-    try:
-        # Movimento SEGURO no CENTRO da tela
-        screen_width, screen_height = pyautogui.size()
 
-        # Define área CENTRAL SEGURA (10% ao redor do centro)
+    try:
+        timeout = ctypes.c_int()
+        if ctypes.windll.user32.SystemParametersInfoW(
+            SPI_GETSCREENSAVETIMEOUT, 0, ctypes.byref(timeout), 0
+        ):
+            return timeout.value
+    except Exception:
+        pass
+    try:
+        key = win32api.RegOpenKeyEx(
+            win32con.HKEY_CURRENT_USER,
+            r"Control Panel\Desktop",
+            0,
+            win32con.KEY_READ,
+        )
+        try:
+            value, _ = win32api.RegQueryValueEx(key, "ScreenSaveTimeOut")
+        finally:
+            win32api.RegCloseKey(key)
+
+        if isinstance(value, (bytes, bytearray)):
+            value = value.decode("ascii", errors="ignore")
+
+        return int(value.split("\0", 1)[0].strip())
+    except Exception as err:
+        # debug – apague depois de validar
+        print(
+            f"[fallback] ScreenSaveTimeOut não lido, usando "
+            f"{DEFAULT_SCREENSAVER_TIMEOUT}s: {err!r}",
+            file=sys.stderr,
+        )
+    return DEFAULT_SCREENSAVER_TIMEOUT
+
+
+def get_rdp_disconnect_time():
+    """Obtém tempo de desconexão RDP do sistema"""
+    try:
+        # Chaves do registro para timeout RDP
+        base_key = "SYSTEM\\CurrentControlSet\\Control\\Terminal Server"
+        keys = [f"{base_key}\\WinStations\\RDP-Tcp", f"{base_key}"]
+
+        for key_path in keys:
+            try:
+                key = win32api.RegOpenKeyEx(
+                    win32con.HKEY_LOCAL_MACHINE,
+                    key_path,
+                    0,
+                    win32con.KEY_READ,
+                )
+                value, _ = win32api.RegQueryValueEx(key, "MaxDisconnectionTime")
+                win32api.RegCloseKey(key)
+                if value > 0:
+                    return int(value / 1000)  # Converte ms para segundos
+            except Exception:
+                continue
+
+        # Tentar método alternativo via AD (sem necessidade de admin)
+        # Implementação real viria aqui
+        return 0  # Valor 0 = sem timeout
+
+    except Exception:
+        return 0
+
+
+def adjust_user_timeout():
+    """Ajusta timeout de inatividade baseado em proteção de tela e RDP"""
+    try:
+        # Obtém tempos do sistema
+        screen_saver_time = get_screen_saver_timeout()
+        rdp_time = get_rdp_disconnect_time()
+
+        # Calcula 1/3 do tempo de proteção de tela
+        calculated_timeout = max(screen_saver_time // 3, 30)
+
+        # Se RDP tem timeout, usa o menor valor entre calculado e RDP
+        if rdp_time > 0:
+            calculated_timeout = min(calculated_timeout, rdp_time)
+
+        # Limita ao máximo permitido e mínimo seguro
+        return min(
+            max(calculated_timeout, USER_TIMEOUT_MIN),
+            (
+                min(screen_saver_time, USER_TIMEOUT_MAX)
+                if screen_saver_time > 0
+                else USER_TIMEOUT_MAX
+            ),
+        )
+    except Exception:
+        return DEFAULT_USER_TIMEOUT
+
+
+def simulate_safe_activity():
+    """Simula atividade segura com verificação"""
+    try:
+        # Movimento seguro no centro da tela
+        screen_width, screen_height = pyautogui.size()
         center_x = screen_width // 2
         center_y = screen_height // 2
-        safe_zone = min(screen_width, screen_height) // 20  # 5% da menor dimensão
+        safe_zone = min(screen_width, screen_height) // 20
 
         # Posição aleatória na área central
         target_x = center_x + random.randint(-safe_zone, safe_zone)
         target_y = center_y + random.randint(-safe_zone, safe_zone)
 
-        # Movimento suave para posição segura
+        # Movimento suave
         pyautogui.moveTo(target_x, target_y, duration=0.2)
 
         # Pequeno movimento adicional
@@ -212,209 +327,13 @@ def simulate_safe_activity():
         # Eventos de teclado seguros
         safe_keys = ["numlock", "scrolllock", "capslock"]
         selected_key = random.choice(safe_keys)
-
-        # Pressiona a tecla duas vezes para garantir que volta ao estado original
         pyautogui.press(selected_key)
         time.sleep(0.1)
         pyautogui.press(selected_key)
 
         return True, "Atividade simulada"
-
     except Exception as e:
         return False, f"Erro na simulação: {str(e)}"
-
-
-def get_teams_status():
-    """Verifica status real do Teams (disponível/ausente/ocupado)"""
-    try:
-        import subprocess
-
-        print("DEBUG TEAMS: Iniciando verificação de status do Teams...")
-
-        # Método 1: Verificar processo do Teams
-        print("DEBUG TEAMS: Método 1 - Verificando processos do Teams...")
-        teams_processes = []
-        try:
-            print("DEBUG TEAMS: Procurando ms-teams.exe...")
-            for proc in subprocess.run(
-                ["tasklist", "/FI", "IMAGENAME eq ms-teams.exe", "/FO", "CSV"],
-                capture_output=True,
-                text=True,
-                shell=True,
-            ).stdout.split("\n"):
-                if "ms-teams.exe" in proc.lower():
-                    teams_processes.append(proc)
-                    print(f"DEBUG TEAMS: Encontrado ms-teams.exe: {proc.strip()}")
-
-            # Se não tem processo do Teams, tenta o clássico
-            if not teams_processes:
-                print(
-                    "DEBUG TEAMS: ms-teams.exe não encontrado, procurando Teams.exe clássico..."
-                )
-                for proc in subprocess.run(
-                    ["tasklist", "/FI", "IMAGENAME eq Teams.exe", "/FO", "CSV"],
-                    capture_output=True,
-                    text=True,
-                    shell=True,
-                ).stdout.split("\n"):
-                    if "Teams.exe" in proc.lower():
-                        teams_processes.append(proc)
-                        print(f"DEBUG TEAMS: Encontrado Teams.exe: {proc.strip()}")
-
-            if not teams_processes:
-                print("DEBUG TEAMS: Nenhum processo Teams encontrado")
-                return "INATIVO", "Teams não está em execução"
-            else:
-                print(
-                    f"DEBUG TEAMS: {len(teams_processes)} processo(s) Teams encontrado(s)"
-                )
-
-        except Exception as e:
-            print(f"DEBUG TEAMS: Erro no Método 1: {str(e)}")
-
-        # Método 2: Verificar janelas do Teams e título para status
-        print("DEBUG TEAMS: Método 2 - Verificando janelas do Teams...")
-        teams_windows = []
-        try:
-
-            def enum_windows_callback(hwnd, results):
-                try:
-                    if win32gui.IsWindowVisible(hwnd):
-                        window_text = win32gui.GetWindowText(hwnd)
-                        if "teams" in window_text.lower() and len(window_text) > 5:
-                            # Filtra janelas que realmente são do Teams (não VS Code)
-                            if "microsoft teams" in window_text.lower():
-                                print(
-                                    f"DEBUG TEAMS: Janela TEAMS REAL encontrada: '{window_text}'"
-                                )
-                                # Verifica se a janela tem tamanho razoável
-                                rect = win32gui.GetWindowRect(hwnd)
-                                width = rect[2] - rect[0]
-                                height = rect[3] - rect[1]
-                                print(
-                                    f"DEBUG TEAMS: Tamanho da janela: {width}x{height}"
-                                )
-                                if width > 100 and height > 100:
-                                    results.append(window_text)
-
-                                    # Tenta detectar status no título da janela
-                                    title_lower = window_text.lower()
-                                    print(
-                                        f"DEBUG TEAMS: Analisando título: '{title_lower}'"
-                                    )
-
-                                    # Palavras de status ausente/ocupado
-                                    away_words = [
-                                        "away",
-                                        "ausente",
-                                        "busy",
-                                        "ocupado",
-                                        "offline",
-                                        "não disponível",
-                                    ]
-                                    # Palavras de status disponível
-                                    available_words = [
-                                        "available",
-                                        "disponível",
-                                        "online",
-                                        "ativo",
-                                    ]
-
-                                    if any(word in title_lower for word in away_words):
-                                        print(
-                                            f"DEBUG TEAMS: Status AUSENTE detectado no título (palavra encontrada)"
-                                        )
-                                        results.append("STATUS_AUSENTE")
-                                    elif any(
-                                        word in title_lower for word in available_words
-                                    ):
-                                        print(
-                                            f"DEBUG TEAMS: Status DISPONÍVEL detectado no título (palavra encontrada)"
-                                        )
-                                        results.append("STATUS_DISPONIVEL")
-                                    else:
-                                        print(
-                                            "DEBUG TEAMS: Nenhum status específico detectado no título - assumindo ATIVO"
-                                        )
-                                        # Se encontrou janela Teams mas sem status no título, assume ativo
-                                        results.append("STATUS_ATIVO_SEM_INDICACAO")
-                                else:
-                                    print(
-                                        "DEBUG TEAMS: Janela muito pequena, ignorando"
-                                    )
-                            else:
-                                print(
-                                    f"DEBUG TEAMS: Janela ignorada (não é Teams real): '{window_text}'"
-                                )
-                except Exception as e:
-                    print(f"DEBUG TEAMS: Erro ao processar janela: {str(e)}")
-                return True
-
-            windows_found = []
-            win32gui.EnumWindows(enum_windows_callback, windows_found)
-
-            teams_windows = [w for w in windows_found if not w.startswith("STATUS_")]
-            status_flags = [w for w in windows_found if w.startswith("STATUS_")]
-
-            print(f"DEBUG TEAMS: Total de janelas Teams reais: {len(teams_windows)}")
-            print(f"DEBUG TEAMS: Status encontrados: {status_flags}")
-
-            if teams_windows:
-                if "STATUS_AUSENTE" in status_flags:
-                    print("DEBUG TEAMS: Resultado final - AUSENTE")
-                    return "AUSENTE", "Ausente"
-                elif "STATUS_DISPONIVEL" in status_flags:
-                    print("DEBUG TEAMS: Resultado final - DISPONÍVEL")
-                    return "DISPONÍVEL", "Disponível"
-                elif "STATUS_ATIVO_SEM_INDICACAO" in status_flags:
-                    print(
-                        "DEBUG TEAMS: Resultado final - ATIVO (sem indicação no título)"
-                    )
-                    return "ATIVO", f"Ativo - {len(teams_windows)} janela(s) Teams"
-                else:
-                    print("DEBUG TEAMS: Resultado final - ATIVO (indeterminado)")
-                    return "ATIVO", f"Indeterminado - {len(teams_windows)} janela(s)"
-
-        except Exception as e:
-            print(f"DEBUG TEAMS: Erro no Método 2: {str(e)}")
-
-        # Método 3: Fallback simples - só verifica se está rodando
-        print("DEBUG TEAMS: Método 3 - Fallback com pyautogui...")
-        try:
-            teams_found = False
-            windows_count = 0
-            for window in pyautogui.getAllWindows():
-                if hasattr(window, "title") and window.title:
-                    if (
-                        "microsoft teams" in window.title.lower()
-                        and window.width > 100
-                        and window.height > 100
-                    ):
-                        print(
-                            f"DEBUG TEAMS: Janela pyautogui Teams: '{window.title}' {window.width}x{window.height}"
-                        )
-                        teams_found = True
-                        windows_count += 1
-
-            print(f"DEBUG TEAMS: Método 3 encontrou {windows_count} janela(s) Teams")
-            if teams_found:
-                print("DEBUG TEAMS: Resultado final - DETECTADO (fallback)")
-                return "DETECTADO", f"Detectado (fallback) - {windows_count} janela(s)"
-
-        except Exception as e:
-            print(f"DEBUG TEAMS: Erro no Método 3: {str(e)}")
-
-        # Se chegou até aqui mas tem processo, Teams está rodando mas sem janelas visíveis
-        if teams_processes:
-            print("DEBUG TEAMS: Resultado final - PROCESSO SEM JANELA")
-            return "PROCESSO", "Processo ativo mas sem janelas visíveis"
-
-        print("DEBUG TEAMS: Resultado final - INDETERMINADO")
-        return "INDETERMINADO", "Não foi possível determinar status do Teams"
-
-    except Exception as e:
-        print(f"DEBUG TEAMS: Erro geral: {str(e)}")
-        return None, f"Erro na verificação: {str(e)}"
 
 
 class LogTab(QWidget):
@@ -438,27 +357,25 @@ class LogTab(QWidget):
         layout.addLayout(button_layout)
 
     def add_log(self, message, is_orientation=False):
-        """Adiciona mensagem ao log com timestamp - LIMITADO A 1000 LINHAS"""
+        """Adiciona mensagem ao log com timestamp"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_message = f"[{timestamp}] {message}"
 
         if is_orientation:
-            # Formatação especial para orientação: fundo azul escuro + negrito
-            formatted_text = f'<span style="background-color: #1a237e; color: white; font-weight: bold; padding: 2px 4px; border-radius: 3px;">{log_message}</span>'
+            # Apenas negrito sem fundo azul
+            formatted_text = f'<span style="font-weight: bold;">{log_message}</span>'
             self.log_text.append(formatted_text)
         else:
-            # Adiciona nova linha normal
             self.log_text.append(log_message)
 
-        # Verifica se excedeu 1000 linhas
+        # Limite de 1000 linhas
         text_content = self.log_text.toPlainText()
         lines = text_content.split("\n")
         if len(lines) > 1000:
-            # Remove as linhas mais antigas (FIFO)
-            lines = lines[-1000:]  # Mantém apenas as últimas 1000
+            lines = lines[-1000:]
             self.log_text.setPlainText("\n".join(lines))
 
-        # Rola para o final do log
+        # Rola para o final
         scrollbar = self.log_text.verticalScrollBar()
         if scrollbar:
             scrollbar.setValue(scrollbar.maximum())
@@ -468,15 +385,31 @@ class LogTab(QWidget):
         self.log_text.clear()
 
     def save_log(self):
-        """Salva o log em um arquivo na área de trabalho"""
+        """Salva o log em arquivo usando seletor nativo"""
         try:
-            desktop = os.path.join(os.path.expanduser("~"), "Desktop")
-            filename = os.path.join(
-                desktop,
-                f"keep_alive_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            # Gerar timestamp para nome do arquivo
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            default_filename = f"keep_alive_log_{timestamp}.txt"
+
+            # Obter nome do arquivo usando diálogo
+            filename, _ = QFileDialog.getSaveFileName(
+                self,
+                "Salvar Log",
+                os.path.join(os.path.expanduser("~"), "Desktop", default_filename),
+                "Arquivos de Texto (*.txt);;Todos os Arquivos (*)",
             )
+
+            if not filename:
+                return  # Usuário cancelou
+
+            # Adicionar extensão se necessário
+            if not filename.lower().endswith(".txt"):
+                filename += ".txt"
+
+            # Salvar arquivo
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(self.log_text.toPlainText())
+
             self.add_log(f"Log salvo em: {filename}")
         except Exception as e:
             self.add_log(f"Erro ao salvar log: {str(e)}")
@@ -510,6 +443,59 @@ class AdvancedTab(QWidget):
         options_layout.addWidget(self.minimize_to_tray_cb)
 
         layout.addWidget(options_group)
+        layout.addSpacing(20)  # Espaço dobrado
+
+        # Grupo de opções avançadas (sliders)
+        advanced_options_group = QGroupBox("Opções Avançadas")
+        advanced_layout = QVBoxLayout(advanced_options_group)
+
+        # Slider de intervalo
+        interval_container = QVBoxLayout()
+        interval_label = QLabel("Intervalo entre tentativas (segundos):")
+        advanced_layout.addWidget(interval_label)
+
+        slider_layout = QHBoxLayout()
+        self.interval_slider = QSlider(Qt.Orientation.Horizontal)
+        self.interval_slider.setMinimum(INTERVAL_MIN)
+        self.interval_slider.setMaximum(INTERVAL_MAX)
+        self.interval_slider.setValue(DEFAULT_INTERVAL)
+        self.interval_slider.setSingleStep(5)
+        slider_layout.addWidget(self.interval_slider)
+
+        self.interval_value = QLabel(str(DEFAULT_INTERVAL))
+        self.interval_value.setFixedWidth(40)
+        slider_layout.addWidget(self.interval_value)
+
+        advanced_layout.addLayout(slider_layout)
+        self.interval_slider.valueChanged.connect(
+            lambda v: self.interval_value.setText(str(v))
+        )
+        advanced_layout.addSpacing(10)  # Espaço adicional
+
+        # Slider de inatividade
+        timeout_container = QVBoxLayout()
+        timeout_label = QLabel("Inatividade mínima (segundos):")
+        advanced_layout.addWidget(timeout_label)
+
+        timeout_slider_layout = QHBoxLayout()
+        self.timeout_slider = QSlider(Qt.Orientation.Horizontal)
+        self.timeout_slider.setMinimum(USER_TIMEOUT_MIN)
+        self.timeout_slider.setMaximum(USER_TIMEOUT_MAX)
+        self.timeout_slider.setValue(DEFAULT_USER_TIMEOUT)
+        self.timeout_slider.setSingleStep(5)
+        timeout_slider_layout.addWidget(self.timeout_slider)
+
+        self.timeout_value = QLabel(str(DEFAULT_USER_TIMEOUT))
+        self.timeout_value.setFixedWidth(40)
+        timeout_slider_layout.addWidget(self.timeout_value)
+
+        advanced_layout.addLayout(timeout_slider_layout)
+        self.timeout_slider.valueChanged.connect(
+            lambda v: self.timeout_value.setText(str(v))
+        )
+
+        layout.addWidget(advanced_options_group)
+        layout.addSpacing(20)  # Espaço dobrado
 
         # Botões de teste
         test_group = QGroupBox("Testes")
@@ -519,41 +505,13 @@ class AdvancedTab(QWidget):
         test_button.clicked.connect(self.test_simulation)
         test_layout.addWidget(test_button)
 
-        test_teams_button = QPushButton("Testar Detecção do Teams")
-        test_teams_button.clicked.connect(self.test_teams_detection)
-        test_layout.addWidget(test_teams_button)
-
         layout.addWidget(test_group)
         layout.addStretch()
-
-    def test_teams_detection(self):
-        """Testa detecção do Teams"""
-        try:
-            teams_status, teams_message = get_teams_status()
-            if teams_status:
-                result_msg = f"Teams Status: {teams_status} - {teams_message}"
-                # Print simples para mostrar status
-                print(f"DEBUG TEAMS: {teams_status} - {teams_message}")
-            else:
-                result_msg = f"Teams Status: ERRO - {teams_message}"
-                print(f"DEBUG TEAMS ERRO: {teams_message}")
-
-            main_window = self.window()
-            if hasattr(main_window, "log_tab") and main_window.log_tab:
-                main_window.log_tab.add_log("Teste de detecção do Teams")
-                main_window.log_tab.add_log(result_msg)
-
-        except Exception as e:
-            error_msg = f"Erro no teste: {str(e)}"
-            print(f"DEBUG TEAMS EXCEÇÃO: {error_msg}")
-            main_window = self.window()
-            if hasattr(main_window, "log_tab") and main_window.log_tab:
-                main_window.log_tab.add_log(error_msg)
 
     def test_simulation(self):
         """Testa simulação"""
         try:
-            # Verifica se usuário está ativo
+            # Verifica inatividade do usuário
             idle_time = get_user_activity_timeout()
 
             main_window = self.window()
@@ -579,16 +537,14 @@ class AdvancedTab(QWidget):
 
 
 class AboutTab(QWidget):
-    """Aba 'About' com informações do projeto"""
+    """Aba 'Sobre' com informações do projeto"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
-
-        # 1/4 do espaço vertical antes da caixa
         layout.addStretch(1)
 
-        # Caixa com informações do programa apenas
+        # Caixa com informações
         about_frame = QFrame()
         about_frame.setFrameShape(QFrame.Shape.StyledPanel)
         about_layout = QVBoxLayout(about_frame)
@@ -614,11 +570,9 @@ class AboutTab(QWidget):
         about_layout.addWidget(date_text)
 
         layout.addWidget(about_frame)
+        layout.addSpacing(40)  # Espaço dobrado
 
-        # Espaçamento entre as caixas
-        layout.addSpacing(20)
-
-        # Caixa separada para "Como usar"
+        # Caixa para "Como usar"
         help_frame = QFrame()
         help_frame.setFrameShape(QFrame.Shape.StyledPanel)
         help_layout = QVBoxLayout(help_frame)
@@ -630,16 +584,14 @@ class AboutTab(QWidget):
 
         help_text = QLabel(
             "• Utilize 'Iniciar Contínuo' para execução imediata contínua, sem interrupções\n"
-            "• Utilize 'Iniciar Agendamento' para execução nos horários definidos\n"
-            "• Configure intervalos e inatividade mínima na aba Principal\n"
-            "• Ajuste opções avançadas na aba Opções"
+            "• Utilize 'Iniciar Agendado' para execução nos horários definidos\n"
+            "• Configure intervalos e inatividade mínima na aba Opções\n"
+            "• Ajuste opções avançadas na mesma aba"
         )
         help_text.setAlignment(Qt.AlignmentFlag.AlignLeft)
         help_layout.addWidget(help_text)
 
         layout.addWidget(help_frame)
-
-        # Resto do espaço
         layout.addStretch(2)
 
 
@@ -647,9 +599,9 @@ class KeepAliveApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(APP_NAME)
-        self.setFixedSize(500, 600)
+        self.setFixedSize(500, 650)
 
-        # Verifica se já está rodando
+        # Verifica instância única
         if is_already_running():
             QMessageBox.warning(
                 None,
@@ -660,7 +612,7 @@ class KeepAliveApp(QMainWindow):
             )
             sys.exit(1)
 
-        # Configurações básicas
+        # Configurações
         self.settings = QSettings("KeepAliveTools", "KeepAliveManager")
         self.default_interval = self.settings.value("interval", DEFAULT_INTERVAL, int)
         self.default_user_timeout = self.settings.value(
@@ -675,31 +627,30 @@ class KeepAliveApp(QMainWindow):
             "end_time", QTime(DEFAULT_END_TIME_HOUR, DEFAULT_END_TIME_MINUTE), QTime
         )
 
+        # Ajusta timeout automaticamente
+        self.screen_saver_time = get_screen_saver_timeout()
+        self.rdp_time = get_rdp_disconnect_time()
+        adjusted_timeout = adjust_user_timeout()
+
+        if adjusted_timeout != self.default_user_timeout:
+            self.default_user_timeout = adjusted_timeout
+            self.settings.setValue("user_timeout", adjusted_timeout)
+
         self.is_running = False
-        self.use_schedule = True  # Por padrão usar agendamento
+        self.use_schedule = True
         self.activity_count = 0
-        self.teams_check_count = 0
 
         # Timers
         self.activity_timer = QTimer()
         self.activity_timer.timeout.connect(self.perform_activity)
-
-        # Timer para verificar Teams a cada 60 segundos
-        self.teams_timer = QTimer()
-        self.teams_timer.timeout.connect(self.check_teams_status)
-        self.teams_timer.start(TEAMS_CHECK_INTERVAL)
-
-        # Timer para log de inatividade a cada 5 minutos
         self.inactive_log_timer = QTimer()
         self.inactive_log_timer.timeout.connect(self.log_inactive_status)
         self.inactive_log_timer.start(INACTIVE_LOG_INTERVAL)
-
-        # Timer para mensagem de orientação (mesmo intervalo)
         self.help_timer = QTimer()
         self.help_timer.timeout.connect(self.log_help_message_if_inactive)
         self.help_timer.start(INACTIVE_LOG_INTERVAL)
 
-        # Configura interface PRIMEIRO
+        # Configura interface
         self.setup_ui()
         self.setup_tray()
         self.load_settings()
@@ -728,20 +679,16 @@ class KeepAliveApp(QMainWindow):
         self.tab_widget = QTabWidget()
         layout.addWidget(self.tab_widget)
 
-        # Aba principal
+        # ─────────── Aba principal ────────────────────────────────────────────────
         main_tab = QWidget()
         main_layout = QVBoxLayout(main_tab)
 
-        # Espaço de uma linha
-        main_layout.addWidget(QLabel(""))
-
-        # Horários alinhados à direita (primeiro)
+        # Horários
         time_layout = QHBoxLayout()
         start_label = QLabel("Início:")
         self.start_time_edit = QTimeEdit()
         self.start_time_edit.setTime(self.default_start_time)
         self.start_time_edit.setFixedWidth(80)
-        # Tab space
         tab_label = QLabel("\t\t")
         end_label = QLabel("Término:")
         self.end_time_edit = QTimeEdit()
@@ -754,115 +701,77 @@ class KeepAliveApp(QMainWindow):
         time_layout.addWidget(self.end_time_edit)
         main_layout.addLayout(time_layout)
 
-        # Espaço vertical
-        main_layout.addWidget(QLabel(""))
+        main_layout.addSpacing(20)  # Espaço dobrado
 
-        # Slider de intervalo entre tentativas - MELHORADO
-        interval_layout = QVBoxLayout()
-        interval_text_layout = QHBoxLayout()
-        self.interval_label = QLabel("Intervalo entre tentativas (segundos):")
-        self.interval_label.setToolTip(
-            "Intervalo entre tentativas: temporização entre verificações."
-        )
-        interval_text_layout.addWidget(self.interval_label)
-        interval_text_layout.addStretch()
-        interval_layout.addLayout(interval_text_layout)
+        # ── Informações de tempo (layout horizontal) ─────────────────────────────
+        system_times_frame = QFrame()
+        system_times_layout = QVBoxLayout(system_times_frame)
 
-        # Container para centralizar o slider horizontalmente (2/3 do espaço)
-        interval_container = QHBoxLayout()
-        interval_container.addStretch(1)  # 1/6 do espaço à esquerda
+        minutos_ss = self.screen_saver_time // 60
+        minutos_rdp = self.rdp_time // 60 if self.rdp_time > 0 else None
 
-        interval_slider_layout = QHBoxLayout()
-        interval_min_label = QLabel(str(INTERVAL_MIN))
-        self.interval_slider = QSlider(Qt.Orientation.Horizontal)
-        self.interval_slider.setMinimum(INTERVAL_MIN)
-        self.interval_slider.setMaximum(INTERVAL_MAX)
-        self.interval_slider.setValue(DEFAULT_INTERVAL)
-        self.interval_slider.setSingleStep(5)
-        self.interval_slider.setPageStep(5)
-        self.interval_slider.setTickInterval(5)
-        self.interval_slider.valueChanged.connect(self.update_interval_label)
-        interval_max_label = QLabel(str(INTERVAL_MAX))
+        # Linha Screen-Saver
+        row_ss = QHBoxLayout()
+        row_ss.addWidget(QLabel("Tempo de Proteção de Tela:"))
+        row_ss.addStretch(1)
+        if self.screen_saver_time == 0:
+            row_ss.addWidget(QLabel("<b>Desativado</b>"))
+        else:
+            row_ss.addWidget(QLabel(f"<b>{self.screen_saver_time} s</b>"))
+            row_ss.addSpacing(12)
+            row_ss.addWidget(QLabel(f"<b>{minutos_ss} min</b>"))
+        system_times_layout.addLayout(row_ss)
 
-        interval_slider_layout.addWidget(interval_min_label)
-        interval_slider_layout.addWidget(self.interval_slider)
-        interval_slider_layout.addWidget(interval_max_label)
+        # Linha RDP
+        row_rdp = QHBoxLayout()
+        row_rdp.addWidget(QLabel("Tempo de Desconexão do RDP:"))
+        row_rdp.addStretch(1)
+        if self.rdp_time > 0:
+            row_rdp.addWidget(QLabel(f"<b>{self.rdp_time} s</b>"))
+            row_rdp.addSpacing(12)
+            row_rdp.addWidget(QLabel(f"<b>{minutos_rdp} min</b>"))
+        else:
+            row_rdp.addWidget(QLabel("<b>Não definido</b>"))
+        system_times_layout.addLayout(row_rdp)
 
-        interval_container.addLayout(
-            interval_slider_layout, 2
-        )  # 2/3 do espaço para o slider
-        interval_container.addStretch(1)  # 1/6 do espaço à direita
+        main_layout.addWidget(system_times_frame)
+        main_layout.addSpacing(20)
 
-        interval_layout.addLayout(interval_container)
-        main_layout.addLayout(interval_layout)
-
-        # Espaço vertical
-        main_layout.addWidget(QLabel(""))
-
-        # Slider de inatividade mínima - MELHORADO
-        user_layout = QVBoxLayout()
-        user_text_layout = QHBoxLayout()
-        self.user_info = QLabel(
-            "Inatividade mínima necessária para simular (segundos):"
-        )
-        self.user_info.setToolTip(
-            "Inatividade mínima: tempo de inatividade do usuário quando o Intervalo entre tentativas é atingido."
-        )
-        user_text_layout.addWidget(self.user_info)
-        user_text_layout.addStretch()
-        user_layout.addLayout(user_text_layout)
-
-        user_container = QHBoxLayout()
-        user_container.addStretch(1)
-
-        user_slider_layout = QHBoxLayout()
-        user_min_label = QLabel(str(USER_TIMEOUT_MIN))
-        self.user_timeout_slider = QSlider(Qt.Orientation.Horizontal)
-        self.user_timeout_slider.setMinimum(USER_TIMEOUT_MIN)
-        self.user_timeout_slider.setMaximum(USER_TIMEOUT_MAX)
-        self.user_timeout_slider.setValue(DEFAULT_USER_TIMEOUT)
-        self.user_timeout_slider.setSingleStep(5)
-        self.user_timeout_slider.setPageStep(5)
-        self.user_timeout_slider.setTickInterval(5)
-        self.user_timeout_slider.valueChanged.connect(self.update_timeout_label)
-        user_max_label = QLabel(str(USER_TIMEOUT_MAX))
-
-        user_slider_layout.addWidget(user_min_label)
-        user_slider_layout.addWidget(self.user_timeout_slider)
-        user_slider_layout.addWidget(user_max_label)
-
-        user_container.addLayout(user_slider_layout, 2)  # 2/3 do espaço para o slider
-        user_container.addStretch(1)  # 1/6 do espaço à direita
-
-        user_layout.addLayout(user_container)
-        main_layout.addLayout(user_layout)
-
-        # Atualiza labels com valores corretos dos sliders - MELHORADO
-        self.interval_label.setText(
-            f"Intervalo entre tentativas (segundos):    <b>{self.interval_slider.value()}</b>"
-        )
-        self.user_info.setText(
-            f"Inatividade mínima necessária para simular (segundos):    <b>{self.user_timeout_slider.value()}</b>"
-        )
-
-        # Espaço vertical
-        main_layout.addWidget(QLabel(""))
-
-        # Verificação de usuário ativo - expandindo todo espaço disponível
+        # ── Verificação de atividade do usuário ──────────────────────────────────
         user_group = QGroupBox("Verificação de Atividade do Usuário")
         user_group_layout = QVBoxLayout(user_group)
-
-        # Log dentro da caixa - novo QTextEdit
         self.main_log_text = QTextEdit()
         self.main_log_text.setReadOnly(True)
+        self.main_log_text.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
         user_group_layout.addWidget(self.main_log_text)
-
         main_layout.addWidget(user_group)
-        main_layout.addStretch()
+
+        # ── Botões Reiniciar / Encerrar ───────────────────────────────────────
+        restart_quit_layout = QHBoxLayout()
+        restart_quit_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.restart_button = QPushButton(STR_RESTART_APP)
+        self.restart_button.clicked.connect(self.restart_application)
+        self.restart_button.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        restart_quit_layout.addWidget(self.restart_button)
+
+        self.quit_button = QPushButton(STR_QUIT)
+        self.quit_button.clicked.connect(self.quit_application)
+        self.quit_button.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
+        restart_quit_layout.addWidget(self.quit_button)
+
+        main_layout.addLayout(restart_quit_layout)
 
         self.tab_widget.addTab(main_tab, "Principal")
+        # ─────────────────────────────────────────────────────────────────────────
 
-        # Abas
+        # Abas restantes
         self.advanced_tab = AdvancedTab(self.tab_widget)
         self.tab_widget.addTab(self.advanced_tab, "Opções")
 
@@ -870,85 +779,74 @@ class KeepAliveApp(QMainWindow):
         self.tab_widget.addTab(self.log_tab, "Log")
 
         about_tab = AboutTab(self.tab_widget)
-        self.tab_widget.addTab(about_tab, "About")
+        self.tab_widget.addTab(about_tab, "Sobre")
 
-        # Botões
+        # Botões inferiores (mesmo tamanho) - ABAIXO DAS ABAS
         button_layout = QHBoxLayout()
-        self.toggle_button = QPushButton()
-        # Formatação HTML para aumentar APENAS o símbolo de infinito
-        self.toggle_button.setText("Iniciar Contínuo")
-        self.toggle_button.setStyleSheet("font-weight: bold;")
+        button_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.toggle_button = QPushButton(STR_START_CONTINUOUS)
+        self.toggle_button.setFixedSize(120, 40)
         self.toggle_button.setStyleSheet("font-weight: bold;")
         self.toggle_button.clicked.connect(self.toggle_service_no_schedule)
 
-        self.schedule_button = QPushButton("Iniciar Agendamento")
+        self.schedule_button = QPushButton(STR_START_SCHEDULED)
+        self.schedule_button.setFixedSize(120, 40)
         self.schedule_button.clicked.connect(self.toggle_service_with_schedule)
 
-        self.close_button = QPushButton("Encerrar")
-        self.close_button.clicked.connect(self.quit_application)
+        self.stop_button = QPushButton(STR_STOP_SERVICE)
+        self.stop_button.setFixedSize(120, 40)
+        self.stop_button.clicked.connect(self.stop_service)
 
-        self.minimize_button = QPushButton("Minimizar")
+        self.minimize_button = QPushButton(STR_MINIMIZE)
+        self.minimize_button.setFixedSize(120, 40)
         self.minimize_button.clicked.connect(self.hide)
 
         button_layout.addWidget(self.toggle_button)
         button_layout.addWidget(self.schedule_button)
-        button_layout.addWidget(self.close_button)
+        button_layout.addWidget(self.stop_button)
         button_layout.addWidget(self.minimize_button)
         layout.addLayout(button_layout)
 
     def add_main_log(self, message, is_orientation=False):
-        """Adiciona mensagem ao log da aba principal - 11 Linhas"""
+        """Adiciona mensagem ao log principal (15 linhas)"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_message = f"[{timestamp}] {message}"
 
         if is_orientation:
-            # Formatação especial para orientação: fundo azul escuro + negrito
-            formatted_text = f'<span style="background-color: #1a237e; color: white; font-weight: bold; padding: 2px 4px; border-radius: 3px;">{log_message}</span>'
+            # Apenas negrito sem fundo azul
+            formatted_text = f'<span style="font-weight: bold;">{log_message}</span>'
             self.main_log_text.append(formatted_text)
         else:
-            # Adiciona nova linha normal
             self.main_log_text.append(log_message)
 
-        # Verifica se excedeu 11 linhas
+        # Limite de 15 linhas
         text_content = self.main_log_text.toPlainText()
         lines = text_content.split("\n")
-        if len(lines) > 11:
-            # Remove as linhas mais antigas (FIFO)
-            lines = lines[-11:]  # Mantém apenas as últimas 11
+        if len(lines) > 15:
+            lines = lines[-15:]
             self.main_log_text.setPlainText("\n".join(lines))
 
-        # Rola para o final do log
+        # Rola para o final
         scrollbar = self.main_log_text.verticalScrollBar()
         if scrollbar:
             scrollbar.setValue(scrollbar.maximum())
-
-    def update_interval_label(self, value):
-        """Atualiza label do intervalo"""
-        self.interval_label.setText(
-            f"Intervalo entre tentativas (segundos):    <b>{value}</b>"
-        )
-
-    def update_timeout_label(self, value):
-        """Atualiza label do timeout"""
-        self.user_info.setText(
-            f"Inatividade mínima necessária para simular (segundos):    <b>{value}</b>"
-        )
 
     def update_execution_type_label(self):
         """Atualiza o label do tipo de execução"""
         if not self.is_running:
             self.execution_type_label.setText("")
         elif not self.use_schedule:
-            self.execution_type_label.setText("Execução sem Interrupção")
+            self.execution_type_label.setText(STR_CONTINUOUS_RUNNING)
         else:
             start_time = self.start_time_edit.time().toString("HH:mm")
             end_time = self.end_time_edit.time().toString("HH:mm")
             self.execution_type_label.setText(
-                f"Execução no intervalo {start_time} - {end_time}"
+                STR_SCHEDULE_RUNNING.format(start_time, end_time)
             )
 
     def setup_tray(self):
-        """Configura o ícone na bandeja do sistema"""
+        """Configura o ícone na bandeja"""
         try:
             app_style = QApplication.style()
             icon = app_style.standardIcon(QStyle.StandardPixmap.SP_ComputerIcon)
@@ -958,7 +856,7 @@ class KeepAliveApp(QMainWindow):
             menu = QMenu()
             show_action = QAction("Mostrar", self)
             show_action.triggered.connect(self.show)
-            self.toggle_tray_action = QAction("Iniciar Contínuo", self)
+            self.toggle_tray_action = QAction(STR_START_CONTINUOUS, self)
             self.toggle_tray_action.triggered.connect(self.toggle_service_no_schedule)
 
             close_action = QAction("Fechar", self)
@@ -986,8 +884,6 @@ class KeepAliveApp(QMainWindow):
         self.advanced_tab.minimize_to_tray_cb.setChecked(
             self.settings.value("minimize_to_tray", True, bool)
         )
-
-        # Carrega configurações avançadas
         self.advanced_tab.enable_mouse.setChecked(
             self.settings.value("enable_mouse", True, bool)
         )
@@ -997,18 +893,20 @@ class KeepAliveApp(QMainWindow):
         self.advanced_tab.random_intervals.setChecked(
             self.settings.value("random_intervals", True, bool)
         )
+        self.advanced_tab.interval_slider.setValue(
+            self.settings.value("interval", DEFAULT_INTERVAL, int)
+        )
+        self.advanced_tab.timeout_slider.setValue(self.default_user_timeout)
 
     def save_settings(self):
         """Salva configurações"""
-        self.settings.setValue("interval", self.interval_slider.value())
-        self.settings.setValue("user_timeout", self.user_timeout_slider.value())
+        self.settings.setValue("interval", self.advanced_tab.interval_slider.value())
+        self.settings.setValue("user_timeout", self.advanced_tab.timeout_slider.value())
         self.settings.setValue("start_time", self.start_time_edit.time())
         self.settings.setValue("end_time", self.end_time_edit.time())
         self.settings.setValue(
             "minimize_to_tray", self.advanced_tab.minimize_to_tray_cb.isChecked()
         )
-
-        # Configurações avançadas
         self.settings.setValue(
             "enable_mouse", self.advanced_tab.enable_mouse.isChecked()
         )
@@ -1019,11 +917,11 @@ class KeepAliveApp(QMainWindow):
             "random_intervals", self.advanced_tab.random_intervals.isChecked()
         )
 
-        self.log_tab.add_log("Configurações salvas")
-        self.add_main_log("Configurações salvas")
+        self.log_tab.add_log(STR_SETTINGS_SAVED)
+        self.add_main_log(STR_SETTINGS_SAVED)
 
     def check_schedule(self):
-        """Verifica se está no horário de funcionamento"""
+        """Verifica horário de funcionamento"""
         if not self.use_schedule:
             return True
 
@@ -1032,66 +930,35 @@ class KeepAliveApp(QMainWindow):
         end_time = self.end_time_edit.time()
 
         if start_time <= end_time:
-            # Mesmo dia
             return start_time <= current_time <= end_time
         else:
-            # Horário noturno (atravessa meia-noite)
             return current_time >= start_time or current_time <= end_time
 
-    def check_teams_status(self):
-        """Verifica status do Teams e loga se necessário"""
-        try:
-            teams_status, teams_message = get_teams_status()
-            self.teams_check_count += 1
-
-            # Print simples para debug (posteriormente comentar)
-            # print(f"DEBUG: {teams_status} - {teams_message}")
-
-            # Só loga se tiver informação confiável
-            if teams_status and teams_status != "Indeterminado":
-                # Para status importantes, loga sempre
-                if teams_status in ["Ausente", "Ocupado", "Inativo"]:
-                    log_message = f"Teams: {teams_status} - {teams_message}"
-                    self.log_tab.add_log(log_message)
-                    self.add_main_log(log_message)
-                # Para status normal (disponível/ativo), loga a cada 4 verificações
-                elif (
-                    teams_status in ["Disponível", "Ativo", "Detectado"]
-                    and self.teams_check_count % 4 == 0
-                ):
-                    log_message = f"Status Teams: {teams_status} - {teams_message}"
-                    self.log_tab.add_log(log_message)
-                    self.add_main_log(log_message)
-            # Se teams_status é None ou INDETERMINADO, não loga pois não é confiável
-
-        except Exception:
-            # Em caso de erro, não loga status não confiável
-            pass
-
     def log_inactive_status(self):
-        """Loga status de inatividade a cada x minutos"""
+        """Loga status de inatividade"""
         if not self.is_running:
-            status_msg = "Serviço parado"
+            status_msg = STR_SERVICE_STOPPED
             help_msg = "<b>Inicie o programa clicando na opção desejada</b>"
 
             self.log_tab.add_log(status_msg)
             self.add_main_log(status_msg)
 
-            # Adiciona a mensagem de ajuda em HTML para negrito
+            # Adiciona mensagem de ajuda
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             formatted_help = f"[{timestamp}] {help_msg}"
             self.log_tab.log_text.append(formatted_help)
             self.main_log_text.append(formatted_help)
 
     def log_help_message(self):
-        """Loga mensagem de orientação sempre quando chamada"""
-        help_msg = "Utilize 'Iniciar Contínuo' para execução imediata contínua ou 'Iniciar Agendamento' para execução no horário selecionado."
-        # Adiciona no log com formatação especial
-        self.log_tab.add_log(help_msg, is_orientation=True)
-        self.add_main_log(help_msg, is_orientation=True)
+        """Loga mensagem de orientação"""
+        help_msg = "Utilize 'Iniciar Contínuo' para execução imediata contínua ou 'Iniciar Agendado' para execução no horário selecionado."
+        self.log_tab.add_log(
+            help_msg
+        )  # self.log_tab.add_log(help_msg, is_orientation=True)  para negrito
+        self.add_main_log(help_msg)
 
     def log_help_message_if_inactive(self):
-        """Loga mensagem de orientação a cada 5 minutos quando inativo"""
+        """Loga orientação quando inativo"""
         if not self.is_running:
             self.log_help_message()
 
@@ -1102,7 +969,7 @@ class KeepAliveApp(QMainWindow):
             self.hide()
             self.tray_icon.showMessage(
                 APP_NAME,
-                "Rodando em segundo plano",
+                "Executando em segundo plano",
                 QSystemTrayIcon.MessageIcon.Information,
                 2000,
             )
@@ -1110,139 +977,129 @@ class KeepAliveApp(QMainWindow):
             self.quit_application()
 
     def toggle_service_no_schedule(self):
-        """Iniciar/Parar sem agendamento"""
-        if not self.is_running:
-            self.use_schedule = False
-            self.start_service()
-            self.toggle_button.setText("Parar")
-            self.toggle_tray_action.setText("Parar")
-        else:
+        """Iniciar sem agendamento"""
+        # Para qualquer serviço em execução
+        if self.is_running:
             self.stop_service()
-            self.toggle_button.setText("Iniciar Contínuo")
-            self.toggle_tray_action.setText("Iniciar Contínuo")
+
+        # Inicia modo contínuo
+        self.use_schedule = False
+        self.start_service()
 
     def toggle_service_with_schedule(self):
-        """Iniciar/Parar com agendamento"""
-        if not self.is_running:
-            self.start_service_with_schedule()
-        else:
+        """Iniciar com agendamento"""
+        # Para qualquer serviço em execução
+        if self.is_running:
             self.stop_service()
-            self.schedule_button.setText("Iniciar Agendamento")
+
+        # Inicia modo agendado
+        self.use_schedule = True
+        self.start_service_with_schedule()
 
     def start_service_with_schedule(self):
-        """Inicia o serviço com verificação de agendamento"""
-        self.use_schedule = True
-
-        # Log de início do agendamento
+        """Inicia serviço com verificação de agendamento"""
         self.log_tab.add_log("Iniciado agendamento")
         self.add_main_log("Iniciado agendamento")
 
         if self.check_schedule():
             self.start_service()
-            self.schedule_button.setText("Parar")
         else:
-            # Agendamento ativo mas fora do horário
             start_time = self.start_time_edit.time().toString("HH:mm")
             end_time = self.end_time_edit.time().toString("HH:mm")
-            self.status_label.setText("Serviço parado")
+            self.status_label.setText(STR_SERVICE_STOPPED)
             self.update_execution_type_label()
-
-            # Log específico para fora do horário
             self.log_tab.add_log("Serviço parado - Fora do horário de agendamento")
             self.add_main_log("Serviço parado - Fora do horário de agendamento")
-            self.schedule_button.setText("Parar")
 
+    # ────────────────────────── start_service ──────────────────────────────
     def start_service(self):
         """Inicia o serviço"""
-        base_interval = self.interval_slider.value()
-        base_interval_ms = base_interval * 1000
+        base_interval = self.advanced_tab.interval_slider.value()  # em segundos
 
-        # Aplica variação se habilitado
         if self.advanced_tab.random_intervals.isChecked():
-            variation = base_interval_ms * 0.3
-            next_interval = random.randint(
-                int(base_interval_ms - variation), int(base_interval_ms + variation)
+            variation = base_interval * 0.30
+            rand_secs = random.uniform(
+                base_interval - variation, base_interval + variation
             )
-            log_msg = f"Serviço iniciado \n Intervalo{base_interval}s (±Δ) = {next_interval/1000:.1f}s"
         else:
-            next_interval = base_interval_ms
-            log_msg = f"Serviço iniciado - intervalo fixo: {base_interval}s"
+            rand_secs = float(base_interval)
 
-        # Calcula próxima execução
-        next_time = datetime.now() + timedelta(milliseconds=next_interval)
-        log_msg += f" - Próxima atividade: {next_time.strftime('%H:%M:%S')}"
+        next_interval_ms = int(rand_secs * 1000)
+        next_time = datetime.now() + timedelta(seconds=rand_secs)
 
-        self.activity_timer.start(next_interval)
+        log_msg = (
+            f"{STR_SERVICE_STARTED}."
+            f" Simulação: {base_interval}s ±δ → {rand_secs:.1f}s"
+            f" → {next_time.strftime('%H:%M:%S')}"
+        )
+
+        self.activity_timer.start(next_interval_ms)
         self.is_running = True
-
-        if not self.use_schedule:
-            self.toggle_button.setText("Parar")
-            self.toggle_tray_action.setText("Parar")
-
-        self.status_label.setText("Serviço em execução")
+        self.status_label.setText(STR_SERVICE_RUNNING)
         self.update_execution_type_label()
-
         self.log_tab.add_log(log_msg)
         self.add_main_log(log_msg)
 
     def stop_service(self):
         """Para o serviço"""
+        if not self.is_running:
+            return
+
         self.activity_timer.stop()
         self.is_running = False
-        self.toggle_button.setText("Iniciar Contínuo")
-        self.toggle_tray_action.setText("Iniciar Contínuo")
-        self.schedule_button.setText("Iniciar Agendamento")
-        self.status_label.setText("Serviço Parado")
+        self.status_label.setText(STR_SERVICE_STOPPED)
         self.update_execution_type_label()
         ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
-        self.log_tab.add_log("Serviço Parado")
-        self.add_main_log("Serviço Parado")
+        self.log_tab.add_log(STR_SERVICE_STOPPED_LOG)
+        self.add_main_log(STR_SERVICE_STOPPED_LOG)
+
+    def restart_application(self):
+        """Reinicia completamente a aplicação"""
+        self.save_settings()
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
 
     def perform_activity(self):
         try:
-            # Verificar agendamento se habilitado
+            # Verifica agendamento
             if self.use_schedule and not self.check_schedule():
                 self.stop_service()
                 return
 
-            # Verificar se usuário está ativo
+            # Verifica inatividade do usuário
             idle_time = get_user_activity_timeout()
-            timeout_limit = self.user_timeout_slider.value()
+            timeout_limit = self.advanced_tab.timeout_slider.value()
 
             if idle_time < timeout_limit:
-                # Usuário ativo - cancela simulação
                 self.activity_count += 1
-                cancel_message = f"Cancelado: Usuário ativo (inatividade: {idle_time:.1f}s < {timeout_limit}s)"
+                cancel_message = STR_USER_ACTIVE.format(idle_time, timeout_limit)
                 self.log_tab.add_log(cancel_message)
                 self.add_main_log(cancel_message)
 
-                # Calcula próximo intervalo mesmo assim
                 if self.is_running:
                     self.schedule_next_activity()
                 return
 
-            # Prevenir bloqueio sempre
+            # Prevenir bloqueio
             prevent_system_lock()
 
             # Simular atividade
             activity_success, activity_message = simulate_safe_activity()
-
-            # Atualizar contadores
             self.activity_count += 1
             now = datetime.now().strftime("%H:%M:%S")
             status_msg = f"Atividade #{self.activity_count} em {now}"
 
             if activity_success:
                 self.status_label.setText(status_msg + " (Sucesso)")
-                self.log_tab.add_log("Simulação executada")
-                self.add_main_log("Simulação executada")
+                self.log_tab.add_log(STR_SIMULATION_SUCCESS)
+                self.add_main_log(STR_SIMULATION_SUCCESS)
             else:
                 self.status_label.setText(status_msg + f" ({activity_message})")
                 error_message = f"ERRO: {activity_message}"
                 self.log_tab.add_log(error_message)
                 self.add_main_log(error_message)
 
-            # Agendar próxima atividade
+            # Agendar próxima
             if self.is_running:
                 self.schedule_next_activity()
 
@@ -1253,32 +1110,31 @@ class KeepAliveApp(QMainWindow):
             self.log_tab.add_log(critical_error)
             self.add_main_log(critical_error)
 
+    # ──────────────────────── schedule_next_activity ───────────────────────
     def schedule_next_activity(self):
-        """Agenda próxima atividade com log do horário"""
-        self.activity_timer.stop()  # Para o timer atual
-
-        base_interval = self.interval_slider.value() * 1000
+        """Agenda próxima atividade"""
+        self.activity_timer.stop()
+        base_interval = self.advanced_tab.interval_slider.value()  # em segundos
 
         if self.advanced_tab.random_intervals.isChecked():
-            variation = base_interval * 0.3
-            next_interval = random.randint(
-                int(base_interval - variation), int(base_interval + variation)
+            variation = base_interval * 0.30
+            rand_secs = random.uniform(
+                base_interval - variation, base_interval + variation
             )
-            interval_text = (
-                f"{self.interval_slider.value()}s (±30%) = {next_interval/1000:.1f}s"
-            )
+            interval_text = f"{base_interval}s ±30% → {rand_secs:.1f}s"
         else:
-            next_interval = base_interval
-            interval_text = f"{self.interval_slider.value()}s fixo"
+            rand_secs = float(base_interval)
+            interval_text = f"{base_interval}s fixo"
 
-        self.activity_timer.setInterval(next_interval)
-        self.activity_timer.start()  # Reinicia com novo intervalo
+        next_interval_ms = int(rand_secs * 1000)
+        self.activity_timer.setInterval(next_interval_ms)
+        self.activity_timer.start()
 
-        # Calcula e loga próxima execução
-        next_time = datetime.now() + timedelta(milliseconds=next_interval)
-        next_message = (
-            f"Próxima atividade: {next_time.strftime('%H:%M:%S')} ({interval_text})"
+        next_time = datetime.now() + timedelta(seconds=rand_secs)
+        next_message = STR_NEXT_ACTIVITY.format(
+            next_time.strftime("%H:%M:%S"), f"{rand_secs:.1f}"
         )
+
         self.log_tab.add_log(next_message)
         self.add_main_log(next_message)
 
@@ -1292,7 +1148,6 @@ class KeepAliveApp(QMainWindow):
 
         try:
             self.activity_timer.stop()
-            self.teams_timer.stop()
             self.inactive_log_timer.stop()
             self.help_timer.stop()
             self.tray_icon.hide()
@@ -1305,9 +1160,9 @@ class KeepAliveApp(QMainWindow):
 
 def main():
     """Função principal"""
+    QLoggingCategory.setFilterRules("qt.qpa.paint.debug=false")
     app = QApplication(sys.argv)
 
-    # Evita mensagens de DPI - REMOVIDO configurações que davam erro
     try:
         app.setStyle("Windows")
     except Exception:
@@ -1316,14 +1171,10 @@ def main():
     window = KeepAliveApp()
     window.show()
 
-    # Mensagem de boas-vindas
+    # Mensagem inicial
     window.log_tab.add_log(f"{APP_NAME} iniciado")
     window.add_main_log(f"{APP_NAME} iniciado")
-
-    # Log inicial de inatividade
     window.log_inactive_status()
-
-    # Log inicial de orientação
     window.log_help_message()
 
     sys.exit(app.exec())
