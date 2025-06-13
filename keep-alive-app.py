@@ -247,30 +247,72 @@ def get_screen_saver_timeout() -> int:
 
 
 def get_rdp_disconnect_time():
-    """Obtém tempo de desconexão RDP do sistema"""
-    try:
-        # Chaves do registro para timeout RDP
-        base_key = "SYSTEM\\CurrentControlSet\\Control\\Terminal Server"
-        keys = [f"{base_key}\\WinStations\\RDP-Tcp", f"{base_key}"]
+    """Obtém tempo de desconexão/timeout RDP do sistema de forma robusta
+    1. HKLM Policies (GPO aplicado via domínio)
+    2. HKCU Policies (políticas do usuário)
+    3. Configurações locais do Terminal Services
 
-        for key_path in keys:
+    - MaxIdleTime: Timeout por inatividade
+    - MaxDisconnectionTime: Timeout de desconexão de sessão
+    - MaxConnectionTime: Tempo máximo de conexão contínua
+    - MaxSessionTime: Tempo máximo de sessão ativa
+    """
+    try:
+        # Chaves do registro para timeout RDP - em ordem de prioridade
+        base_key = "SYSTEM\\CurrentControlSet\\Control\\Terminal Server"
+        policy_key_machine = r"SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"
+        policy_key_user = r"SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"
+
+        # Lista de chaves para verificar (prioridade: Policies primeiro)
+        keys_to_check = [
+            # Políticas de Grupo - prioridade máxima
+            (win32con.HKEY_LOCAL_MACHINE, policy_key_machine),
+            (win32con.HKEY_CURRENT_USER, policy_key_user),
+            # Configurações locais do Terminal Services
+            (win32con.HKEY_LOCAL_MACHINE, f"{base_key}\\WinStations\\RDP-Tcp"),
+            (win32con.HKEY_LOCAL_MACHINE, base_key),
+        ]
+
+        # Tipos de timeout para verificar (em ordem de prioridade)
+        timeout_values = [
+            "MaxIdleTime",  # Timeout por inatividade
+            "MaxDisconnectionTime",  # Timeout de desconexão
+            "MaxConnectionTime",  # Tempo máximo de conexão
+            "MaxSessionTime",  # Tempo máximo de sessão
+        ]
+
+        for hive, key_path in keys_to_check:
             try:
                 key = win32api.RegOpenKeyEx(
-                    win32con.HKEY_LOCAL_MACHINE,
+                    hive,
                     key_path,
                     0,
                     win32con.KEY_READ,
                 )
-                value, _ = win32api.RegQueryValueEx(key, "MaxDisconnectionTime")
+
+                # Verificar cada tipo de timeout nesta chave
+                # Coleta TODOS os valores desta chave para encontrar o menor
+                found_timeouts = []
+                for timeout_type in timeout_values:
+                    try:
+                        value, _ = win32api.RegQueryValueEx(key, timeout_type)
+                        if value > 0:
+                            found_timeouts.append(value)
+                    except Exception:
+                        # Este tipo de timeout não existe nesta chave, continua
+                        continue
+
+                # Se encontrou timeouts, retorna o MENOR (o que desconecta primeiro)
+                if found_timeouts:
+                    win32api.RegCloseKey(key)
+                    return int(min(found_timeouts) / 1000)  # Converte ms para segundos
+
                 win32api.RegCloseKey(key)
-                if value > 0:
-                    return int(value / 1000)  # Converte ms para segundos
+
             except Exception:
                 continue
 
-        # Tentar método alternativo via AD (sem necessidade de admin)
-        # Implementação real viria aqui
-        return 0  # Valor 0 = sem timeout
+        return 0  # Nenhum timeout encontrado
 
     except Exception:
         return 0
