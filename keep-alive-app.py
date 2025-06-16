@@ -319,29 +319,73 @@ def get_rdp_disconnect_time():
 
 
 def adjust_user_timeout():
-    """Ajusta timeout de inatividade baseado em proteção de tela e RDP"""
+    """
+    Ajusta timeout de inatividade baseado em proteção de tela e RDP
+    """
     try:
         # Obtém tempos do sistema
         screen_saver_time = get_screen_saver_timeout()
         rdp_time = get_rdp_disconnect_time()
 
-        # Calcula 1/3 do tempo de proteção de tela
-        calculated_timeout = max(screen_saver_time // 3, 30)
-
-        # Se RDP tem timeout, usa o menor valor entre calculado e RDP
-        if rdp_time > 0:
-            calculated_timeout = min(calculated_timeout, rdp_time)
-
-        # Limita ao máximo permitido e mínimo seguro
-        return min(
-            max(calculated_timeout, USER_TIMEOUT_MIN),
-            (
-                min(screen_saver_time, USER_TIMEOUT_MAX)
-                if screen_saver_time > 0
-                else USER_TIMEOUT_MAX
-            ),
+        print(
+            f"[DEBUG timeout] Screen Saver: {screen_saver_time}s ({screen_saver_time//60} min)"
         )
-    except Exception:
+        print(
+            f"[DEBUG timeout] RDP Timeout: {rdp_time}s ({rdp_time//60} min)"
+            if rdp_time > 0
+            else "[DEBUG timeout] RDP Timeout: não definido"
+        )
+
+        # Lista para timeouts calculados
+        calculated_timeouts = []
+
+        # Processa Screen Saver timeout
+        if screen_saver_time > 0:
+            screen_timeout = max(int(screen_saver_time / 5.0), USER_TIMEOUT_MIN)
+            # Limita screen timeout a no máximo 120s (2 minutos)
+            screen_timeout = min(screen_timeout, 120)
+            calculated_timeouts.append(screen_timeout)
+            # print(f"[DEBUG timeout] Screen timeout: {screen_timeout}s (1/5 de {screen_saver_time}s)")
+
+        # Processa RDP timeout
+        if rdp_time > 0:
+            rdp_timeout = max(int(rdp_time / 4.0), USER_TIMEOUT_MIN)
+            # Limita RDP timeout a no máximo 90s (1.5 minutos)
+            rdp_timeout = min(rdp_timeout, 90)
+            calculated_timeouts.append(rdp_timeout)
+            # print(f"[DEBUG timeout] RDP timeout: {rdp_timeout}s (1/4 de {rdp_time}s)")
+
+        # Determina timeout final
+        if calculated_timeouts:
+            # Usa o MENOR dos timeouts
+            final_timeout = min(calculated_timeouts)
+            # print(f"[DEBUG timeout] Escolhido: {final_timeout}s (menor entre {calculated_timeouts})")
+        else:
+            # Nenhum timeout encontrado, usa padrão
+            final_timeout = DEFAULT_USER_TIMEOUT
+            # print(f"[DEBUG timeout] Nenhum timeout do sistema, usando padrão: {final_timeout}s")
+
+        # Aplica limites finais mais restritivos
+        # Mínimo: 30s, Máximo: 120s
+        TIMEOUT_MAX_AJUSTADO = 120  # 2 minutos no máximo
+        limited_timeout = max(
+            min(final_timeout, TIMEOUT_MAX_AJUSTADO), USER_TIMEOUT_MIN
+        )
+
+        if limited_timeout != final_timeout:
+            print(
+                f"[DEBUG timeout] Limitado: {final_timeout}s → {limited_timeout}s (máx {TIMEOUT_MAX_AJUSTADO}s)"
+            )
+
+        print(
+            f"[DEBUG timeout] ✅ RESULTADO FINAL: {limited_timeout}s ({limited_timeout//60}min {limited_timeout%60}s)"
+        )
+        print("-" * 50)
+
+        return limited_timeout
+
+    except Exception as e:
+        print(f"[ERROR timeout] Erro no cálculo: {e}")
         return DEFAULT_USER_TIMEOUT
 
 
