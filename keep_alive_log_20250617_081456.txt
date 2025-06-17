@@ -1,0 +1,1000 @@
+[2025-06-16 21:10:55] Simulação Executada
+[2025-06-16 21:10:55] Próxima Atividade: 21:12:10 (75.1s)
+[2025-06-16 21:12:11] Simulação Executada
+[2025-06-16 21:12:11] Próxima Atividade: 21:13:52 (101.1s)
+[2025-06-16 21:13:53] Simulação Executada
+[2025-06-16 21:13:53] Próxima Atividade: 21:14:52 (59.0s)
+[2025-06-16 21:14:53] Simulação Executada
+[2025-06-16 21:14:53] Próxima Atividade: 21:15:54 (61.5s)
+[2025-06-16 21:15:55] Simulação Executada
+[2025-06-16 21:15:55] Próxima Atividade: 21:17:02 (66.1s)
+[2025-06-16 21:17:02] Simulação Executada
+[2025-06-16 21:17:02] Próxima Atividade: 21:18:27 (84.4s)
+[2025-06-16 21:18:27] Simulação Executada
+[2025-06-16 21:18:27] Próxima Atividade: 21:19:39 (71.9s)
+[2025-06-16 21:19:40] Simulação Executada
+[2025-06-16 21:19:40] Próxima Atividade: 21:21:07 (87.5s)
+[2025-06-16 21:21:09] Simulação Executada
+[2025-06-16 21:21:09] Próxima Atividade: 21:22:52 (103.2s)
+[2025-06-16 21:22:53] Simulação Executada
+[2025-06-16 21:22:53] Próxima Atividade: 21:23:56 (63.6s)
+[2025-06-16 21:23:57] Simulação Executada
+[2025-06-16 21:23:57] Próxima Atividade: 21:25:05 (67.6s)
+[2025-06-16 21:25:06] Simulação Executada
+[2025-06-16 21:25:06] Próxima Atividade: 21:26:28 (81.8s)
+[2025-06-16 21:26:29] Simulação Executada
+[2025-06-16 21:26:29] Próxima Atividade: 21:27:34 (65.0s)
+[2025-06-16 21:27:35] Simulação Executada
+[2025-06-16 21:27:35] Próxima Atividade: 21:28:51 (76.3s)
+[2025-06-16 21:28:52] Simulação Executada
+[2025-06-16 21:28:52] Próxima Atividade: 21:30:05 (73.2s)
+[2025-06-16 21:30:06] Simulação Executada
+[2025-06-16 21:30:06] Próxima Atividade: 21:31:29 (83.5s)
+[2025-06-16 21:31:30] Simulação Executada
+[2025-06-16 21:31:30] Próxima Atividade: 21:32:39 (68.6s)
+[2025-06-16 21:32:40] Simulação Executada
+[2025-06-16 21:32:40] Próxima Atividade: 21:33:55 (74.9s)
+[2025-06-16 21:33:56] Simulação Executada
+[2025-06-16 21:33:56] Próxima Atividade: 21:35:36 (100.0s)
+[2025-06-16 21:35:37] Simulação Executada
+[2025-06-16 21:35:37] Próxima Atividade: 21:36:37 (60.3s)
+[2025-06-16 21:36:38] Simulação Executada
+[2025-06-16 21:36:38] Próxima Atividade: 21:37:47 (68.9s)
+[2025-06-16 21:37:48] Simulação Executada
+[2025-06-16 21:37:48] Próxima Atividade: 21:38:48 (60.9s)
+[2025-06-16 21:38:49] Simulação Executada
+[2025-06-16 21:38:49] Próxima Atividade: 21:40:25 (95.3s)
+[2025-06-16 21:40:25] Simulação Executada
+[2025-06-16 21:40:25] Próxima Atividade: 21:41:52 (86.9s)
+[2025-06-16 21:41:53] Simulação Executada
+[2025-06-16 21:41:53] Próxima Atividade: 21:42:54 (61.2s)
+[2025-06-16 21:42:55] Simulação Executada
+[2025-06-16 21:42:55] Próxima Atividade: 21:44:37 (101.9s)
+[2025-06-16 21:44:38] Simulação Executada
+[2025-06-16 21:44:38] Próxima Atividade: 21:45:58 (80.8s)
+[2025-06-16 21:45:59] Simulação Executada
+[2025-06-16 21:45:59] Próxima Atividade: 21:47:20 (81.0s)
+[2025-06-16 21:47:21] Simulação Executada
+[2025-06-16 21:47:21] Próxima Atividade: 21:49:04 (103.0s)
+[2025-06-16 21:49:05] Simulação Executada
+[2025-06-16 21:49:05] Próxima Atividade: 21:50:08 (62.6s)
+[2025-06-16 21:50:09] Simulação Executada
+[2025-06-16 21:50:09] Próxima Atividade: 21:51:26 (76.9s)
+[2025-06-16 21:51:27] Simulação Executada
+[2025-06-16 21:51:27] Próxima Atividade: 21:53:07 (100.3s)
+[2025-06-16 21:53:08] Simulação Executada
+[2025-06-16 21:53:08] Próxima Atividade: 21:54:13 (65.6s)
+[2025-06-16 21:54:14] Simulação Executada
+[2025-06-16 21:54:14] Próxima Atividade: 21:55:33 (78.5s)
+[2025-06-16 21:55:33] Simulação Executada
+[2025-06-16 21:55:33] Próxima Atividade: 21:56:40 (66.9s)
+[2025-06-16 21:56:41] Simulação Executada
+[2025-06-16 21:56:41] Próxima Atividade: 21:57:52 (70.6s)
+[2025-06-16 21:57:53] Simulação Executada
+[2025-06-16 21:57:53] Próxima Atividade: 21:59:09 (76.4s)
+[2025-06-16 21:59:10] Simulação Executada
+[2025-06-16 21:59:10] Próxima Atividade: 22:00:21 (71.7s)
+[2025-06-16 22:00:23] Simulação Executada
+[2025-06-16 22:00:23] Próxima Atividade: 22:01:41 (78.9s)
+[2025-06-16 22:01:42] Simulação Executada
+[2025-06-16 22:01:42] Próxima Atividade: 22:02:57 (75.1s)
+[2025-06-16 22:02:58] Simulação Executada
+[2025-06-16 22:02:58] Próxima Atividade: 22:03:56 (57.5s)
+[2025-06-16 22:03:57] Simulação Executada
+[2025-06-16 22:03:57] Próxima Atividade: 22:05:02 (65.3s)
+[2025-06-16 22:05:03] Simulação Executada
+[2025-06-16 22:05:03] Próxima Atividade: 22:06:26 (83.1s)
+[2025-06-16 22:06:27] Simulação Executada
+[2025-06-16 22:06:27] Próxima Atividade: 22:07:48 (81.7s)
+[2025-06-16 22:07:50] Simulação Executada
+[2025-06-16 22:07:50] Próxima Atividade: 22:09:33 (103.5s)
+[2025-06-16 22:09:33] Simulação Executada
+[2025-06-16 22:09:33] Próxima Atividade: 22:10:42 (68.8s)
+[2025-06-16 22:10:43] Simulação Executada
+[2025-06-16 22:10:43] Próxima Atividade: 22:11:46 (62.3s)
+[2025-06-16 22:11:46] Simulação Executada
+[2025-06-16 22:11:46] Próxima Atividade: 22:13:07 (80.6s)
+[2025-06-16 22:13:08] Simulação Executada
+[2025-06-16 22:13:08] Próxima Atividade: 22:14:15 (67.2s)
+[2025-06-16 22:14:16] Simulação Executada
+[2025-06-16 22:14:16] Próxima Atividade: 22:15:37 (81.4s)
+[2025-06-16 22:15:38] Simulação Executada
+[2025-06-16 22:15:38] Próxima Atividade: 22:16:57 (79.5s)
+[2025-06-16 22:16:57] Simulação Executada
+[2025-06-16 22:16:57] Próxima Atividade: 22:18:35 (97.2s)
+[2025-06-16 22:18:35] Simulação Executada
+[2025-06-16 22:18:35] Próxima Atividade: 22:19:49 (73.5s)
+[2025-06-16 22:19:50] Simulação Executada
+[2025-06-16 22:19:50] Próxima Atividade: 22:21:04 (74.3s)
+[2025-06-16 22:21:05] Simulação Executada
+[2025-06-16 22:21:05] Próxima Atividade: 22:22:01 (56.0s)
+[2025-06-16 22:22:02] Simulação Executada
+[2025-06-16 22:22:02] Próxima Atividade: 22:23:44 (102.6s)
+[2025-06-16 22:23:45] Simulação Executada
+[2025-06-16 22:23:46] Próxima Atividade: 22:25:18 (92.8s)
+[2025-06-16 22:25:19] Simulação Executada
+[2025-06-16 22:25:19] Próxima Atividade: 22:26:38 (78.4s)
+[2025-06-16 22:26:38] Simulação Executada
+[2025-06-16 22:26:38] Próxima Atividade: 22:28:03 (84.5s)
+[2025-06-16 22:28:03] Simulação Executada
+[2025-06-16 22:28:03] Próxima Atividade: 22:29:44 (101.1s)
+[2025-06-16 22:29:45] Simulação Executada
+[2025-06-16 22:29:45] Próxima Atividade: 22:30:43 (58.4s)
+[2025-06-16 22:30:44] Simulação Executada
+[2025-06-16 22:30:44] Próxima Atividade: 22:31:41 (57.9s)
+[2025-06-16 22:31:42] Simulação Executada
+[2025-06-16 22:31:42] Próxima Atividade: 22:33:23 (100.9s)
+[2025-06-16 22:33:24] Simulação Executada
+[2025-06-16 22:33:24] Próxima Atividade: 22:34:25 (60.8s)
+[2025-06-16 22:34:26] Simulação Executada
+[2025-06-16 22:34:26] Próxima Atividade: 22:35:27 (61.3s)
+[2025-06-16 22:35:28] Simulação Executada
+[2025-06-16 22:35:28] Próxima Atividade: 22:36:39 (71.4s)
+[2025-06-16 22:36:40] Simulação Executada
+[2025-06-16 22:36:40] Próxima Atividade: 22:37:49 (69.6s)
+[2025-06-16 22:37:50] Simulação Executada
+[2025-06-16 22:37:50] Próxima Atividade: 22:39:26 (95.8s)
+[2025-06-16 22:39:27] Simulação Executada
+[2025-06-16 22:39:27] Próxima Atividade: 22:40:53 (85.3s)
+[2025-06-16 22:40:53] Simulação Executada
+[2025-06-16 22:40:53] Próxima Atividade: 22:41:54 (60.9s)
+[2025-06-16 22:41:55] Simulação Executada
+[2025-06-16 22:41:55] Próxima Atividade: 22:43:06 (71.3s)
+[2025-06-16 22:43:07] Simulação Executada
+[2025-06-16 22:43:07] Próxima Atividade: 22:44:07 (59.9s)
+[2025-06-16 22:44:08] Simulação Executada
+[2025-06-16 22:44:08] Próxima Atividade: 22:45:21 (73.2s)
+[2025-06-16 22:45:21] Simulação Executada
+[2025-06-16 22:45:21] Próxima Atividade: 22:46:42 (80.1s)
+[2025-06-16 22:46:42] Simulação Executada
+[2025-06-16 22:46:42] Próxima Atividade: 22:48:14 (91.6s)
+[2025-06-16 22:48:15] Simulação Executada
+[2025-06-16 22:48:15] Próxima Atividade: 22:49:34 (78.6s)
+[2025-06-16 22:49:35] Simulação Executada
+[2025-06-16 22:49:35] Próxima Atividade: 22:50:34 (59.5s)
+[2025-06-16 22:50:36] Simulação Executada
+[2025-06-16 22:50:36] Próxima Atividade: 22:52:18 (102.3s)
+[2025-06-16 22:52:19] Simulação Executada
+[2025-06-16 22:52:19] Próxima Atividade: 22:53:27 (68.8s)
+[2025-06-16 22:53:28] Simulação Executada
+[2025-06-16 22:53:28] Próxima Atividade: 22:54:46 (78.1s)
+[2025-06-16 22:54:47] Simulação Executada
+[2025-06-16 22:54:47] Próxima Atividade: 22:56:31 (103.3s)
+[2025-06-16 22:56:31] Simulação Executada
+[2025-06-16 22:56:31] Próxima Atividade: 22:58:08 (96.5s)
+[2025-06-16 22:58:09] Simulação Executada
+[2025-06-16 22:58:09] Próxima Atividade: 22:59:20 (71.6s)
+[2025-06-16 22:59:22] Simulação Executada
+[2025-06-16 22:59:22] Próxima Atividade: 23:01:01 (99.4s)
+[2025-06-16 23:01:01] Simulação Executada
+[2025-06-16 23:01:02] Próxima Atividade: 23:02:09 (67.4s)
+[2025-06-16 23:02:09] Simulação Executada
+[2025-06-16 23:02:09] Próxima Atividade: 23:03:44 (95.1s)
+[2025-06-16 23:03:45] Simulação Executada
+[2025-06-16 23:03:45] Próxima Atividade: 23:05:11 (85.5s)
+[2025-06-16 23:05:11] Simulação Executada
+[2025-06-16 23:05:11] Próxima Atividade: 23:06:15 (64.1s)
+[2025-06-16 23:06:16] Simulação Executada
+[2025-06-16 23:06:16] Próxima Atividade: 23:07:17 (61.0s)
+[2025-06-16 23:07:18] Simulação Executada
+[2025-06-16 23:07:18] Próxima Atividade: 23:08:20 (62.5s)
+[2025-06-16 23:08:20] Simulação Executada
+[2025-06-16 23:08:20] Próxima Atividade: 23:09:46 (85.0s)
+[2025-06-16 23:09:46] Simulação Executada
+[2025-06-16 23:09:46] Próxima Atividade: 23:10:46 (59.9s)
+[2025-06-16 23:10:47] Simulação Executada
+[2025-06-16 23:10:47] Próxima Atividade: 23:12:23 (96.3s)
+[2025-06-16 23:12:24] Simulação Executada
+[2025-06-16 23:12:24] Próxima Atividade: 23:14:08 (103.6s)
+[2025-06-16 23:14:09] Simulação Executada
+[2025-06-16 23:14:09] Próxima Atividade: 23:15:34 (85.1s)
+[2025-06-16 23:15:35] Simulação Executada
+[2025-06-16 23:15:35] Próxima Atividade: 23:16:44 (69.4s)
+[2025-06-16 23:16:44] Simulação Executada
+[2025-06-16 23:16:44] Próxima Atividade: 23:17:49 (64.4s)
+[2025-06-16 23:17:49] Simulação Executada
+[2025-06-16 23:17:49] Próxima Atividade: 23:19:22 (93.0s)
+[2025-06-16 23:19:23] Simulação Executada
+[2025-06-16 23:19:23] Próxima Atividade: 23:20:54 (91.1s)
+[2025-06-16 23:20:55] Simulação Executada
+[2025-06-16 23:20:55] Próxima Atividade: 23:22:36 (100.7s)
+[2025-06-16 23:22:37] Simulação Executada
+[2025-06-16 23:22:37] Próxima Atividade: 23:23:43 (66.1s)
+[2025-06-16 23:23:44] Simulação Executada
+[2025-06-16 23:23:44] Próxima Atividade: 23:24:50 (66.7s)
+[2025-06-16 23:24:51] Simulação Executada
+[2025-06-16 23:24:51] Próxima Atividade: 23:26:12 (80.6s)
+[2025-06-16 23:26:13] Simulação Executada
+[2025-06-16 23:26:13] Próxima Atividade: 23:27:31 (77.5s)
+[2025-06-16 23:27:31] Simulação Executada
+[2025-06-16 23:27:31] Próxima Atividade: 23:28:54 (82.8s)
+[2025-06-16 23:28:55] Simulação Executada
+[2025-06-16 23:28:55] Próxima Atividade: 23:30:07 (72.4s)
+[2025-06-16 23:30:08] Simulação Executada
+[2025-06-16 23:30:08] Próxima Atividade: 23:31:16 (68.5s)
+[2025-06-16 23:31:18] Simulação Executada
+[2025-06-16 23:31:18] Próxima Atividade: 23:32:28 (70.6s)
+[2025-06-16 23:32:29] Simulação Executada
+[2025-06-16 23:32:29] Próxima Atividade: 23:33:58 (88.1s)
+[2025-06-16 23:33:58] Simulação Executada
+[2025-06-16 23:33:58] Próxima Atividade: 23:35:23 (84.9s)
+[2025-06-16 23:35:24] Simulação Executada
+[2025-06-16 23:35:24] Próxima Atividade: 23:36:37 (73.3s)
+[2025-06-16 23:36:38] Simulação Executada
+[2025-06-16 23:36:38] Próxima Atividade: 23:37:50 (72.2s)
+[2025-06-16 23:37:51] Simulação Executada
+[2025-06-16 23:37:51] Próxima Atividade: 23:39:20 (89.3s)
+[2025-06-16 23:39:21] Simulação Executada
+[2025-06-16 23:39:21] Próxima Atividade: 23:41:04 (103.9s)
+[2025-06-16 23:41:05] Simulação Executada
+[2025-06-16 23:41:05] Próxima Atividade: 23:42:21 (76.0s)
+[2025-06-16 23:42:22] Simulação Executada
+[2025-06-16 23:42:22] Próxima Atividade: 23:43:21 (59.0s)
+[2025-06-16 23:43:22] Simulação Executada
+[2025-06-16 23:43:22] Próxima Atividade: 23:44:35 (73.4s)
+[2025-06-16 23:44:36] Simulação Executada
+[2025-06-16 23:44:36] Próxima Atividade: 23:45:52 (76.6s)
+[2025-06-16 23:45:54] Simulação Executada
+[2025-06-16 23:45:54] Próxima Atividade: 23:47:02 (68.8s)
+[2025-06-16 23:47:03] Simulação Executada
+[2025-06-16 23:47:03] Próxima Atividade: 23:48:06 (62.9s)
+[2025-06-16 23:48:07] Simulação Executada
+[2025-06-16 23:48:07] Próxima Atividade: 23:49:19 (71.8s)
+[2025-06-16 23:49:20] Simulação Executada
+[2025-06-16 23:49:20] Próxima Atividade: 23:50:37 (76.9s)
+[2025-06-16 23:50:38] Simulação Executada
+[2025-06-16 23:50:38] Próxima Atividade: 23:51:48 (69.6s)
+[2025-06-16 23:51:49] Simulação Executada
+[2025-06-16 23:51:49] Próxima Atividade: 23:52:56 (67.4s)
+[2025-06-16 23:52:57] Simulação Executada
+[2025-06-16 23:52:57] Próxima Atividade: 23:54:20 (83.5s)
+[2025-06-16 23:54:20] Simulação Executada
+[2025-06-16 23:54:20] Próxima Atividade: 23:55:21 (60.3s)
+[2025-06-16 23:55:21] Simulação Executada
+[2025-06-16 23:55:21] Próxima Atividade: 23:56:48 (86.4s)
+[2025-06-16 23:56:48] Simulação Executada
+[2025-06-16 23:56:48] Próxima Atividade: 23:57:55 (66.8s)
+[2025-06-16 23:57:56] Simulação Executada
+[2025-06-16 23:57:56] Próxima Atividade: 23:58:52 (56.0s)
+[2025-06-16 23:58:53] Simulação Executada
+[2025-06-16 23:58:53] Próxima Atividade: 00:00:00 (67.5s)
+[2025-06-17 00:00:02] Simulação Executada
+[2025-06-17 00:00:02] Próxima Atividade: 00:01:15 (73.1s)
+[2025-06-17 00:01:15] Simulação Executada
+[2025-06-17 00:01:15] Próxima Atividade: 00:02:50 (94.2s)
+[2025-06-17 00:02:50] Simulação Executada
+[2025-06-17 00:02:50] Próxima Atividade: 00:04:16 (85.6s)
+[2025-06-17 00:04:17] Simulação Executada
+[2025-06-17 00:04:17] Próxima Atividade: 00:05:25 (67.5s)
+[2025-06-17 00:05:25] Simulação Executada
+[2025-06-17 00:05:25] Próxima Atividade: 00:06:47 (82.3s)
+[2025-06-17 00:06:48] Simulação Executada
+[2025-06-17 00:06:48] Próxima Atividade: 00:08:25 (97.5s)
+[2025-06-17 00:08:26] Simulação Executada
+[2025-06-17 00:08:26] Próxima Atividade: 00:09:32 (66.0s)
+[2025-06-17 00:09:32] Simulação Executada
+[2025-06-17 00:09:32] Próxima Atividade: 00:10:40 (67.5s)
+[2025-06-17 00:10:41] Simulação Executada
+[2025-06-17 00:10:41] Próxima Atividade: 00:11:55 (73.5s)
+[2025-06-17 00:11:56] Simulação Executada
+[2025-06-17 00:11:56] Próxima Atividade: 00:13:37 (101.1s)
+[2025-06-17 00:13:38] Simulação Executada
+[2025-06-17 00:13:38] Próxima Atividade: 00:14:59 (81.3s)
+[2025-06-17 00:15:00] Simulação Executada
+[2025-06-17 00:15:00] Próxima Atividade: 00:16:27 (86.9s)
+[2025-06-17 00:16:28] Simulação Executada
+[2025-06-17 00:16:28] Próxima Atividade: 00:17:50 (82.6s)
+[2025-06-17 00:17:51] Simulação Executada
+[2025-06-17 00:17:51] Próxima Atividade: 00:19:24 (92.2s)
+[2025-06-17 00:19:24] Simulação Executada
+[2025-06-17 00:19:24] Próxima Atividade: 00:20:56 (91.6s)
+[2025-06-17 00:20:57] Simulação Executada
+[2025-06-17 00:20:57] Próxima Atividade: 00:21:59 (62.0s)
+[2025-06-17 00:22:00] Simulação Executada
+[2025-06-17 00:22:00] Próxima Atividade: 00:23:25 (85.6s)
+[2025-06-17 00:23:27] Simulação Executada
+[2025-06-17 00:23:27] Próxima Atividade: 00:24:41 (74.5s)
+[2025-06-17 00:24:43] Simulação Executada
+[2025-06-17 00:24:43] Próxima Atividade: 00:26:09 (86.1s)
+[2025-06-17 00:26:09] Simulação Executada
+[2025-06-17 00:26:09] Próxima Atividade: 00:27:28 (78.3s)
+[2025-06-17 00:27:28] Simulação Executada
+[2025-06-17 00:27:28] Próxima Atividade: 00:28:44 (75.9s)
+[2025-06-17 00:28:45] Simulação Executada
+[2025-06-17 00:28:45] Próxima Atividade: 00:29:58 (72.8s)
+[2025-06-17 00:29:59] Simulação Executada
+[2025-06-17 00:29:59] Próxima Atividade: 00:31:23 (84.6s)
+[2025-06-17 00:31:25] Simulação Executada
+[2025-06-17 00:31:25] Próxima Atividade: 00:32:47 (82.2s)
+[2025-06-17 00:32:48] Simulação Executada
+[2025-06-17 00:32:48] Próxima Atividade: 00:34:05 (77.6s)
+[2025-06-17 00:34:06] Simulação Executada
+[2025-06-17 00:34:06] Próxima Atividade: 00:35:35 (88.3s)
+[2025-06-17 00:35:35] Simulação Executada
+[2025-06-17 00:35:35] Próxima Atividade: 00:36:49 (73.5s)
+[2025-06-17 00:36:50] Simulação Executada
+[2025-06-17 00:36:50] Próxima Atividade: 00:38:14 (84.3s)
+[2025-06-17 00:38:15] Simulação Executada
+[2025-06-17 00:38:15] Próxima Atividade: 00:39:51 (95.8s)
+[2025-06-17 00:39:52] Simulação Executada
+[2025-06-17 00:39:52] Próxima Atividade: 00:41:13 (80.9s)
+[2025-06-17 00:41:13] Simulação Executada
+[2025-06-17 00:41:13] Próxima Atividade: 00:42:24 (70.9s)
+[2025-06-17 00:42:25] Simulação Executada
+[2025-06-17 00:42:25] Próxima Atividade: 00:43:29 (63.4s)
+[2025-06-17 00:43:29] Simulação Executada
+[2025-06-17 00:43:29] Próxima Atividade: 00:44:35 (65.7s)
+[2025-06-17 00:44:36] Simulação Executada
+[2025-06-17 00:44:36] Próxima Atividade: 00:45:49 (72.6s)
+[2025-06-17 00:45:50] Simulação Executada
+[2025-06-17 00:45:50] Próxima Atividade: 00:47:04 (74.5s)
+[2025-06-17 00:47:05] Simulação Executada
+[2025-06-17 00:47:05] Próxima Atividade: 00:48:18 (72.9s)
+[2025-06-17 00:48:18] Simulação Executada
+[2025-06-17 00:48:18] Próxima Atividade: 00:50:02 (103.1s)
+[2025-06-17 00:50:02] Simulação Executada
+[2025-06-17 00:50:02] Próxima Atividade: 00:51:29 (86.8s)
+[2025-06-17 00:51:30] Simulação Executada
+[2025-06-17 00:51:30] Próxima Atividade: 00:53:02 (92.2s)
+[2025-06-17 00:53:03] Simulação Executada
+[2025-06-17 00:53:03] Próxima Atividade: 00:54:15 (71.7s)
+[2025-06-17 00:54:16] Simulação Executada
+[2025-06-17 00:54:16] Próxima Atividade: 00:55:35 (79.3s)
+[2025-06-17 00:55:36] Simulação Executada
+[2025-06-17 00:55:36] Próxima Atividade: 00:56:57 (81.0s)
+[2025-06-17 00:56:57] Simulação Executada
+[2025-06-17 00:56:57] Próxima Atividade: 00:58:13 (75.7s)
+[2025-06-17 00:58:14] Simulação Executada
+[2025-06-17 00:58:14] Próxima Atividade: 00:59:23 (69.0s)
+[2025-06-17 00:59:24] Simulação Executada
+[2025-06-17 00:59:24] Próxima Atividade: 01:00:53 (88.8s)
+[2025-06-17 01:00:54] Simulação Executada
+[2025-06-17 01:00:54] Próxima Atividade: 01:02:29 (95.3s)
+[2025-06-17 01:02:30] Simulação Executada
+[2025-06-17 01:02:30] Próxima Atividade: 01:03:46 (76.0s)
+[2025-06-17 01:03:47] Simulação Executada
+[2025-06-17 01:03:47] Próxima Atividade: 01:05:27 (100.4s)
+[2025-06-17 01:05:27] Simulação Executada
+[2025-06-17 01:05:27] Próxima Atividade: 01:06:54 (86.2s)
+[2025-06-17 01:06:54] Simulação Executada
+[2025-06-17 01:06:54] Próxima Atividade: 01:08:30 (95.8s)
+[2025-06-17 01:08:31] Simulação Executada
+[2025-06-17 01:08:31] Próxima Atividade: 01:10:15 (103.8s)
+[2025-06-17 01:10:16] Simulação Executada
+[2025-06-17 01:10:16] Próxima Atividade: 01:11:33 (77.7s)
+[2025-06-17 01:11:35] Simulação Executada
+[2025-06-17 01:11:35] Próxima Atividade: 01:13:04 (89.8s)
+[2025-06-17 01:13:05] Simulação Executada
+[2025-06-17 01:13:05] Próxima Atividade: 01:14:42 (96.3s)
+[2025-06-17 01:14:42] Simulação Executada
+[2025-06-17 01:14:42] Próxima Atividade: 01:15:54 (71.7s)
+[2025-06-17 01:15:55] Simulação Executada
+[2025-06-17 01:15:55] Próxima Atividade: 01:16:54 (59.3s)
+[2025-06-17 01:16:55] Simulação Executada
+[2025-06-17 01:16:55] Próxima Atividade: 01:18:01 (66.3s)
+[2025-06-17 01:18:02] Simulação Executada
+[2025-06-17 01:18:02] Próxima Atividade: 01:19:29 (87.2s)
+[2025-06-17 01:19:30] Simulação Executada
+[2025-06-17 01:19:30] Próxima Atividade: 01:21:01 (91.0s)
+[2025-06-17 01:21:01] Simulação Executada
+[2025-06-17 01:21:01] Próxima Atividade: 01:22:02 (60.3s)
+[2025-06-17 01:22:02] Simulação Executada
+[2025-06-17 01:22:02] Próxima Atividade: 01:23:18 (75.8s)
+[2025-06-17 01:23:19] Simulação Executada
+[2025-06-17 01:23:19] Próxima Atividade: 01:24:17 (57.7s)
+[2025-06-17 01:24:18] Simulação Executada
+[2025-06-17 01:24:18] Próxima Atividade: 01:25:20 (62.1s)
+[2025-06-17 01:25:21] Simulação Executada
+[2025-06-17 01:25:21] Próxima Atividade: 01:26:54 (93.8s)
+[2025-06-17 01:26:55] Simulação Executada
+[2025-06-17 01:26:55] Próxima Atividade: 01:27:55 (59.3s)
+[2025-06-17 01:27:55] Simulação Executada
+[2025-06-17 01:27:55] Próxima Atividade: 01:28:54 (59.1s)
+[2025-06-17 01:28:55] Simulação Executada
+[2025-06-17 01:28:55] Próxima Atividade: 01:30:24 (89.2s)
+[2025-06-17 01:30:25] Simulação Executada
+[2025-06-17 01:30:25] Próxima Atividade: 01:31:47 (82.2s)
+[2025-06-17 01:31:48] Simulação Executada
+[2025-06-17 01:31:48] Próxima Atividade: 01:32:58 (69.7s)
+[2025-06-17 01:32:59] Simulação Executada
+[2025-06-17 01:32:59] Próxima Atividade: 01:34:18 (79.2s)
+[2025-06-17 01:34:18] Simulação Executada
+[2025-06-17 01:34:18] Próxima Atividade: 01:36:00 (101.6s)
+[2025-06-17 01:36:01] Simulação Executada
+[2025-06-17 01:36:01] Próxima Atividade: 01:37:23 (81.8s)
+[2025-06-17 01:37:24] Simulação Executada
+[2025-06-17 01:37:24] Próxima Atividade: 01:38:49 (84.5s)
+[2025-06-17 01:38:49] Simulação Executada
+[2025-06-17 01:38:49] Próxima Atividade: 01:40:20 (91.1s)
+[2025-06-17 01:40:21] Simulação Executada
+[2025-06-17 01:40:21] Próxima Atividade: 01:41:59 (98.0s)
+[2025-06-17 01:42:00] Simulação Executada
+[2025-06-17 01:42:00] Próxima Atividade: 01:43:19 (78.9s)
+[2025-06-17 01:43:20] Simulação Executada
+[2025-06-17 01:43:20] Próxima Atividade: 01:44:39 (79.8s)
+[2025-06-17 01:44:40] Simulação Executada
+[2025-06-17 01:44:40] Próxima Atividade: 01:46:24 (103.5s)
+[2025-06-17 01:46:25] Simulação Executada
+[2025-06-17 01:46:25] Próxima Atividade: 01:47:41 (75.8s)
+[2025-06-17 01:47:42] Simulação Executada
+[2025-06-17 01:47:42] Próxima Atividade: 01:48:39 (57.0s)
+[2025-06-17 01:48:40] Simulação Executada
+[2025-06-17 01:48:40] Próxima Atividade: 01:50:18 (98.2s)
+[2025-06-17 01:50:19] Simulação Executada
+[2025-06-17 01:50:19] Próxima Atividade: 01:51:24 (65.0s)
+[2025-06-17 01:51:24] Simulação Executada
+[2025-06-17 01:51:24] Próxima Atividade: 01:52:44 (79.3s)
+[2025-06-17 01:52:44] Simulação Executada
+[2025-06-17 01:52:44] Próxima Atividade: 01:53:50 (66.0s)
+[2025-06-17 01:53:51] Simulação Executada
+[2025-06-17 01:53:51] Próxima Atividade: 01:55:34 (102.7s)
+[2025-06-17 01:55:35] Simulação Executada
+[2025-06-17 01:55:35] Próxima Atividade: 01:56:36 (61.0s)
+[2025-06-17 01:56:37] Simulação Executada
+[2025-06-17 01:56:37] Próxima Atividade: 01:58:19 (102.3s)
+[2025-06-17 01:58:20] Simulação Executada
+[2025-06-17 01:58:20] Próxima Atividade: 01:59:59 (99.5s)
+[2025-06-17 02:00:00] Simulação Executada
+[2025-06-17 02:00:00] Próxima Atividade: 02:01:19 (79.0s)
+[2025-06-17 02:01:20] Simulação Executada
+[2025-06-17 02:01:20] Próxima Atividade: 02:02:29 (68.8s)
+[2025-06-17 02:02:30] Simulação Executada
+[2025-06-17 02:02:30] Próxima Atividade: 02:03:37 (67.3s)
+[2025-06-17 02:03:38] Simulação Executada
+[2025-06-17 02:03:38] Próxima Atividade: 02:05:18 (100.3s)
+[2025-06-17 02:05:19] Simulação Executada
+[2025-06-17 02:05:19] Próxima Atividade: 02:06:26 (66.9s)
+[2025-06-17 02:06:27] Simulação Executada
+[2025-06-17 02:06:27] Próxima Atividade: 02:07:47 (80.9s)
+[2025-06-17 02:07:48] Simulação Executada
+[2025-06-17 02:07:48] Próxima Atividade: 02:09:17 (88.8s)
+[2025-06-17 02:09:18] Simulação Executada
+[2025-06-17 02:09:18] Próxima Atividade: 02:10:50 (91.8s)
+[2025-06-17 02:10:51] Simulação Executada
+[2025-06-17 02:10:51] Próxima Atividade: 02:12:31 (99.7s)
+[2025-06-17 02:12:32] Simulação Executada
+[2025-06-17 02:12:32] Próxima Atividade: 02:13:50 (78.4s)
+[2025-06-17 02:13:51] Simulação Executada
+[2025-06-17 02:13:51] Próxima Atividade: 02:15:17 (86.2s)
+[2025-06-17 02:15:18] Simulação Executada
+[2025-06-17 02:15:18] Próxima Atividade: 02:16:59 (101.4s)
+[2025-06-17 02:16:59] Simulação Executada
+[2025-06-17 02:16:59] Próxima Atividade: 02:18:36 (96.5s)
+[2025-06-17 02:18:37] Simulação Executada
+[2025-06-17 02:18:37] Próxima Atividade: 02:19:44 (66.5s)
+[2025-06-17 02:19:45] Simulação Executada
+[2025-06-17 02:19:45] Próxima Atividade: 02:21:14 (88.5s)
+[2025-06-17 02:21:14] Simulação Executada
+[2025-06-17 02:21:14] Próxima Atividade: 02:22:51 (96.7s)
+[2025-06-17 02:22:52] Simulação Executada
+[2025-06-17 02:22:52] Próxima Atividade: 02:24:02 (70.2s)
+[2025-06-17 02:24:03] Simulação Executada
+[2025-06-17 02:24:03] Próxima Atividade: 02:25:07 (64.0s)
+[2025-06-17 02:25:07] Simulação Executada
+[2025-06-17 02:25:08] Próxima Atividade: 02:26:09 (61.4s)
+[2025-06-17 02:26:09] Simulação Executada
+[2025-06-17 02:26:09] Próxima Atividade: 02:27:46 (96.9s)
+[2025-06-17 02:27:47] Simulação Executada
+[2025-06-17 02:27:47] Próxima Atividade: 02:28:45 (57.8s)
+[2025-06-17 02:28:46] Simulação Executada
+[2025-06-17 02:28:46] Próxima Atividade: 02:30:03 (76.9s)
+[2025-06-17 02:30:04] Simulação Executada
+[2025-06-17 02:30:04] Próxima Atividade: 02:31:39 (94.9s)
+[2025-06-17 02:31:40] Simulação Executada
+[2025-06-17 02:31:40] Próxima Atividade: 02:32:40 (60.5s)
+[2025-06-17 02:32:41] Simulação Executada
+[2025-06-17 02:32:41] Próxima Atividade: 02:33:58 (76.8s)
+[2025-06-17 02:33:59] Simulação Executada
+[2025-06-17 02:33:59] Próxima Atividade: 02:35:32 (92.5s)
+[2025-06-17 02:35:32] Simulação Executada
+[2025-06-17 02:35:32] Próxima Atividade: 02:36:54 (82.2s)
+[2025-06-17 02:36:55] Simulação Executada
+[2025-06-17 02:36:55] Próxima Atividade: 02:38:02 (67.2s)
+[2025-06-17 02:38:03] Simulação Executada
+[2025-06-17 02:38:03] Próxima Atividade: 02:39:14 (70.7s)
+[2025-06-17 02:39:15] Simulação Executada
+[2025-06-17 02:39:15] Próxima Atividade: 02:40:33 (78.7s)
+[2025-06-17 02:40:34] Simulação Executada
+[2025-06-17 02:40:34] Próxima Atividade: 02:41:59 (85.0s)
+[2025-06-17 02:42:00] Simulação Executada
+[2025-06-17 02:42:00] Próxima Atividade: 02:43:14 (74.0s)
+[2025-06-17 02:43:15] Simulação Executada
+[2025-06-17 02:43:15] Próxima Atividade: 02:44:53 (98.2s)
+[2025-06-17 02:44:54] Simulação Executada
+[2025-06-17 02:44:54] Próxima Atividade: 02:46:24 (90.3s)
+[2025-06-17 02:46:25] Simulação Executada
+[2025-06-17 02:46:25] Próxima Atividade: 02:47:39 (74.2s)
+[2025-06-17 02:47:40] Simulação Executada
+[2025-06-17 02:47:40] Próxima Atividade: 02:49:01 (81.2s)
+[2025-06-17 02:49:01] Simulação Executada
+[2025-06-17 02:49:01] Próxima Atividade: 02:50:35 (93.8s)
+[2025-06-17 02:50:36] Simulação Executada
+[2025-06-17 02:50:36] Próxima Atividade: 02:51:46 (69.9s)
+[2025-06-17 02:51:47] Simulação Executada
+[2025-06-17 02:51:47] Próxima Atividade: 02:52:52 (64.9s)
+[2025-06-17 02:52:53] Simulação Executada
+[2025-06-17 02:52:53] Próxima Atividade: 02:54:26 (93.3s)
+[2025-06-17 02:54:27] Simulação Executada
+[2025-06-17 02:54:27] Próxima Atividade: 02:55:33 (66.5s)
+[2025-06-17 02:55:34] Simulação Executada
+[2025-06-17 02:55:34] Próxima Atividade: 02:56:31 (56.9s)
+[2025-06-17 02:56:32] Simulação Executada
+[2025-06-17 02:56:32] Próxima Atividade: 02:57:38 (65.7s)
+[2025-06-17 02:57:39] Simulação Executada
+[2025-06-17 02:57:39] Próxima Atividade: 02:58:42 (62.5s)
+[2025-06-17 02:58:42] Simulação Executada
+[2025-06-17 02:58:42] Próxima Atividade: 03:00:25 (103.3s)
+[2025-06-17 03:00:26] Simulação Executada
+[2025-06-17 03:00:26] Próxima Atividade: 03:02:05 (99.3s)
+[2025-06-17 03:02:06] Simulação Executada
+[2025-06-17 03:02:06] Próxima Atividade: 03:03:20 (75.0s)
+[2025-06-17 03:03:21] Simulação Executada
+[2025-06-17 03:03:21] Próxima Atividade: 03:04:57 (95.4s)
+[2025-06-17 03:04:57] Simulação Executada
+[2025-06-17 03:04:57] Próxima Atividade: 03:06:40 (103.2s)
+[2025-06-17 03:06:41] Simulação Executada
+[2025-06-17 03:06:41] Próxima Atividade: 03:07:55 (74.2s)
+[2025-06-17 03:07:56] Simulação Executada
+[2025-06-17 03:07:56] Próxima Atividade: 03:08:58 (62.3s)
+[2025-06-17 03:08:59] Simulação Executada
+[2025-06-17 03:08:59] Próxima Atividade: 03:09:57 (58.6s)
+[2025-06-17 03:09:58] Simulação Executada
+[2025-06-17 03:09:58] Próxima Atividade: 03:11:16 (78.0s)
+[2025-06-17 03:11:17] Simulação Executada
+[2025-06-17 03:11:17] Próxima Atividade: 03:12:48 (90.3s)
+[2025-06-17 03:12:48] Simulação Executada
+[2025-06-17 03:12:48] Próxima Atividade: 03:13:50 (62.1s)
+[2025-06-17 03:13:51] Simulação Executada
+[2025-06-17 03:13:51] Próxima Atividade: 03:15:08 (76.7s)
+[2025-06-17 03:15:09] Simulação Executada
+[2025-06-17 03:15:09] Próxima Atividade: 03:16:06 (57.7s)
+[2025-06-17 03:16:08] Simulação Executada
+[2025-06-17 03:16:08] Próxima Atividade: 03:17:50 (102.3s)
+[2025-06-17 03:17:50] Simulação Executada
+[2025-06-17 03:17:50] Próxima Atividade: 03:18:48 (57.3s)
+[2025-06-17 03:18:48] Simulação Executada
+[2025-06-17 03:18:48] Próxima Atividade: 03:20:30 (102.0s)
+[2025-06-17 03:20:31] Simulação Executada
+[2025-06-17 03:20:31] Próxima Atividade: 03:21:42 (71.2s)
+[2025-06-17 03:21:43] Simulação Executada
+[2025-06-17 03:21:43] Próxima Atividade: 03:23:15 (92.7s)
+[2025-06-17 03:23:17] Simulação Executada
+[2025-06-17 03:23:17] Próxima Atividade: 03:24:50 (93.4s)
+[2025-06-17 03:24:51] Simulação Executada
+[2025-06-17 03:24:51] Próxima Atividade: 03:26:07 (76.1s)
+[2025-06-17 03:26:07] Simulação Executada
+[2025-06-17 03:26:07] Próxima Atividade: 03:27:11 (63.2s)
+[2025-06-17 03:27:11] Simulação Executada
+[2025-06-17 03:27:11] Próxima Atividade: 03:28:40 (88.5s)
+[2025-06-17 03:28:40] Simulação Executada
+[2025-06-17 03:28:40] Próxima Atividade: 03:30:21 (101.6s)
+[2025-06-17 03:30:23] Simulação Executada
+[2025-06-17 03:30:23] Próxima Atividade: 03:31:59 (95.9s)
+[2025-06-17 03:32:00] Simulação Executada
+[2025-06-17 03:32:00] Próxima Atividade: 03:33:27 (87.0s)
+[2025-06-17 03:33:27] Simulação Executada
+[2025-06-17 03:33:27] Próxima Atividade: 03:34:57 (89.6s)
+[2025-06-17 03:34:58] Simulação Executada
+[2025-06-17 03:34:58] Próxima Atividade: 03:36:20 (81.3s)
+[2025-06-17 03:36:20] Simulação Executada
+[2025-06-17 03:36:20] Próxima Atividade: 03:37:59 (99.1s)
+[2025-06-17 03:38:00] Simulação Executada
+[2025-06-17 03:38:00] Próxima Atividade: 03:39:41 (100.9s)
+[2025-06-17 03:39:42] Simulação Executada
+[2025-06-17 03:39:42] Próxima Atividade: 03:40:43 (61.6s)
+[2025-06-17 03:40:45] Simulação Executada
+[2025-06-17 03:40:45] Próxima Atividade: 03:41:48 (63.6s)
+[2025-06-17 03:41:49] Simulação Executada
+[2025-06-17 03:41:49] Próxima Atividade: 03:43:28 (98.5s)
+[2025-06-17 03:43:28] Simulação Executada
+[2025-06-17 03:43:28] Próxima Atividade: 03:44:30 (61.6s)
+[2025-06-17 03:44:31] Simulação Executada
+[2025-06-17 03:44:31] Próxima Atividade: 03:45:45 (74.1s)
+[2025-06-17 03:45:46] Simulação Executada
+[2025-06-17 03:45:46] Próxima Atividade: 03:47:24 (97.8s)
+[2025-06-17 03:47:25] Simulação Executada
+[2025-06-17 03:47:25] Próxima Atividade: 03:49:05 (100.5s)
+[2025-06-17 03:49:06] Simulação Executada
+[2025-06-17 03:49:06] Próxima Atividade: 03:50:28 (81.9s)
+[2025-06-17 03:50:29] Simulação Executada
+[2025-06-17 03:50:29] Próxima Atividade: 03:51:52 (82.6s)
+[2025-06-17 03:51:53] Simulação Executada
+[2025-06-17 03:51:53] Próxima Atividade: 03:53:11 (78.3s)
+[2025-06-17 03:53:12] Simulação Executada
+[2025-06-17 03:53:12] Próxima Atividade: 03:54:25 (73.3s)
+[2025-06-17 03:54:26] Simulação Executada
+[2025-06-17 03:54:26] Próxima Atividade: 03:55:40 (73.9s)
+[2025-06-17 03:55:41] Simulação Executada
+[2025-06-17 03:55:41] Próxima Atividade: 03:57:09 (88.1s)
+[2025-06-17 03:57:09] Simulação Executada
+[2025-06-17 03:57:09] Próxima Atividade: 03:58:37 (87.8s)
+[2025-06-17 03:58:38] Simulação Executada
+[2025-06-17 03:58:38] Próxima Atividade: 04:00:16 (98.1s)
+[2025-06-17 04:00:17] Simulação Executada
+[2025-06-17 04:00:17] Próxima Atividade: 04:01:26 (69.0s)
+[2025-06-17 04:01:27] Simulação Executada
+[2025-06-17 04:01:27] Próxima Atividade: 04:03:11 (103.6s)
+[2025-06-17 04:03:12] Simulação Executada
+[2025-06-17 04:03:12] Próxima Atividade: 04:04:49 (97.0s)
+[2025-06-17 04:04:50] Simulação Executada
+[2025-06-17 04:04:50] Próxima Atividade: 04:06:17 (87.6s)
+[2025-06-17 04:06:18] Simulação Executada
+[2025-06-17 04:06:18] Próxima Atividade: 04:07:59 (101.0s)
+[2025-06-17 04:08:00] Simulação Executada
+[2025-06-17 04:08:00] Próxima Atividade: 04:09:37 (97.2s)
+[2025-06-17 04:09:38] Simulação Executada
+[2025-06-17 04:09:38] Próxima Atividade: 04:11:04 (86.3s)
+[2025-06-17 04:11:05] Simulação Executada
+[2025-06-17 04:11:05] Próxima Atividade: 04:12:19 (74.4s)
+[2025-06-17 04:12:20] Simulação Executada
+[2025-06-17 04:12:20] Próxima Atividade: 04:13:58 (98.5s)
+[2025-06-17 04:13:59] Simulação Executada
+[2025-06-17 04:13:59] Próxima Atividade: 04:15:28 (89.2s)
+[2025-06-17 04:15:28] Simulação Executada
+[2025-06-17 04:15:28] Próxima Atividade: 04:17:07 (98.9s)
+[2025-06-17 04:17:08] Simulação Executada
+[2025-06-17 04:17:08] Próxima Atividade: 04:18:23 (75.2s)
+[2025-06-17 04:18:24] Simulação Executada
+[2025-06-17 04:18:24] Próxima Atividade: 04:19:38 (74.0s)
+[2025-06-17 04:19:39] Simulação Executada
+[2025-06-17 04:19:39] Próxima Atividade: 04:21:21 (102.3s)
+[2025-06-17 04:21:22] Simulação Executada
+[2025-06-17 04:21:22] Próxima Atividade: 04:22:32 (69.9s)
+[2025-06-17 04:22:33] Simulação Executada
+[2025-06-17 04:22:33] Próxima Atividade: 04:24:04 (91.9s)
+[2025-06-17 04:24:05] Simulação Executada
+[2025-06-17 04:24:05] Próxima Atividade: 04:25:15 (69.6s)
+[2025-06-17 04:25:16] Simulação Executada
+[2025-06-17 04:25:16] Próxima Atividade: 04:26:56 (99.5s)
+[2025-06-17 04:26:56] Simulação Executada
+[2025-06-17 04:26:56] Próxima Atividade: 04:27:54 (58.1s)
+[2025-06-17 04:27:55] Simulação Executada
+[2025-06-17 04:27:55] Próxima Atividade: 04:29:25 (89.7s)
+[2025-06-17 04:29:26] Simulação Executada
+[2025-06-17 04:29:26] Próxima Atividade: 04:30:40 (74.4s)
+[2025-06-17 04:30:41] Simulação Executada
+[2025-06-17 04:30:41] Próxima Atividade: 04:32:23 (102.6s)
+[2025-06-17 04:32:24] Simulação Executada
+[2025-06-17 04:32:24] Próxima Atividade: 04:33:22 (58.1s)
+[2025-06-17 04:33:23] Simulação Executada
+[2025-06-17 04:33:23] Próxima Atividade: 04:34:33 (70.0s)
+[2025-06-17 04:34:34] Simulação Executada
+[2025-06-17 04:34:34] Próxima Atividade: 04:35:55 (80.8s)
+[2025-06-17 04:35:56] Simulação Executada
+[2025-06-17 04:35:56] Próxima Atividade: 04:37:27 (90.7s)
+[2025-06-17 04:37:28] Simulação Executada
+[2025-06-17 04:37:28] Próxima Atividade: 04:39:05 (96.8s)
+[2025-06-17 04:39:05] Simulação Executada
+[2025-06-17 04:39:06] Próxima Atividade: 04:40:24 (78.6s)
+[2025-06-17 04:40:25] Simulação Executada
+[2025-06-17 04:40:25] Próxima Atividade: 04:41:53 (87.8s)
+[2025-06-17 04:41:54] Simulação Executada
+[2025-06-17 04:41:54] Próxima Atividade: 04:43:24 (90.2s)
+[2025-06-17 04:43:25] Simulação Executada
+[2025-06-17 04:43:25] Próxima Atividade: 04:44:36 (70.9s)
+[2025-06-17 04:44:37] Simulação Executada
+[2025-06-17 04:44:37] Próxima Atividade: 04:45:51 (74.4s)
+[2025-06-17 04:45:52] Simulação Executada
+[2025-06-17 04:45:52] Próxima Atividade: 04:46:56 (64.0s)
+[2025-06-17 04:46:56] Simulação Executada
+[2025-06-17 04:46:56] Próxima Atividade: 04:48:20 (83.7s)
+[2025-06-17 04:48:21] Simulação Executada
+[2025-06-17 04:48:21] Próxima Atividade: 04:49:30 (68.5s)
+[2025-06-17 04:49:30] Simulação Executada
+[2025-06-17 04:49:30] Próxima Atividade: 04:50:40 (70.3s)
+[2025-06-17 04:50:41] Simulação Executada
+[2025-06-17 04:50:41] Próxima Atividade: 04:52:07 (86.3s)
+[2025-06-17 04:52:08] Simulação Executada
+[2025-06-17 04:52:08] Próxima Atividade: 04:53:51 (103.4s)
+[2025-06-17 04:53:51] Simulação Executada
+[2025-06-17 04:53:51] Próxima Atividade: 04:55:35 (103.7s)
+[2025-06-17 04:55:36] Simulação Executada
+[2025-06-17 04:55:36] Próxima Atividade: 04:57:20 (103.8s)
+[2025-06-17 04:57:21] Simulação Executada
+[2025-06-17 04:57:21] Próxima Atividade: 04:58:21 (60.0s)
+[2025-06-17 04:58:22] Simulação Executada
+[2025-06-17 04:58:22] Próxima Atividade: 04:59:24 (61.8s)
+[2025-06-17 04:59:25] Simulação Executada
+[2025-06-17 04:59:25] Próxima Atividade: 05:00:26 (61.3s)
+[2025-06-17 05:00:27] Simulação Executada
+[2025-06-17 05:00:27] Próxima Atividade: 05:01:29 (62.4s)
+[2025-06-17 05:01:29] Simulação Executada
+[2025-06-17 05:01:29] Próxima Atividade: 05:03:12 (102.9s)
+[2025-06-17 05:03:13] Simulação Executada
+[2025-06-17 05:03:13] Próxima Atividade: 05:04:51 (97.9s)
+[2025-06-17 05:04:52] Simulação Executada
+[2025-06-17 05:04:52] Próxima Atividade: 05:06:33 (100.7s)
+[2025-06-17 05:06:34] Simulação Executada
+[2025-06-17 05:06:34] Próxima Atividade: 05:07:41 (66.7s)
+[2025-06-17 05:07:42] Simulação Executada
+[2025-06-17 05:07:42] Próxima Atividade: 05:09:20 (98.6s)
+[2025-06-17 05:09:22] Simulação Executada
+[2025-06-17 05:09:22] Próxima Atividade: 05:11:03 (101.0s)
+[2025-06-17 05:11:03] Simulação Executada
+[2025-06-17 05:11:03] Próxima Atividade: 05:12:19 (76.1s)
+[2025-06-17 05:12:20] Simulação Executada
+[2025-06-17 05:12:20] Próxima Atividade: 05:13:18 (57.6s)
+[2025-06-17 05:13:19] Simulação Executada
+[2025-06-17 05:13:19] Próxima Atividade: 05:14:38 (79.4s)
+[2025-06-17 05:14:39] Simulação Executada
+[2025-06-17 05:14:39] Próxima Atividade: 05:15:45 (66.6s)
+[2025-06-17 05:15:47] Simulação Executada
+[2025-06-17 05:15:47] Próxima Atividade: 05:16:46 (59.8s)
+[2025-06-17 05:16:47] Simulação Executada
+[2025-06-17 05:16:47] Próxima Atividade: 05:17:49 (61.5s)
+[2025-06-17 05:17:49] Simulação Executada
+[2025-06-17 05:17:49] Próxima Atividade: 05:18:58 (68.5s)
+[2025-06-17 05:18:59] Simulação Executada
+[2025-06-17 05:18:59] Próxima Atividade: 05:19:59 (60.2s)
+[2025-06-17 05:20:00] Simulação Executada
+[2025-06-17 05:20:00] Próxima Atividade: 05:21:25 (85.4s)
+[2025-06-17 05:21:26] Simulação Executada
+[2025-06-17 05:21:26] Próxima Atividade: 05:22:26 (59.8s)
+[2025-06-17 05:22:27] Simulação Executada
+[2025-06-17 05:22:27] Próxima Atividade: 05:23:41 (74.3s)
+[2025-06-17 05:23:42] Simulação Executada
+[2025-06-17 05:23:42] Próxima Atividade: 05:25:12 (90.3s)
+[2025-06-17 05:25:12] Simulação Executada
+[2025-06-17 05:25:12] Próxima Atividade: 05:26:53 (100.4s)
+[2025-06-17 05:26:53] Simulação Executada
+[2025-06-17 05:26:53] Próxima Atividade: 05:28:21 (87.9s)
+[2025-06-17 05:28:22] Simulação Executada
+[2025-06-17 05:28:22] Próxima Atividade: 05:29:43 (80.7s)
+[2025-06-17 05:29:44] Simulação Executada
+[2025-06-17 05:29:44] Próxima Atividade: 05:30:53 (69.3s)
+[2025-06-17 05:30:54] Simulação Executada
+[2025-06-17 05:30:54] Próxima Atividade: 05:32:02 (68.5s)
+[2025-06-17 05:32:02] Simulação Executada
+[2025-06-17 05:32:02] Próxima Atividade: 05:33:20 (77.6s)
+[2025-06-17 05:33:21] Simulação Executada
+[2025-06-17 05:33:21] Próxima Atividade: 05:34:21 (59.5s)
+[2025-06-17 05:34:21] Simulação Executada
+[2025-06-17 05:34:21] Próxima Atividade: 05:36:04 (102.5s)
+[2025-06-17 05:36:05] Simulação Executada
+[2025-06-17 05:36:05] Próxima Atividade: 05:37:09 (64.4s)
+[2025-06-17 05:37:10] Simulação Executada
+[2025-06-17 05:37:10] Próxima Atividade: 05:38:16 (66.5s)
+[2025-06-17 05:38:18] Simulação Executada
+[2025-06-17 05:38:18] Próxima Atividade: 05:39:52 (94.8s)
+[2025-06-17 05:39:53] Simulação Executada
+[2025-06-17 05:39:53] Próxima Atividade: 05:41:09 (75.9s)
+[2025-06-17 05:41:10] Simulação Executada
+[2025-06-17 05:41:10] Próxima Atividade: 05:42:20 (69.8s)
+[2025-06-17 05:42:21] Simulação Executada
+[2025-06-17 05:42:21] Próxima Atividade: 05:44:02 (100.5s)
+[2025-06-17 05:44:02] Simulação Executada
+[2025-06-17 05:44:02] Próxima Atividade: 05:45:44 (101.7s)
+[2025-06-17 05:45:45] Simulação Executada
+[2025-06-17 05:45:45] Próxima Atividade: 05:46:42 (57.6s)
+[2025-06-17 05:46:44] Simulação Executada
+[2025-06-17 05:46:44] Próxima Atividade: 05:47:50 (66.4s)
+[2025-06-17 05:47:50] Simulação Executada
+[2025-06-17 05:47:50] Próxima Atividade: 05:48:57 (66.7s)
+[2025-06-17 05:48:58] Simulação Executada
+[2025-06-17 05:48:58] Próxima Atividade: 05:50:17 (79.1s)
+[2025-06-17 05:50:18] Simulação Executada
+[2025-06-17 05:50:18] Próxima Atividade: 05:51:59 (100.5s)
+[2025-06-17 05:52:00] Simulação Executada
+[2025-06-17 05:52:00] Próxima Atividade: 05:53:25 (85.2s)
+[2025-06-17 05:53:26] Simulação Executada
+[2025-06-17 05:53:26] Próxima Atividade: 05:54:31 (65.0s)
+[2025-06-17 05:54:31] Simulação Executada
+[2025-06-17 05:54:31] Próxima Atividade: 05:56:05 (93.4s)
+[2025-06-17 05:56:05] Simulação Executada
+[2025-06-17 05:56:05] Próxima Atividade: 05:57:01 (56.1s)
+[2025-06-17 05:57:02] Simulação Executada
+[2025-06-17 05:57:02] Próxima Atividade: 05:58:42 (99.8s)
+[2025-06-17 05:58:43] Simulação Executada
+[2025-06-17 05:58:43] Próxima Atividade: 05:59:55 (72.4s)
+[2025-06-17 05:59:56] Simulação Executada
+[2025-06-17 05:59:56] Próxima Atividade: 06:00:53 (56.9s)
+[2025-06-17 06:00:54] Simulação Executada
+[2025-06-17 06:00:54] Próxima Atividade: 06:02:16 (82.1s)
+[2025-06-17 06:02:16] Simulação Executada
+[2025-06-17 06:02:16] Próxima Atividade: 06:03:29 (72.3s)
+[2025-06-17 06:03:29] Simulação Executada
+[2025-06-17 06:03:29] Próxima Atividade: 06:04:52 (82.4s)
+[2025-06-17 06:04:52] Simulação Executada
+[2025-06-17 06:04:52] Próxima Atividade: 06:06:17 (85.3s)
+[2025-06-17 06:06:18] Simulação Executada
+[2025-06-17 06:06:18] Próxima Atividade: 06:07:43 (85.1s)
+[2025-06-17 06:07:44] Simulação Executada
+[2025-06-17 06:07:44] Próxima Atividade: 06:09:03 (79.7s)
+[2025-06-17 06:09:04] Simulação Executada
+[2025-06-17 06:09:04] Próxima Atividade: 06:10:02 (57.9s)
+[2025-06-17 06:10:03] Simulação Executada
+[2025-06-17 06:10:03] Próxima Atividade: 06:11:26 (82.9s)
+[2025-06-17 06:11:27] Simulação Executada
+[2025-06-17 06:11:27] Próxima Atividade: 06:12:52 (85.0s)
+[2025-06-17 06:12:53] Simulação Executada
+[2025-06-17 06:12:53] Próxima Atividade: 06:14:07 (73.7s)
+[2025-06-17 06:14:08] Simulação Executada
+[2025-06-17 06:14:08] Próxima Atividade: 06:15:44 (96.0s)
+[2025-06-17 06:15:45] Simulação Executada
+[2025-06-17 06:15:45] Próxima Atividade: 06:17:04 (79.2s)
+[2025-06-17 06:17:04] Simulação Executada
+[2025-06-17 06:17:04] Próxima Atividade: 06:18:06 (62.0s)
+[2025-06-17 06:18:07] Simulação Executada
+[2025-06-17 06:18:07] Próxima Atividade: 06:19:06 (58.4s)
+[2025-06-17 06:19:06] Simulação Executada
+[2025-06-17 06:19:06] Próxima Atividade: 06:20:10 (64.2s)
+[2025-06-17 06:20:11] Simulação Executada
+[2025-06-17 06:20:11] Próxima Atividade: 06:21:40 (89.3s)
+[2025-06-17 06:21:41] Simulação Executada
+[2025-06-17 06:21:41] Próxima Atividade: 06:23:09 (87.7s)
+[2025-06-17 06:23:10] Simulação Executada
+[2025-06-17 06:23:10] Próxima Atividade: 06:24:52 (101.9s)
+[2025-06-17 06:24:52] Simulação Executada
+[2025-06-17 06:24:52] Próxima Atividade: 06:26:26 (94.0s)
+[2025-06-17 06:26:27] Simulação Executada
+[2025-06-17 06:26:27] Próxima Atividade: 06:28:04 (96.8s)
+[2025-06-17 06:28:05] Simulação Executada
+[2025-06-17 06:28:05] Próxima Atividade: 06:29:12 (66.6s)
+[2025-06-17 06:29:13] Simulação Executada
+[2025-06-17 06:29:13] Próxima Atividade: 06:30:55 (102.0s)
+[2025-06-17 06:30:56] Simulação Executada
+[2025-06-17 06:30:56] Próxima Atividade: 06:32:28 (92.5s)
+[2025-06-17 06:32:29] Simulação Executada
+[2025-06-17 06:32:29] Próxima Atividade: 06:33:28 (59.5s)
+[2025-06-17 06:33:29] Simulação Executada
+[2025-06-17 06:33:29] Próxima Atividade: 06:34:50 (81.1s)
+[2025-06-17 06:34:51] Simulação Executada
+[2025-06-17 06:34:51] Próxima Atividade: 06:36:34 (103.0s)
+[2025-06-17 06:36:35] Simulação Executada
+[2025-06-17 06:36:35] Próxima Atividade: 06:37:59 (84.4s)
+[2025-06-17 06:38:00] Simulação Executada
+[2025-06-17 06:38:00] Próxima Atividade: 06:39:00 (60.2s)
+[2025-06-17 06:39:01] Simulação Executada
+[2025-06-17 06:39:01] Próxima Atividade: 06:40:23 (81.9s)
+[2025-06-17 06:40:23] Simulação Executada
+[2025-06-17 06:40:23] Próxima Atividade: 06:42:07 (103.8s)
+[2025-06-17 06:42:08] Simulação Executada
+[2025-06-17 06:42:08] Próxima Atividade: 06:43:08 (60.1s)
+[2025-06-17 06:43:09] Simulação Executada
+[2025-06-17 06:43:09] Próxima Atividade: 06:44:45 (95.5s)
+[2025-06-17 06:44:45] Simulação Executada
+[2025-06-17 06:44:45] Próxima Atividade: 06:45:59 (73.8s)
+[2025-06-17 06:46:00] Simulação Executada
+[2025-06-17 06:46:00] Próxima Atividade: 06:47:35 (94.9s)
+[2025-06-17 06:47:36] Simulação Executada
+[2025-06-17 06:47:36] Próxima Atividade: 06:48:57 (81.8s)
+[2025-06-17 06:48:58] Simulação Executada
+[2025-06-17 06:48:58] Próxima Atividade: 06:49:57 (58.1s)
+[2025-06-17 06:49:57] Simulação Executada
+[2025-06-17 06:49:57] Próxima Atividade: 06:51:12 (74.6s)
+[2025-06-17 06:51:13] Simulação Executada
+[2025-06-17 06:51:13] Próxima Atividade: 06:52:21 (68.0s)
+[2025-06-17 06:52:22] Simulação Executada
+[2025-06-17 06:52:22] Próxima Atividade: 06:53:19 (57.6s)
+[2025-06-17 06:53:21] Simulação Executada
+[2025-06-17 06:53:21] Próxima Atividade: 06:54:59 (98.3s)
+[2025-06-17 06:55:00] Simulação Executada
+[2025-06-17 06:55:00] Próxima Atividade: 06:56:27 (87.2s)
+[2025-06-17 06:56:27] Simulação Executada
+[2025-06-17 06:56:27] Próxima Atividade: 06:57:38 (71.0s)
+[2025-06-17 06:57:39] Simulação Executada
+[2025-06-17 06:57:39] Próxima Atividade: 06:59:06 (86.4s)
+[2025-06-17 06:59:06] Simulação Executada
+[2025-06-17 06:59:06] Próxima Atividade: 07:00:18 (72.2s)
+[2025-06-17 07:00:19] Simulação Executada
+[2025-06-17 07:00:19] Próxima Atividade: 07:01:30 (71.2s)
+[2025-06-17 07:01:31] Simulação Executada
+[2025-06-17 07:01:31] Próxima Atividade: 07:02:37 (66.6s)
+[2025-06-17 07:02:39] Simulação Executada
+[2025-06-17 07:02:39] Próxima Atividade: 07:04:00 (81.7s)
+[2025-06-17 07:04:01] Simulação Executada
+[2025-06-17 07:04:01] Próxima Atividade: 07:05:28 (86.4s)
+[2025-06-17 07:05:28] Simulação Executada
+[2025-06-17 07:05:28] Próxima Atividade: 07:06:59 (90.5s)
+[2025-06-17 07:07:00] Simulação Executada
+[2025-06-17 07:07:00] Próxima Atividade: 07:08:27 (86.8s)
+[2025-06-17 07:08:28] Simulação Executada
+[2025-06-17 07:08:28] Próxima Atividade: 07:10:10 (102.1s)
+[2025-06-17 07:10:11] Simulação Executada
+[2025-06-17 07:10:11] Próxima Atividade: 07:11:28 (77.3s)
+[2025-06-17 07:11:29] Simulação Executada
+[2025-06-17 07:11:29] Próxima Atividade: 07:12:33 (64.2s)
+[2025-06-17 07:12:33] Simulação Executada
+[2025-06-17 07:12:33] Próxima Atividade: 07:13:34 (61.1s)
+[2025-06-17 07:13:35] Simulação Executada
+[2025-06-17 07:13:35] Próxima Atividade: 07:15:14 (98.7s)
+[2025-06-17 07:15:15] Simulação Executada
+[2025-06-17 07:15:15] Próxima Atividade: 07:16:14 (58.6s)
+[2025-06-17 07:16:15] Simulação Executada
+[2025-06-17 07:16:15] Próxima Atividade: 07:17:34 (79.1s)
+[2025-06-17 07:17:35] Simulação Executada
+[2025-06-17 07:17:35] Próxima Atividade: 07:18:43 (68.6s)
+[2025-06-17 07:18:44] Simulação Executada
+[2025-06-17 07:18:44] Próxima Atividade: 07:20:12 (87.9s)
+[2025-06-17 07:20:13] Simulação Executada
+[2025-06-17 07:20:13] Próxima Atividade: 07:21:39 (85.5s)
+[2025-06-17 07:21:40] Simulação Executada
+[2025-06-17 07:21:40] Próxima Atividade: 07:23:17 (97.2s)
+[2025-06-17 07:23:18] Simulação Executada
+[2025-06-17 07:23:18] Próxima Atividade: 07:24:15 (56.8s)
+[2025-06-17 07:24:16] Simulação Executada
+[2025-06-17 07:24:16] Próxima Atividade: 07:25:42 (86.4s)
+[2025-06-17 07:25:43] Simulação Executada
+[2025-06-17 07:25:43] Próxima Atividade: 07:26:56 (73.5s)
+[2025-06-17 07:26:57] Simulação Executada
+[2025-06-17 07:26:57] Próxima Atividade: 07:28:12 (75.0s)
+[2025-06-17 07:28:13] Simulação Executada
+[2025-06-17 07:28:13] Próxima Atividade: 07:29:28 (74.4s)
+[2025-06-17 07:29:28] Simulação Executada
+[2025-06-17 07:29:28] Próxima Atividade: 07:30:47 (79.2s)
+[2025-06-17 07:30:48] Simulação Executada
+[2025-06-17 07:30:48] Próxima Atividade: 07:31:57 (68.8s)
+[2025-06-17 07:31:58] Simulação Executada
+[2025-06-17 07:31:58] Próxima Atividade: 07:32:55 (57.6s)
+[2025-06-17 07:32:57] Simulação Executada
+[2025-06-17 07:32:57] Próxima Atividade: 07:34:30 (93.8s)
+[2025-06-17 07:34:31] Simulação Executada
+[2025-06-17 07:34:31] Próxima Atividade: 07:35:31 (59.6s)
+[2025-06-17 07:35:31] Usuário Ativo (inatividade: 0.0s < 90s)
+[2025-06-17 07:35:31] Próxima Atividade: 07:36:55 (83.5s)
+[2025-06-17 07:36:54] Usuário Ativo (inatividade: 67.5s < 90s)
+[2025-06-17 07:36:54] Próxima Atividade: 07:38:35 (100.9s)
+[2025-06-17 07:38:36] Simulação Executada
+[2025-06-17 07:38:36] Próxima Atividade: 07:40:01 (84.4s)
+[2025-06-17 07:40:00] Usuário Ativo (inatividade: 84.1s < 90s)
+[2025-06-17 07:40:00] Próxima Atividade: 07:41:29 (89.0s)
+[2025-06-17 07:41:29] Usuário Ativo (inatividade: 32.3s < 90s)
+[2025-06-17 07:41:29] Próxima Atividade: 07:43:02 (93.2s)
+[2025-06-17 07:43:03] Simulação Executada
+[2025-06-17 07:43:03] Próxima Atividade: 07:44:08 (65.2s)
+[2025-06-17 07:44:08] Usuário Ativo (inatividade: 65.1s < 90s)
+[2025-06-17 07:44:08] Próxima Atividade: 07:45:42 (93.4s)
+[2025-06-17 07:45:41] Usuário Ativo (inatividade: 0.2s < 90s)
+[2025-06-17 07:45:41] Próxima Atividade: 07:46:41 (60.1s)
+[2025-06-17 07:46:41] Usuário Ativo (inatividade: 1.9s < 90s)
+[2025-06-17 07:46:41] Próxima Atividade: 07:47:45 (63.7s)
+[2025-06-17 07:47:45] Usuário Ativo (inatividade: 46.4s < 90s)
+[2025-06-17 07:47:45] Próxima Atividade: 07:49:00 (74.3s)
+[2025-06-17 07:48:59] Usuário Ativo (inatividade: 20.0s < 90s)
+[2025-06-17 07:48:59] Próxima Atividade: 07:50:26 (86.8s)
+[2025-06-17 07:50:26] Usuário Ativo (inatividade: 2.1s < 90s)
+[2025-06-17 07:50:26] Próxima Atividade: 07:51:58 (91.7s)
+[2025-06-17 07:51:58] Usuário Ativo (inatividade: 3.1s < 90s)
+[2025-06-17 07:51:58] Próxima Atividade: 07:53:20 (81.6s)
+[2025-06-17 07:53:20] Usuário Ativo (inatividade: 5.9s < 90s)
+[2025-06-17 07:53:20] Próxima Atividade: 07:54:26 (66.3s)
+[2025-06-17 07:54:26] Usuário Ativo (inatividade: 0.4s < 90s)
+[2025-06-17 07:54:26] Próxima Atividade: 07:55:51 (85.0s)
+[2025-06-17 07:55:51] Usuário Ativo (inatividade: 0.0s < 90s)
+[2025-06-17 07:55:51] Próxima Atividade: 07:57:16 (85.2s)
+[2025-06-17 07:57:16] Usuário Ativo (inatividade: 5.2s < 90s)
+[2025-06-17 07:57:16] Próxima Atividade: 07:58:26 (69.8s)
+[2025-06-17 07:58:26] Usuário Ativo (inatividade: 3.7s < 90s)
+[2025-06-17 07:58:26] Próxima Atividade: 08:00:08 (102.1s)
+[2025-06-17 08:00:08] Usuário Ativo (inatividade: 32.7s < 90s)
+[2025-06-17 08:00:08] Próxima Atividade: 08:01:42 (94.0s)
+[2025-06-17 08:01:42] Usuário Ativo (inatividade: 0.1s < 90s)
+[2025-06-17 08:01:42] Próxima Atividade: 08:02:50 (67.4s)
+[2025-06-17 08:02:49] Usuário Ativo (inatividade: 0.0s < 90s)
+[2025-06-17 08:02:49] Próxima Atividade: 08:03:50 (60.4s)
+[2025-06-17 08:03:49] Usuário Ativo (inatividade: 0.0s < 90s)
+[2025-06-17 08:03:49] Próxima Atividade: 08:05:18 (88.9s)
+[2025-06-17 08:05:18] Usuário Ativo (inatividade: 0.0s < 90s)
+[2025-06-17 08:05:18] Próxima Atividade: 08:06:29 (70.8s)
+[2025-06-17 08:06:29] Usuário Ativo (inatividade: 0.1s < 90s)
+[2025-06-17 08:06:29] Próxima Atividade: 08:07:32 (63.1s)
+[2025-06-17 08:06:53] Serviço Parado
+[2025-06-17 08:06:53] Serviço Iniciado. Simulação: 80s ±δ → 69.6s → 08:08:03
+[2025-06-17 08:06:54] Serviço Parado
+[2025-06-17 08:06:54] Serviço Iniciado. Simulação: 80s ±δ → 99.3s → 08:08:33
+[2025-06-17 08:06:55] Serviço Parado
+[2025-06-17 08:06:55] Serviço Iniciado. Simulação: 80s ±δ → 94.3s → 08:08:29
+[2025-06-17 08:06:56] Serviço Parado
+[2025-06-17 08:06:56] Serviço Iniciado. Simulação: 80s ±δ → 77.2s → 08:08:13
+[2025-06-17 08:06:57] Serviço Parado
+[2025-06-17 08:06:57] Serviço Iniciado. Simulação: 80s ±δ → 76.3s → 08:08:13
+[2025-06-17 08:08:13] Usuário Ativo (inatividade: 0.0s < 90s)
+[2025-06-17 08:08:13] Próxima Atividade: 08:09:30 (77.8s)
+[2025-06-17 08:09:31] Usuário Ativo (inatividade: 35.5s < 90s)
+[2025-06-17 08:09:31] Próxima Atividade: 08:10:45 (74.2s)
+[2025-06-17 08:10:46] Simulação Executada
+[2025-06-17 08:10:46] Próxima Atividade: 08:12:09 (83.6s)
+[2025-06-17 08:12:10] Usuário Ativo (inatividade: 84.1s < 90s)
+[2025-06-17 08:12:10] Próxima Atividade: 08:13:42 (92.1s)
+[2025-06-17 08:13:42] Usuário Ativo (inatividade: 0.0s < 90s)
+[2025-06-17 08:13:42] Próxima Atividade: 08:15:22 (100.9s)
