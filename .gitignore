@@ -21,3 +21,15 @@ build/KeepAliveManager/localpycs/pyimod02_importers.pyc
 build/KeepAliveManager/localpycs/pyimod03_ctypes.pyc
 build/KeepAliveManager/localpycs/pyimod04_pywin32.pyc
 build/KeepAliveManager/localpycs/struct.pyc
+build_temp/KeepAliveRDP/Analysis-00.toc
+build_temp/KeepAliveRDP/base_library.zip
+build_temp/KeepAliveRDP/PYZ-00.pyz
+build_temp/KeepAliveRDP/PYZ-00.toc
+build_temp/KeepAliveRDP/warn-KeepAliveRDP.txt
+build_temp/KeepAliveRDP/xref-KeepAliveRDP.html
+build_temp/KeepAliveRDP/localpycs/pyimod01_archive.pyc
+build_temp/KeepAliveRDP/localpycs/pyimod02_importers.pyc
+build_temp/KeepAliveRDP/localpycs/pyimod03_ctypes.pyc
+build_temp/KeepAliveRDP/localpycs/pyimod04_pywin32.pyc
+build_temp/KeepAliveRDP/localpycs/struct.pyc
+build_temp/KeepAliveRDP/KeepAliveRDP.pkg
