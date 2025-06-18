@@ -480,7 +480,7 @@ def build_optimized_exe(python_exe=None):
         "--exclude-module=PyQt5",  # Força exclusão PyQt5
         "--exclude-module=PySide6",  # Força exclusão PySide6
         "--exclude-module=qtpy",  # Exclui qtpy que causa detecção múltipla
-        # 🎯 EXCLUSÕES AGRESSIVAS - Módulos desnecessários
+        # 🎯 EXCLUSÕES AGRESSIVAS - Módulos desnecessários (CORRIGIDO)
         "--exclude-module=tkinter",
         "--exclude-module=matplotlib",
         "--exclude-module=numpy",
@@ -496,17 +496,8 @@ def build_optimized_exe(python_exe=None):
         "--exclude-module=urllib3",
         "--exclude-module=cryptography",
         "--exclude-module=sqlite3",
-        "--exclude-module=xml",
-        "--exclude-module=html",
-        "--exclude-module=email",
-        "--exclude-module=http",
-        "--exclude-module=json",
-        "--exclude-module=pickle",
-        "--exclude-module=zipfile",
-        "--exclude-module=tarfile",
-        "--exclude-module=gzip",
-        "--exclude-module=bz2",
-        "--exclude-module=lzma",
+        # REMOVIDO: zipfile, json, xml, html, email, http - PyInstaller precisa desses
+        # REMOVIDO: pickle, gzip, bz2, lzma - podem ser necessários
         "--exclude-module=unittest",
         "--exclude-module=doctest",
         "--exclude-module=pdb",
@@ -715,7 +706,7 @@ def build_with_icon(python_exe):
             except:
                 pass
 
-    # Comando básico com ícone
+    # Comando otimizado MAS com menos exclusões para evitar problemas
     cmd = [
         python_exe,
         "-m",
@@ -726,6 +717,42 @@ def build_with_icon(python_exe):
         "--strip",
         "--clean",
         f"--icon={icon_file}",
+        # 🚫 EXCLUSÕES ESPECÍFICAS PARA CONFLITO Qt
+        "--exclude-module=PyQt5",
+        "--exclude-module=PySide6",
+        "--exclude-module=qtpy",
+        # 🎯 EXCLUSÕES BÁSICAS (removemos zipfile da lista!)
+        "--exclude-module=tkinter",
+        "--exclude-module=matplotlib",
+        "--exclude-module=numpy",
+        "--exclude-module=pandas",
+        "--exclude-module=scipy",
+        "--exclude-module=PIL",
+        "--exclude-module=cv2",
+        "--exclude-module=tensorflow",
+        "--exclude-module=torch",
+        "--exclude-module=django",
+        "--exclude-module=flask",
+        "--exclude-module=requests",
+        "--exclude-module=urllib3",
+        "--exclude-module=cryptography",
+        "--exclude-module=sqlite3",
+        # NÃO excluir: zipfile, json, xml, html - PyInstaller precisa deles
+        "--exclude-module=unittest",
+        "--exclude-module=doctest",
+        "--exclude-module=pdb",
+        "--exclude-module=turtle",
+        # 🚫 PyQt6 - Módulos pesados desnecessários
+        "--exclude-module=PyQt6.QtWebEngine",
+        "--exclude-module=PyQt6.QtWebEngineWidgets",
+        "--exclude-module=PyQt6.QtWebEngineCore",
+        "--exclude-module=PyQt6.QtMultimedia",
+        "--exclude-module=PyQt6.QtMultimediaWidgets",
+        "--exclude-module=PyQt6.QtOpenGL",
+        "--exclude-module=PyQt6.QtOpenGLWidgets",
+        "--exclude-module=PyQt6.QtSql",
+        "--exclude-module=PyQt6.QtTest",
+        "--exclude-module=PyQt6.QtDesigner",
         f"--name=KeepAliveRDP_Icon",
         f"--distpath={output_dir}",
         f"--workpath={build_dir}",
@@ -733,8 +760,15 @@ def build_with_icon(python_exe):
         main_file,
     ]
 
+    # Variável de ambiente para forçar PyQt6
+    env = os.environ.copy()
+    env["QT_API"] = "pyqt6"
+
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+        print("⚡ Executando build com ícone...")
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=300, env=env
+        )
 
         if result.returncode == 0:
             exe_path = output_dir / "KeepAliveRDP_Icon.exe"
@@ -749,10 +783,86 @@ def build_with_icon(python_exe):
 
         print("❌ Build com ícone falhou")
         if result.stderr:
-            print(f"Erro: {result.stderr[:200]}...")
+            error_msg = result.stderr[:300]
+            print(f"Erro: {error_msg}...")
+
+            # Se é erro de módulo faltando, tentar build simplificado
+            if "ModuleNotFoundError" in result.stderr or "zipfile" in result.stderr:
+                print("🔧 Erro de módulo detectado. Tentando build simplificado...")
+                return build_simple_with_icon(python_exe, icon_file)
 
     except Exception as e:
         print(f"❌ Erro no build com ícone: {e}")
+
+    return False
+
+
+def build_simple_with_icon(python_exe, icon_file):
+    """Build simplificado com ícone (menos exclusões)"""
+    print("\n🔧 Tentando build simplificado com ícone...")
+
+    main_file = find_main_file()
+    if not main_file:
+        return False
+
+    # Preparar diretórios
+    output_dir = Path("dist_simple_icon")
+    build_dir = Path("build_simple")
+    spec_dir = Path("specs_simple")
+
+    # Limpar diretórios antigos
+    for dir_path in [output_dir, build_dir, spec_dir]:
+        if dir_path.exists():
+            try:
+                shutil.rmtree(dir_path)
+            except:
+                pass
+
+    # Comando MÍNIMO com ícone
+    cmd = [
+        python_exe,
+        "-m",
+        "PyInstaller",
+        "--onefile",
+        "--windowed",
+        "--clean",
+        f"--icon={icon_file}",
+        # Apenas exclusões essenciais Qt
+        "--exclude-module=PyQt5",
+        "--exclude-module=PySide6",
+        f"--name=KeepAliveRDP_SimpleIcon",
+        f"--distpath={output_dir}",
+        f"--workpath={build_dir}",
+        f"--specpath={spec_dir}",
+        main_file,
+    ]
+
+    # Variável de ambiente
+    env = os.environ.copy()
+    env["QT_API"] = "pyqt6"
+
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=300, env=env
+        )
+
+        if result.returncode == 0:
+            exe_path = output_dir / "KeepAliveRDP_SimpleIcon.exe"
+            if exe_path.exists():
+                size_mb = exe_path.stat().st_size / (1024 * 1024)
+                print(f"✅ Build simplificado com ícone concluído!")
+                print(f"📁 Local: {exe_path.absolute()}")
+                print(f"📏 Tamanho: {size_mb:.1f} MB")
+
+                cleanup_build_files(build_dir, spec_dir)
+                return True
+
+        print("❌ Build simplificado também falhou")
+        if result.stderr:
+            print(f"Erro: {result.stderr[:200]}...")
+
+    except Exception as e:
+        print(f"❌ Erro no build simplificado: {e}")
 
     return False
 
