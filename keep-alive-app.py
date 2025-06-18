@@ -12,6 +12,9 @@ import ctypes
 import logging
 import os
 import random
+import re
+import socket
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta
@@ -26,6 +29,7 @@ from PyQt6.QtGui import QAction, QFont
 from PyQt6.QtWidgets import (
     QApplication,
     QCheckBox,
+    QComboBox,
     QFileDialog,
     QFrame,
     QGroupBox,
@@ -389,6 +393,247 @@ def adjust_user_timeout():
         return DEFAULT_USER_TIMEOUT
 
 
+def format_time_intelligent(seconds):
+    """Formata tempo: < 60s: "45s" | >= 60s: "10 min 15s" """
+    if seconds < 60:
+        return f"{seconds}s"
+    minutes = seconds // 60
+    remaining_seconds = seconds % 60
+    if remaining_seconds == 0:
+        return f"{minutes} min"
+    else:
+        return f"{minutes} min {remaining_seconds}s"
+
+
+def get_network_info():
+    """Obtém gateway, IP e nome REAL da interface principal"""
+    try:
+        gateway_ip = "192.168.1.1"
+        my_ip = "127.0.0.1"
+        interface_name = "Local"
+
+        if sys.platform == "win32":
+            # Detecta gateway principal
+            result = subprocess.run(
+                ["route", "print", "0.0.0.0"], capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                lines = result.stdout.split("\n")
+                for line in lines:
+                    if "0.0.0.0" in line and "On-link" not in line:
+                        parts = line.split()
+                        if len(parts) >= 4:
+                            potential_gateway = parts[2]
+                            potential_interface_ip = parts[3]
+                            if re.match(
+                                r"^(\d{1,3}\.){3}\d{1,3}$", potential_gateway
+                            ) and re.match(
+                                r"^(\d{1,3}\.){3}\d{1,3}$", potential_interface_ip
+                            ):
+                                gateway_ip = potential_gateway
+                                my_ip = potential_interface_ip
+                                break
+
+            # NOVA LÓGICA: Captura nome REAL da interface do ipconfig
+            try:
+                result = subprocess.run(
+                    ["ipconfig"], capture_output=True, text=True, timeout=3
+                )
+                if result.returncode == 0:
+                    lines = result.stdout.split("\n")
+                    current_adapter = ""
+
+                    for line in lines:
+                        # Detecta linha de adaptador
+                        if "Adaptador" in line and ":" in line:
+                            # Extrai nome real do adaptador
+                            adapter_match = re.search(r"Adaptador\s+\w+\s+(.+?):", line)
+                            if adapter_match:
+                                current_adapter = adapter_match.group(1).strip()
+
+                        # Verifica se é o IP atual
+                        elif my_ip in line and current_adapter:
+                            # Processa nome da interface para ficar compacto
+                            interface_name = current_adapter
+
+                            # Crop de interfaces longas (baseado nos seus exemplos)
+                            if len(interface_name) > 12:
+                                if "VirtualBox" in interface_name:
+                                    interface_name = "VirtualBox"
+                                elif "VMware Network Adapter VMnet" in interface_name:
+                                    vmnet_match = re.search(
+                                        r"VMnet(\d+)", interface_name
+                                    )
+                                    if vmnet_match:
+                                        interface_name = f"VMnet{vmnet_match.group(1)}"
+                                    else:
+                                        interface_name = "VMware"
+                                elif "vEthernet" in interface_name:
+                                    # vEthernet (WSL) -> vEth(WSL)
+                                    veth_match = re.search(
+                                        r"vEthernet\s*\((.+?)\)", interface_name
+                                    )
+                                    if veth_match:
+                                        inner = veth_match.group(1)
+                                        if len(inner) > 8:
+                                            inner = inner[:6] + ".."
+                                        interface_name = f"vEth({inner})"
+                                    else:
+                                        interface_name = "vEthernet"
+                                elif "Conexão de Rede Bluetooth" in interface_name:
+                                    interface_name = "Bluetooth"
+                                else:
+                                    # Crop genérico para outros casos
+                                    interface_name = interface_name[:10] + ".."
+                            break
+            except Exception:
+                # Fallback para lógica anterior simplificada
+                if "Ethernet" in current_adapter:
+                    interface_name = "Ethernet"
+                elif "Wi-Fi" in current_adapter or "Wireless" in current_adapter:
+                    interface_name = "Wi-Fi"
+                elif "VPN" in current_adapter:
+                    interface_name = "VPN"
+                else:
+                    interface_name = "Rede"
+
+        return gateway_ip, my_ip, interface_name
+    except Exception:
+        return "192.168.1.1", "127.0.0.1", "Local"
+
+
+def get_rdp_interface_ip():
+    """Detecta IP da interface usada para RDP"""
+    try:
+        result = subprocess.run(
+            ["netstat", "-an"], capture_output=True, text=True, timeout=5
+        )
+        if result.returncode == 0:
+            lines = result.stdout.split("\n")
+            for line in lines:
+                if ":3389" in line and "ESTABLISHED" in line:
+                    match = re.search(
+                        r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):3389", line
+                    )
+                    if match:
+                        local_ip = match.group(1)
+                        if local_ip not in ["127.0.0.1", "0.0.0.0"]:
+                            return local_ip
+        _, my_ip, _ = get_network_info()
+        return my_ip
+    except Exception:
+        _, my_ip, _ = get_network_info()
+        return my_ip
+
+
+def ping_host(host, timeout=3):
+    """Ping host e retorna tempo em ms (-1 se falhou)"""
+    try:
+        if sys.platform == "win32":
+            cmd = ["ping", "-n", "1", "-w", str(timeout * 1000), host]
+        else:
+            cmd = ["ping", "-c", "1", "-W", str(timeout), host]
+
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout + 1
+        )
+
+        if result.returncode == 0:
+            if sys.platform == "win32":
+                match = re.search(r"tempo[<=](\d+)ms|time[<=](\d+)ms", result.stdout)
+                if match:
+                    return int(match.group(1) or match.group(2))
+            else:
+                match = re.search(r"time=(\d+\.?\d*).*ms", result.stdout)
+                if match:
+                    return int(float(match.group(1)))
+        return -1
+    except Exception:
+        return -1
+
+
+def detectar_conexoes_rdp():
+    """Detecta conexões RDP ativas"""
+    try:
+        conexoes_ativas = []
+
+        if sys.platform == "win32":
+            try:
+                result = subprocess.run(
+                    ["qwinsta"], capture_output=True, text=True, timeout=5
+                )
+                if result.returncode == 0:
+                    lines = result.stdout.split("\n")
+                    for line in lines:
+                        if "rdp" in line.lower() and "ativo" in line.lower():
+                            conexoes_ativas.append("Local-RDP")
+            except Exception:
+                pass
+
+        try:
+            result = subprocess.run(
+                ["netstat", "-an"], capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                lines = result.stdout.split("\n")
+                for line in lines:
+                    if ":3389" in line and "ESTABLISHED" in line:
+                        parts = line.split()
+                        if len(parts) >= 2:
+                            foreign_addr = parts[1]
+                            match = re.search(
+                                r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):", foreign_addr
+                            )
+                            if match:
+                                remote_ip = match.group(1)
+                                if remote_ip not in ["127.0.0.1", "0.0.0.0"]:
+                                    last_octet = remote_ip.split(".")[-1]
+                                    conexoes_ativas.append(f"RDP-{last_octet}")
+        except Exception:
+            pass
+
+        conexoes_ativas = list(dict.fromkeys(conexoes_ativas))
+        tem_conexao = len(conexoes_ativas) > 0
+        conexao_principal = conexoes_ativas[0] if conexoes_ativas else "Nenhuma"
+
+        return tem_conexao, conexoes_ativas, conexao_principal
+    except Exception:
+        return False, [], "Erro"
+
+
+def ping_site_brasileiro():
+    """Ping para site brasileiro confiável"""
+    sites_brasileiros = [
+        ("itaipu.gov.br", "Itaipu"),
+        ("uol.com.br", "UOL"),
+    ]
+
+    for site_url, site_name in sites_brasileiros:
+        tempo = ping_host(site_url, timeout=2)
+        if tempo > 0:
+            return tempo, site_name
+
+    return -1, "Brasil"
+
+
+def get_computer_info():
+    """Obtém informações do computador (nome e usuário)"""
+    try:
+        import getpass
+        import socket
+
+        computer_name = socket.gethostname()
+
+        # Limita o nome se muito longo
+        if len(computer_name) > 12:
+            computer_name = computer_name[:9] + "..."
+
+        return computer_name
+
+    except Exception:
+        return "Local"
+
+
 def simulate_safe_activity():
     """Simula atividade segura com verificação"""
     try:
@@ -739,7 +984,9 @@ class KeepAliveApp(QMainWindow):
         # Configura interface
         self.setup_ui()
         self.setup_tray()
-        self.load_settings()
+
+        # Configurar conectividade
+        self.setup_connectivity_timer()
 
     def setup_ui(self):
         central_widget = QWidget()
@@ -769,72 +1016,228 @@ class KeepAliveApp(QMainWindow):
         main_tab = QWidget()
         main_layout = QVBoxLayout(main_tab)
 
-        # Horários
+        # Agendamento (com horário atual)
+        schedule_frame = QFrame()
+        schedule_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        schedule_layout = QVBoxLayout(schedule_frame)
+
+        schedule_title = QLabel("Agendamento de Execução")
+        schedule_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        schedule_title.setStyleSheet("font-weight: bold; padding: 2px;")
+        schedule_layout.addWidget(schedule_title)
+
+        # Layout do agendamento - VERSÃO LIMPA SEM SOLAPAMENTO
         time_layout = QHBoxLayout()
-        start_label = QLabel("Início:")
+        time_layout.addStretch()
+
+        # Início
+        time_layout.addWidget(QLabel("Início:"))
         self.start_time_edit = QTimeEdit()
         self.start_time_edit.setTime(self.default_start_time)
-        self.start_time_edit.setFixedWidth(80)
-        tab_label = QLabel("\t\t")
-        end_label = QLabel("Término:")
+        self.start_time_edit.setFixedWidth(70)
+        time_layout.addWidget(self.start_time_edit)
+
+        time_layout.addSpacing(15)
+
+        # Até
+        spacer_label = QLabel("até")
+        spacer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        time_layout.addWidget(spacer_label)
+
+        time_layout.addSpacing(15)
+
+        # Término
+        time_layout.addWidget(QLabel("Término:"))
         self.end_time_edit = QTimeEdit()
         self.end_time_edit.setTime(self.default_end_time)
-        self.end_time_edit.setFixedWidth(80)
-        time_layout.addWidget(start_label)
-        time_layout.addWidget(self.start_time_edit)
-        time_layout.addWidget(tab_label)
-        time_layout.addWidget(end_label)
+        self.end_time_edit.setFixedWidth(70)
         time_layout.addWidget(self.end_time_edit)
-        main_layout.addLayout(time_layout)
 
-        main_layout.addSpacing(20)  # Espaço dobrado
+        time_layout.addSpacing(40)
 
-        # ── Informações de tempo (layout horizontal) ─────────────────────────────
-        system_times_frame = QFrame()
-        system_times_layout = QVBoxLayout(system_times_frame)
+        # Horário Atual - FONTE BRANCA
+        time_layout.addWidget(QLabel("Atual:"))
+        self.current_time_label = QLabel("<b>--:--:--</b>")
+        self.current_time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.current_time_label.setStyleSheet(
+            "font-size: 110%; color: white; font-weight: bold;"
+        )
+        time_layout.addWidget(self.current_time_label)
 
-        minutos_ss = self.screen_saver_time // 60
-        minutos_rdp = self.rdp_time // 60 if self.rdp_time > 0 else None
+        time_layout.addStretch()
 
-        # Linha Screen-Saver
-        row_ss = QHBoxLayout()
-        row_ss.addWidget(QLabel("Tempo de Proteção de Tela:"))
-        row_ss.addStretch(1)
-        if self.screen_saver_time == 0:
-            row_ss.addWidget(QLabel("<b>Desativado</b>"))
-        else:
-            row_ss.addWidget(QLabel(f"<b>{self.screen_saver_time} s</b>"))
-            row_ss.addSpacing(12)
-            row_ss.addWidget(QLabel(f"<b>{minutos_ss} min</b>"))
-        system_times_layout.addLayout(row_ss)
+        schedule_layout.addLayout(time_layout)
+        main_layout.addWidget(schedule_frame)
+        main_layout.addSpacing(8)
 
-        # Linha RDP
-        row_rdp = QHBoxLayout()
-        row_rdp.addWidget(QLabel("Tempo de Desconexão do RDP:"))
-        row_rdp.addStretch(1)
-        if self.rdp_time > 0:
-            row_rdp.addWidget(QLabel(f"<b>{self.rdp_time} s</b>"))
-            row_rdp.addSpacing(12)
-            row_rdp.addWidget(QLabel(f"<b>{minutos_rdp} min</b>"))
-        else:
-            row_rdp.addWidget(QLabel("<b>Não definido</b>"))
-        system_times_layout.addLayout(row_rdp)
+        # Configuração do Sistema (4 colunas alinhadas)
+        system_frame = QFrame()
+        system_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        system_layout = QVBoxLayout(system_frame)
 
-        main_layout.addWidget(system_times_frame)
-        main_layout.addSpacing(20)
+        system_title = QLabel("Configuração do Sistema")
+        system_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        system_title.setStyleSheet("font-weight: bold; padding: 2px;")
+        system_layout.addWidget(system_title)
 
-        # ── Verificação de atividade do usuário ──────────────────────────────────
+        # Layout das 4 colunas - PERFEITAMENTE ALINHADO E CENTRALIZADO
+        timeouts_layout = QHBoxLayout()
+        timeouts_layout.addStretch()  # Espaço antes
+
+        # Screen Saver - COLUNA 1
+        ss_layout = QVBoxLayout()
+        ss_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        ss_label = QLabel("Proteção de Tela:")
+        ss_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        ss_time_formatted = (
+            format_time_intelligent(self.screen_saver_time)
+            if self.screen_saver_time > 0
+            else "Desativado"
+        )
+        self.ss_value_label = QLabel(f"<b>{ss_time_formatted}</b>")
+        self.ss_value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        ss_layout.addWidget(ss_label)
+        ss_layout.addWidget(self.ss_value_label)
+        timeouts_layout.addLayout(ss_layout)
+
+        timeouts_layout.addSpacing(30)  # Espaço uniforme
+
+        # RDP Timeout - COLUNA 2
+        rdp_layout = QVBoxLayout()
+        rdp_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        rdp_label = QLabel("RDP Timeout:")
+        rdp_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        rdp_time_formatted = (
+            format_time_intelligent(self.rdp_time) if self.rdp_time > 0 else "N/D"
+        )
+        self.rdp_value_label = QLabel(f"<b>{rdp_time_formatted}</b>")
+        self.rdp_value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        rdp_layout.addWidget(rdp_label)
+        rdp_layout.addWidget(self.rdp_value_label)
+        timeouts_layout.addLayout(rdp_layout)
+
+        timeouts_layout.addSpacing(30)  # Espaço uniforme
+
+        # Meu IP - COLUNA 3
+        ip_layout = QVBoxLayout()
+        ip_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.ip_label = QLabel("IP:")  # ← SELF adicionado
+        self.ip_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # ← SELF adicionado
+        self.my_ip_label = QLabel("<b>Detectando...</b>")
+        self.my_ip_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        ip_layout.addWidget(self.ip_label)  # ← SELF adicionado
+        ip_layout.addWidget(self.my_ip_label)
+        timeouts_layout.addLayout(ip_layout)
+
+        timeouts_layout.addSpacing(30)  # Espaço uniforme
+
+        # Computador - COLUNA 4 (CENTRALIZADA)
+        computer_layout = QVBoxLayout()
+        computer_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        computer_label = QLabel("Computador:")
+        computer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.computer_name_label = QLabel("<b>Detectando...</b>")
+        self.computer_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        computer_layout.addWidget(computer_label)
+        computer_layout.addWidget(self.computer_name_label)
+        timeouts_layout.addLayout(computer_layout)
+
+        timeouts_layout.addStretch()  # Espaço depois
+
+        system_layout.addLayout(timeouts_layout)
+        main_layout.addWidget(system_frame)
+
+        # Conectividade (layout otimizado)
+        connectivity_frame = QFrame()
+        connectivity_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        connectivity_layout = QVBoxLayout(connectivity_frame)
+
+        connectivity_title = QLabel("Conectividade de Rede")
+        connectivity_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        connectivity_title.setStyleSheet("font-weight: bold; padding: 2px;")
+        connectivity_layout.addWidget(connectivity_title)
+
+        # Layout principal da conectividade (2 linhas organizadas)
+        connectivity_main_layout = QVBoxLayout()
+
+        # Linha 1: Status RDP (centralizado)
+        rdp_row = QHBoxLayout()
+        rdp_row.addStretch()
+
+        rdp_status_label_title = QLabel("Status RDP:")
+        self.rdp_status_label = QLabel("<b>Verificando...</b>")
+        self.rdp_combo = QComboBox()
+        self.rdp_combo.setMaximumWidth(150)
+        self.rdp_combo.setVisible(False)
+
+        rdp_row.addWidget(rdp_status_label_title)
+        rdp_row.addSpacing(8)
+        rdp_row.addWidget(self.rdp_status_label)
+        rdp_row.addSpacing(15)
+        rdp_row.addWidget(self.rdp_combo)
+        rdp_row.addStretch()
+
+        # Linha 2: Latências (distribuídas uniformemente)
+        ping_row = QHBoxLayout()
+        ping_row.addStretch()
+
+        # Gateway
+        gateway_container = QHBoxLayout()
+        gateway_container.addWidget(QLabel("Gateway:"))
+        self.gateway_ping_label = QLabel("<b>...</b>")
+        gateway_container.addWidget(self.gateway_ping_label)
+
+        # Brasil
+        brasil_container = QHBoxLayout()
+        brasil_container.addWidget(QLabel("Itaipu:"))
+        self.brasil_ping_label = QLabel("<b>...</b>")
+        brasil_container.addWidget(self.brasil_ping_label)
+
+        # Sistema (dinâmico)
+        sistema_container = QHBoxLayout()
+        sistema_label = QLabel("Sistema:")
+        self.sistema_ping_label = QLabel("<b>...</b>")
+        sistema_container.addWidget(sistema_label)
+        sistema_container.addWidget(self.sistema_ping_label)
+
+        # Widget container para sistema (para controlar visibilidade)
+        self.sistema_widget = QWidget()
+        sistema_widget_layout = QHBoxLayout(self.sistema_widget)
+        sistema_widget_layout.setContentsMargins(0, 0, 0, 0)
+        sistema_widget_layout.addLayout(sistema_container)
+        self.sistema_widget.setVisible(False)
+
+        # Adiciona pings à linha
+        ping_row.addLayout(gateway_container)
+        ping_row.addSpacing(25)
+        ping_row.addLayout(brasil_container)
+        ping_row.addSpacing(25)
+        ping_row.addWidget(self.sistema_widget)
+        ping_row.addStretch()
+
+        # Montagem das linhas
+        connectivity_main_layout.addLayout(rdp_row)
+        connectivity_main_layout.addSpacing(5)
+        connectivity_main_layout.addLayout(ping_row)
+
+        connectivity_layout.addLayout(connectivity_main_layout)
+        main_layout.addWidget(connectivity_frame)
+        main_layout.addSpacing(8)
+
+        # Log de Atividade (altura reduzida)
         user_group = QGroupBox("Verificação de Atividade do Usuário")
         user_group_layout = QVBoxLayout(user_group)
         self.main_log_text = QTextEdit()
         self.main_log_text.setReadOnly(True)
+        self.main_log_text.setMaximumHeight(110)
         self.main_log_text.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
         user_group_layout.addWidget(self.main_log_text)
         main_layout.addWidget(user_group)
+        main_layout.addSpacing(12)
 
-        # ── Botões Reiniciar / Encerrar ───────────────────────────────────────
+        # Botões Reiniciar/Fechar (PRESERVADOS)
         restart_quit_layout = QHBoxLayout()
         restart_quit_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -855,6 +1258,7 @@ class KeepAliveApp(QMainWindow):
         main_layout.addLayout(restart_quit_layout)
 
         self.tab_widget.addTab(main_tab, "Principal")
+        # Final Aba Principal
         # ─────────────────────────────────────────────────────────────────────────
 
         # Abas restantes
@@ -896,7 +1300,8 @@ class KeepAliveApp(QMainWindow):
 
     def add_main_log(self, message, is_orientation=False):
         """Adiciona mensagem ao log principal (15 linhas)"""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now().strftime("%H:%M:%S")  # Só hora:min:seg
         log_message = f"[{timestamp}] {message}"
 
         if is_orientation:
@@ -1003,8 +1408,9 @@ class KeepAliveApp(QMainWindow):
             "random_intervals", self.advanced_tab.random_intervals.isChecked()
         )
 
-        self.log_tab.add_log(STR_SETTINGS_SAVED)
-        self.add_main_log(STR_SETTINGS_SAVED)
+        self.add_filtered_log(STR_SETTINGS_SAVED)
+        # self.log_tab.add_log(STR_SETTINGS_SAVED)
+        # self.add_main_log(STR_SETTINGS_SAVED)
 
     def check_schedule(self):
         """Verifica horário de funcionamento"""
@@ -1025,28 +1431,242 @@ class KeepAliveApp(QMainWindow):
         if not self.is_running:
             status_msg = STR_SERVICE_STOPPED
             help_msg = "<b>Inicie o programa clicando na opção desejada</b>"
+            self.log_tab.log_text.append(help_msg)
+            self.main_log_text.append(help_msg)
 
-            self.log_tab.add_log(status_msg)
-            self.add_main_log(status_msg)
+            # self.add_filtered_log(status_msg)
+            # self.log_tab.add_log(status_msg)
+            # self.add_main_log(status_msg)
 
             # Adiciona mensagem de ajuda
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            formatted_help = f"[{timestamp}] {help_msg}"
-            self.log_tab.log_text.append(formatted_help)
-            self.main_log_text.append(formatted_help)
+            # timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # formatted_help = f"[{timestamp}] {help_msg}"
+            # self.log_tab.log_text.append(formatted_help)
+            # self.main_log_text.append(formatted_help)
 
     def log_help_message(self):
         """Loga mensagem de orientação"""
-        help_msg = "Utilize 'Iniciar Contínuo' para execução imediata contínua ou 'Iniciar Agendado' para execução no horário selecionado."
-        self.log_tab.add_log(
-            help_msg
-        )  # self.log_tab.add_log(help_msg, is_orientation=True)  para negrito
-        self.add_main_log(help_msg)
+        # help_msg = "Utilize 'Iniciar Contínuo' para execução imediata contínua ou 'Iniciar Agendado' para execução no horário selecionado."
+        # self.log_tab.add_log(help_msg)
+        # self.log_tab.add_log(help_msg, is_orientation=True)  para negrito
+        # self.add_main_log(help_msg)
+        # self.add_filtered_log(help_msg)
+        help_msg_full = "Utilize 'Iniciar Contínuo' para execução imediata contínua ou 'Iniciar Agendado' para execução exclusivamente no horário selecionado."
+        help_msg_short = "Utilize 'Iniciar Contínuo' para execução imediata ou 'Iniciar Agendado' para execução exclusivamente no horário selecionado."
+
+        # Log completo (com timestamp)
+        self.log_tab.add_log(help_msg_full)
+
+        # Log principal (SEM timestamp)
+        self.main_log_text.append(help_msg_short)
 
     def log_help_message_if_inactive(self):
         """Loga orientação quando inativo"""
         if not self.is_running:
             self.log_help_message()
+
+    def setup_connectivity_timer(self):
+        """Configura timer para conectividade"""
+        self.connectivity_timer = QTimer()
+        self.connectivity_timer.timeout.connect(self.update_connectivity_info)
+        self.connectivity_timer.start(15000)  # 15 segundos
+        self.connectivity_log_counter = 0
+        self.last_gateway = ""
+        self.last_my_ip = ""
+        self.last_interface = ""
+
+        # Timer para horário atual (atualiza a cada segundo)
+        self.current_time_timer = QTimer()
+        self.current_time_timer.timeout.connect(self.update_current_time)
+        self.current_time_timer.start(1000)
+        self.update_current_time()  # Atualização inicial
+
+        QTimer.singleShot(2000, self.update_connectivity_info)
+
+    def update_connectivity_info(self):
+        """Atualiza informações de conectividade"""
+        try:
+            gateway, my_ip, interface = get_network_info()
+            tem_rdp, lista_rdp, conexao_principal = detectar_conexoes_rdp()
+
+            ip_usado = get_rdp_interface_ip() if tem_rdp else my_ip
+            ping_gw = ping_host(gateway, timeout=2)
+            ping_brasil, site_brasil = ping_site_brasileiro()
+
+            ping_sistema = -1
+            sistema_nome = ""
+            if tem_rdp and conexao_principal not in ["Local-RDP", "Nenhuma", "Erro"]:
+                if conexao_principal.startswith("RDP-"):
+                    last_octet = conexao_principal.replace("RDP-", "")
+                    gateway_base = ".".join(gateway.split(".")[:-1])
+                    sistema_ip = f"{gateway_base}.{last_octet}"
+                    ping_sistema = ping_host(sistema_ip, timeout=2)
+                    sistema_nome = conexao_principal
+
+            self.update_connectivity_display(
+                gateway,
+                my_ip,
+                ip_usado,
+                interface,
+                tem_rdp,
+                lista_rdp,
+                conexao_principal,
+                ping_gw,
+                ping_brasil,
+                ping_sistema,
+                site_brasil,
+                sistema_nome,
+            )
+
+            self.connectivity_log_counter += 1
+            if self.connectivity_log_counter >= 4:  # Log a cada 1 minuto
+                self.connectivity_log_counter = 0
+                self.log_connectivity_info(
+                    tem_rdp,
+                    conexao_principal,
+                    ping_gw,
+                    ping_brasil,
+                    site_brasil,
+                    ping_sistema,
+                    sistema_nome,
+                )
+
+            self.last_gateway = gateway
+            self.last_my_ip = ip_usado
+            self.last_interface = interface
+
+        except Exception as e:
+            print(f"[DEBUG] Erro conectividade: {e}")
+
+    def update_current_time(self):
+        """Atualiza horário atual na interface"""
+        try:
+            current_time = QTime.currentTime()
+            time_str = current_time.toString("HH:mm:ss")
+            self.current_time_label.setText(f"<b>{time_str}</b>")
+        except Exception:
+            pass
+
+    def update_connectivity_display(
+        self,
+        gateway,
+        my_ip_original,
+        my_ip_usado,
+        interface,
+        tem_rdp,
+        lista_rdp,
+        conexao_principal,
+        ping_gw,
+        ping_brasil,
+        ping_sistema,
+        site_brasil,
+        sistema_nome,
+    ):
+        """Atualiza display de conectividade"""
+        try:
+            if not hasattr(self, "_computer_name_set"):
+                computer_name = get_computer_info()
+                self.computer_name_label.setText(f"<b>{computer_name}</b>")
+                self._computer_name_set = True
+            # Meu IP
+            # Atualiza LABEL "IP:" com nome da interface
+            self.ip_label.setText(f"IP ({interface}):")
+
+            # IP simples - SEM interface no valor (já está no label)
+            if my_ip_usado != my_ip_original:
+                ip_display = (
+                    f"<b style='color: orange;'>{my_ip_usado}</b> <small>→RDP</small>"
+                )
+            else:
+                ip_display = f"<b>{my_ip_usado}</b>"
+            self.my_ip_label.setText(ip_display)
+
+            # Status RDP
+            if tem_rdp:
+                rdp_text = f"<b style='color: green;'>Ativo</b>"
+                if len(lista_rdp) > 1:
+                    rdp_text += f" <small>({len(lista_rdp)})</small>"
+            else:
+                rdp_text = "<b style='color: gray;'>Inativo</b>"
+            self.rdp_status_label.setText(rdp_text)
+
+            # Dropdown RDP
+            self.rdp_combo.clear()
+            if lista_rdp and len(lista_rdp) > 1:
+                for conexao in lista_rdp:
+                    display_name = conexao.replace("Local-RDP", "Local").replace(
+                        "RDP-", "Sistema ."
+                    )
+                    self.rdp_combo.addItem(display_name)
+                self.rdp_combo.setVisible(True)
+            else:
+                self.rdp_combo.setVisible(False)
+
+            # Formatação de ping
+            def format_ping(ping_time):
+                if ping_time > 0:
+                    if ping_time < 30:
+                        return f"<b style='color: green;'>{ping_time}ms</b>"
+                    elif ping_time < 100:
+                        return f"<b style='color: orange;'>{ping_time}ms</b>"
+                    else:
+                        return f"<b style='color: red;'>{ping_time}ms</b>"
+                else:
+                    return "<b style='color: red;'>---</b>"
+
+            # Labels de ping
+            self.gateway_ping_label.setText(format_ping(ping_gw))
+            self.brasil_ping_label.setText(format_ping(ping_brasil))
+
+            if ping_sistema > 0 and sistema_nome:
+                sistema_display = sistema_nome.replace("RDP-", "")
+                # self.brasil_ping_label.setText(f"Itaipu: {format_ping(ping_brasil)}")
+                self.sistema_ping_label.setText(f"{format_ping(ping_sistema)}")
+                self.sistema_widget.setVisible(True)
+            else:
+                self.sistema_widget.setVisible(False)
+
+        except Exception as e:
+            print(f"[DEBUG] Erro display: {e}")
+
+    def log_connectivity_info(
+        self,
+        tem_rdp,
+        conexao_principal,
+        ping_gw,
+        ping_brasil,
+        site_brasil,
+        ping_sistema,
+        sistema_nome,
+    ):
+        """Loga conectividade de forma compacta"""
+        try:
+            status_parts = []
+
+            if tem_rdp:
+                if conexao_principal == "Local-RDP":
+                    status_parts.append("RDP:Local")
+                else:
+                    sistema_short = conexao_principal.replace("RDP-", ".")
+                    status_parts.append(f"RDP:{sistema_short}")
+            else:
+                status_parts.append("RDP:Off")
+
+            if ping_gw > 0:
+                status_parts.append(f"GW:{ping_gw}ms")
+            if ping_brasil > 0:
+                status_parts.append(f"BR:{ping_brasil}ms")
+            if ping_sistema > 0:
+                sistema_short = sistema_nome.replace("RDP-", "S")
+                status_parts.append(f"{sistema_short}:{ping_sistema}ms")
+
+            log_msg = "Net: " + " | ".join(status_parts)
+            self.add_filtered_log(log_msg)
+            # self.log_tab.add_log(log_msg)
+            # self.add_main_log(log_msg)
+
+        except Exception as e:
+            print(f"[DEBUG] Erro log: {e}")
 
     def closeEvent(self, event):
         self.save_settings()
@@ -1084,8 +1704,9 @@ class KeepAliveApp(QMainWindow):
 
     def start_service_with_schedule(self):
         """Inicia serviço com verificação de agendamento"""
-        self.log_tab.add_log("Iniciado agendamento")
-        self.add_main_log("Iniciado agendamento")
+        self.add_filtered_log("Iniciado agendamento")
+        # self.log_tab.add_log("Iniciado agendamento")
+        # self.add_main_log("Iniciado agendamento")
 
         if self.check_schedule():
             self.start_service()
@@ -1094,8 +1715,9 @@ class KeepAliveApp(QMainWindow):
             end_time = self.end_time_edit.time().toString("HH:mm")
             self.status_label.setText(STR_SERVICE_STOPPED)
             self.update_execution_type_label()
-            self.log_tab.add_log("Serviço parado - Fora do horário de agendamento")
-            self.add_main_log("Serviço parado - Fora do horário de agendamento")
+            self.add_filtered_log("Serviço parado - Fora do horário de agendamento")
+            # self.log_tab.add_log("Serviço parado - Fora do horário de agendamento")
+            # self.add_main_log("Serviço parado - Fora do horário de agendamento")
 
     # ────────────────────────── start_service ──────────────────────────────
     def start_service(self):
@@ -1113,18 +1735,28 @@ class KeepAliveApp(QMainWindow):
         next_interval_ms = int(rand_secs * 1000)
         next_time = datetime.now() + timedelta(seconds=rand_secs)
 
-        log_msg = (
+        # Log completo (detalhado)
+        log_msg_full = (
             f"{STR_SERVICE_STARTED}."
             f" Simulação: {base_interval}s ±δ → {rand_secs:.1f}s"
             f" → {next_time.strftime('%H:%M:%S')}"
+        )
+
+        # Log principal (compacto)
+        log_msg_short = (
+            f"Próxima atividade ({rand_secs:.1f}s): {next_time.strftime('%H:%M:%S')}"
         )
 
         self.activity_timer.start(next_interval_ms)
         self.is_running = True
         self.status_label.setText(STR_SERVICE_RUNNING)
         self.update_execution_type_label()
-        self.log_tab.add_log(log_msg)
-        self.add_main_log(log_msg)
+
+        # Adiciona aos logs separadamente
+        self.log_tab.add_log(log_msg_full)  # Log completo
+        self.add_main_log(log_msg_short)  # Log principal customizado
+        # self.log_tab.add_log(log_msg)
+        # self.add_main_log(log_msg)
 
     def stop_service(self):
         """Para o serviço"""
@@ -1136,8 +1768,9 @@ class KeepAliveApp(QMainWindow):
         self.status_label.setText(STR_SERVICE_STOPPED)
         self.update_execution_type_label()
         ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
-        self.log_tab.add_log(STR_SERVICE_STOPPED_LOG)
-        self.add_main_log(STR_SERVICE_STOPPED_LOG)
+        self.add_filtered_log(STR_SERVICE_STOPPED_LOG)
+        # self.log_tab.add_log(STR_SERVICE_STOPPED_LOG)
+        # self.add_main_log(STR_SERVICE_STOPPED_LOG)
 
     def restart_application(self):
         """Reinicia completamente a aplicação"""
@@ -1159,8 +1792,9 @@ class KeepAliveApp(QMainWindow):
             if idle_time < timeout_limit:
                 self.activity_count += 1
                 cancel_message = STR_USER_ACTIVE.format(idle_time, timeout_limit)
-                self.log_tab.add_log(cancel_message)
-                self.add_main_log(cancel_message)
+                self.add_filtered_log(cancel_message)
+                # self.log_tab.add_log(cancel_message)
+                # self.add_main_log(cancel_message)
 
                 if self.is_running:
                     self.schedule_next_activity()
@@ -1177,8 +1811,9 @@ class KeepAliveApp(QMainWindow):
 
             if activity_success:
                 self.status_label.setText(status_msg + " (Sucesso)")
-                self.log_tab.add_log(STR_SIMULATION_SUCCESS)
-                self.add_main_log(STR_SIMULATION_SUCCESS)
+                self.add_filtered_log(STR_SIMULATION_SUCCESS)
+                # self.log_tab.add_log(STR_SIMULATION_SUCCESS)
+                # self.add_main_log(STR_SIMULATION_SUCCESS)
             else:
                 self.status_label.setText(status_msg + f" ({activity_message})")
                 error_message = f"ERRO: {activity_message}"
@@ -1196,7 +1831,6 @@ class KeepAliveApp(QMainWindow):
             self.log_tab.add_log(critical_error)
             self.add_main_log(critical_error)
 
-    # ──────────────────────── schedule_next_activity ───────────────────────
     def schedule_next_activity(self):
         """Agenda próxima atividade"""
         self.activity_timer.stop()
@@ -1221,8 +1855,63 @@ class KeepAliveApp(QMainWindow):
             next_time.strftime("%H:%M:%S"), f"{rand_secs:.1f}"
         )
 
-        self.log_tab.add_log(next_message)
-        self.add_main_log(next_message)
+        self.add_filtered_log(next_message)
+        # self.log_tab.add_log(next_message)
+        # self.add_main_log(next_message)
+
+    def filter_log_message(self, message):
+        """
+        NOVA FUNÇÃO: Determina se mensagem é importante para log principal
+        """
+        # Mensagens IMPORTANTES (aparecem no log principal)
+        important_keywords = [
+            "Atividade Executada",
+            "Usuário Ativo",
+            "Próxima Atividade",
+            "Serviço Iniciado",
+            "Serviço Parado",
+            "Keep Alive RDP Connection iniciado",
+            "iniciado",
+            "agendamento",
+            "Erro",
+            "Falha",
+            "ERRO",
+        ]
+
+        # Mensagens FILTRADAS (só no log completo)
+        filtered_keywords = [
+            "Net: RDP:Off",
+            "Net: RDP:Local",
+            "GW:",
+            "BR:",
+            "|",  # Linhas de conectividade têm "|"
+            "Keep Alive RDP Connection iniciado",
+            "Usuário Ativo",
+        ]
+
+        # Se contém palavra-chave importante
+        for keyword in important_keywords:
+            if keyword in message:
+                return True
+
+        # Se contém palavra-chave filtrada
+        for keyword in filtered_keywords:
+            if keyword in message:
+                return False
+
+        # Por padrão, considera importante
+        return True
+
+    def add_filtered_log(self, message, is_orientation=False):
+        """
+        NOVA FUNÇÃO: Adiciona log com filtro inteligente
+        """
+        # SEMPRE adiciona ao log completo (aba Log)
+        self.log_tab.add_log(message, is_orientation)
+
+        # Só adiciona ao log principal se for importante
+        if self.filter_log_message(message):
+            self.add_main_log(message, is_orientation)
 
     def quit_application(self):
         try:
@@ -1236,6 +1925,8 @@ class KeepAliveApp(QMainWindow):
             self.activity_timer.stop()
             self.inactive_log_timer.stop()
             self.help_timer.stop()
+            self.connectivity_timer.stop()
+            self.current_time_timer.stop()
             self.tray_icon.hide()
             cleanup_lock()
         except Exception:
@@ -1258,9 +1949,11 @@ def main():
     window.show()
 
     # Mensagem inicial
-    window.log_tab.add_log(f"{APP_NAME} iniciado")
-    window.add_main_log(f"{APP_NAME} iniciado")
-    window.log_inactive_status()
+    # window.log_tab.add_log(f"{APP_NAME} iniciado")
+    # window.add_main_log(f"{APP_NAME} iniciado")
+    # window.add_filtered_log(f"{APP_NAME} iniciado")
+    # window.log_inactive_status()
+    window.log_tab.add_log(f"{APP_NAME} iniciado")  # Só no log completo
     window.log_help_message()
 
     sys.exit(app.exec())

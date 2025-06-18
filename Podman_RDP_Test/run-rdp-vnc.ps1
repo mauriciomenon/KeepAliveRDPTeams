@@ -1,46 +1,45 @@
-# run-rdp-vnc.ps1
-# Versão definitiva - PowerShell 7.5.1+
+<#
+.SYNOPSIS
+    Inicia um container com servidor RDP e VNC (noVNC) usando Podman
+.DESCRIPTION
+    Este script:
+    - Remove containers antigos com o mesmo nome
+    - Constrói a imagem (se não existir) usando o Dockerfile no diretório atual
+    - Encontra portas livres para VNC (noVNC) e RDP
+    - Inicia o container mapeando para as portas livres
+    - Abre o navegador para o VNC e o cliente RDP
+.NOTES
+    Credenciais padrão:
+      Usuário: user
+      Senha: password
+    Requer Podman instalado e configurado.
+    PowerShell 7+ e execução como administrador são recomendados.
 
-# 1. Força remoção de containers antigos
-podman stop rdp-vnc-test 2>$null
-podman rm rdp-vnc-test 2>$null
+.Construa a imagem (apenas primeira vez):
+    podman build -t danielguerra/ubuntu-xrdp .
+#>
 
-# 2. Construção da imagem (apenas primeira execução)
-if (-not (podman images --format "{{.Repository}}" | Select-String "danielguerra/ubuntu-xrdp")) {
+# Configurações
+$IMAGE_NAME = "danielguerra/ubuntu-xrdp"
+$CONTAINER_NAME = "rdp-vnc-test"
+
+# 1. Remove container antigo se existir
+podman stop $CONTAINER_NAME 2>$null
+podman rm $CONTAINER_NAME 2>$null
+
+# 2. Constrói a imagem se não existir
+if (-not (podman images --format "{{.Repository}}" | Where-Object { $_ -eq $IMAGE_NAME })) {
     Write-Host "Construindo imagem persistente..." -ForegroundColor Cyan
-    @"
-FROM ubuntu:22.04
-
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        xrdp \
-        xorgxrdp \
-        x11vnc \
-        novnc \
-        websockify \
-        lxde-core \
-        firefox \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN echo "startlxde" > /etc/xrdp/startwm.sh
-RUN adduser xrdp ssl-cert
-RUN echo "lxsession" > /etc/skel/.xsession
-
-EXPOSE 3389 6080
-CMD ["sh", "-c", "service xrdp start && websockify --web=/usr/share/novnc 6080 localhost:5900"]
-"@ | Set-Content -Path Dockerfile -Force
-
-    podman build -t danielguerra/ubuntu-xrdp -f Dockerfile
+    podman build -t $IMAGE_NAME .
 }
 else {
     Write-Host "Usando imagem persistente existente" -ForegroundColor Green
 }
 
-# 3. Encontra portas livres dinamicamente
+# 3. Encontra portas livres
 function Get-FreePort {
     $port = Get-Random -Minimum 10000 -Maximum 60000
-    while (Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue) {
+    while ((Test-NetConnection -ComputerName localhost -Port $port -WarningAction SilentlyContinue).TcpTestSucceeded) {
         $port++
     }
     return $port
@@ -49,21 +48,53 @@ function Get-FreePort {
 $vncPort = Get-FreePort
 $rdpPort = Get-FreePort
 
-# 4. Executa o container
-podman run -d --name rdp-vnc-test `
+# 4. Inicia o container
+Write-Host "Iniciando container..." -ForegroundColor Cyan
+podman run -d --name $CONTAINER_NAME `
     -p ${vncPort}:6080 `
     -p ${rdpPort}:3389 `
-    danielguerra/ubuntu-xrdp
+    $IMAGE_NAME
 
-# 5. Aguarda inicialização
-Start-Sleep -Seconds 5
+# 5. Aguarda inicialização (20 segundos para garantir que todos os serviços estejam prontos)
+Write-Host "Aguardando inicialização (20 segundos)..." -ForegroundColor Cyan
+Start-Sleep -Seconds 20
 
 # 6. Abre as conexões
 $vncUrl = "http://localhost:$vncPort/vnc.html"
-Start-Process "chrome.exe" -ArgumentList $vncUrl  # Altere para seu navegador
-Start-Process "mstsc" -ArgumentList "/v:localhost:$rdpPort"
+$rdpArgs = "/v:localhost:$rdpPort"
 
-Write-Host "`nCONEXÕES PRONTAS:" -ForegroundColor Green
-Write-Host "RDP: mstsc /v:localhost:$rdpPort"
-Write-Host "VNC: $vncUrl"
-Write-Host "`nImagem persistente: danielguerra/ubuntu-xrdp" -ForegroundColor Cyan
+Write-Host "Abrindo cliente RDP e navegador para VNC..." -ForegroundColor Cyan
+try {
+    Start-Process "mstsc" -ArgumentList $rdpArgs -ErrorAction Stop
+}
+catch {
+    Write-Warning "Não foi possível abrir o mstsc. Conecte manualmente com: mstsc /v:localhost:$rdpPort"
+}
+
+try {
+    # Tenta abrir no navegador padrão
+    Start-Process $vncUrl -ErrorAction Stop
+}
+catch {
+    # Fallback para navegadores específicos
+    $browsers = @("chrome.exe", "msedge.exe", "firefox.exe")
+    foreach ($browser in $browsers) {
+        if (Get-Command $browser -ErrorAction SilentlyContinue) {
+            Start-Process $browser -ArgumentList $vncUrl
+            break
+        }
+    }
+}
+
+# 7. Mostra informações
+Write-Host "`n=====================================================" -ForegroundColor Green
+Write-Host "Container iniciado com sucesso!" -ForegroundColor Green
+Write-Host "Nome do container: $CONTAINER_NAME" -ForegroundColor Green
+Write-Host "VNC (noVNC): $vncUrl" -ForegroundColor Green
+Write-Host "RDP: mstsc /v:localhost:$rdpPort" -ForegroundColor Green
+Write-Host "`nCredenciais:" -ForegroundColor Yellow
+Write-Host "  Usuário: user" -ForegroundColor Yellow
+Write-Host "  Senha: password" -ForegroundColor Yellow
+Write-Host "`nPara parar o container: podman stop $CONTAINER_NAME" -ForegroundColor Yellow
+Write-Host "Para reiniciar: podman start $CONTAINER_NAME" -ForegroundColor Yellow
+Write-Host "=====================================================`n" -ForegroundColor Green

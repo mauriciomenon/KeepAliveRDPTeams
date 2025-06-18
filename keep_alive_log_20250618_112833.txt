@@ -1,0 +1,1000 @@
+[2025-06-18 05:54:55] Simulação Executada
+[2025-06-18 05:54:55] Próxima Atividade: 05:56:03 (67.9s)
+[2025-06-18 05:54:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 05:55:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 05:56:04] Simulação Executada
+[2025-06-18 05:56:04] Próxima Atividade: 05:56:49 (45.3s)
+[2025-06-18 05:56:50] Simulação Executada
+[2025-06-18 05:56:50] Próxima Atividade: 05:57:49 (59.5s)
+[2025-06-18 05:56:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 05:57:49] Simulação Executada
+[2025-06-18 05:57:49] Próxima Atividade: 05:58:48 (58.1s)
+[2025-06-18 05:57:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 05:58:48] Simulação Executada
+[2025-06-18 05:58:48] Próxima Atividade: 06:00:05 (76.6s)
+[2025-06-18 05:58:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 05:59:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:00:06] Simulação Executada
+[2025-06-18 06:00:06] Próxima Atividade: 06:00:56 (49.8s)
+[2025-06-18 06:00:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:00:57] Simulação Executada
+[2025-06-18 06:00:57] Próxima Atividade: 06:02:04 (66.9s)
+[2025-06-18 06:01:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:02:05] Simulação Executada
+[2025-06-18 06:02:05] Próxima Atividade: 06:03:22 (77.4s)
+[2025-06-18 06:02:55] Net: RDP:Off | GW:1ms | BR:29ms
+[2025-06-18 06:03:23] Simulação Executada
+[2025-06-18 06:03:23] Próxima Atividade: 06:04:19 (56.7s)
+[2025-06-18 06:03:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:04:21] Simulação Executada
+[2025-06-18 06:04:21] Próxima Atividade: 06:05:16 (55.8s)
+[2025-06-18 06:04:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:05:17] Simulação Executada
+[2025-06-18 06:05:17] Próxima Atividade: 06:06:12 (54.4s)
+[2025-06-18 06:05:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:06:12] Simulação Executada
+[2025-06-18 06:06:12] Próxima Atividade: 06:07:17 (65.0s)
+[2025-06-18 06:06:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:07:18] Simulação Executada
+[2025-06-18 06:07:18] Próxima Atividade: 06:08:09 (50.9s)
+[2025-06-18 06:07:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:08:10] Simulação Executada
+[2025-06-18 06:08:10] Próxima Atividade: 06:09:16 (66.4s)
+[2025-06-18 06:08:55] Net: RDP:Off | GW:1ms | BR:20ms
+[2025-06-18 06:09:17] Simulação Executada
+[2025-06-18 06:09:17] Próxima Atividade: 06:10:14 (57.7s)
+[2025-06-18 06:09:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:10:15] Simulação Executada
+[2025-06-18 06:10:15] Próxima Atividade: 06:11:30 (74.7s)
+[2025-06-18 06:10:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:11:31] Simulação Executada
+[2025-06-18 06:11:31] Próxima Atividade: 06:12:27 (56.1s)
+[2025-06-18 06:11:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:12:28] Simulação Executada
+[2025-06-18 06:12:28] Próxima Atividade: 06:13:20 (51.9s)
+[2025-06-18 06:12:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:13:21] Simulação Executada
+[2025-06-18 06:13:21] Próxima Atividade: 06:14:15 (53.8s)
+[2025-06-18 06:13:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:14:16] Simulação Executada
+[2025-06-18 06:14:16] Próxima Atividade: 06:15:00 (44.6s)
+[2025-06-18 06:14:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:15:02] Simulação Executada
+[2025-06-18 06:15:02] Próxima Atividade: 06:16:19 (77.0s)
+[2025-06-18 06:15:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:16:19] Simulação Executada
+[2025-06-18 06:16:19] Próxima Atividade: 06:17:26 (66.7s)
+[2025-06-18 06:16:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:17:27] Simulação Executada
+[2025-06-18 06:17:27] Próxima Atividade: 06:18:38 (70.6s)
+[2025-06-18 06:17:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:18:39] Simulação Executada
+[2025-06-18 06:18:39] Próxima Atividade: 06:19:38 (59.0s)
+[2025-06-18 06:18:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:19:39] Simulação Executada
+[2025-06-18 06:19:39] Próxima Atividade: 06:20:47 (68.6s)
+[2025-06-18 06:19:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:20:49] Simulação Executada
+[2025-06-18 06:20:49] Próxima Atividade: 06:21:58 (68.8s)
+[2025-06-18 06:20:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:21:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:21:59] Simulação Executada
+[2025-06-18 06:21:59] Próxima Atividade: 06:22:56 (57.5s)
+[2025-06-18 06:22:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:22:57] Simulação Executada
+[2025-06-18 06:22:57] Próxima Atividade: 06:24:05 (67.3s)
+[2025-06-18 06:23:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:24:05] Simulação Executada
+[2025-06-18 06:24:05] Próxima Atividade: 06:25:23 (77.4s)
+[2025-06-18 06:24:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:25:23] Simulação Executada
+[2025-06-18 06:25:23] Próxima Atividade: 06:26:16 (52.5s)
+[2025-06-18 06:25:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:26:17] Simulação Executada
+[2025-06-18 06:26:17] Próxima Atividade: 06:27:13 (56.3s)
+[2025-06-18 06:26:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:27:14] Simulação Executada
+[2025-06-18 06:27:14] Próxima Atividade: 06:28:14 (60.2s)
+[2025-06-18 06:27:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:28:15] Simulação Executada
+[2025-06-18 06:28:15] Próxima Atividade: 06:29:15 (60.6s)
+[2025-06-18 06:28:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:29:16] Simulação Executada
+[2025-06-18 06:29:16] Próxima Atividade: 06:30:08 (51.8s)
+[2025-06-18 06:29:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:30:09] Simulação Executada
+[2025-06-18 06:30:09] Próxima Atividade: 06:31:23 (74.0s)
+[2025-06-18 06:30:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:31:24] Simulação Executada
+[2025-06-18 06:31:24] Próxima Atividade: 06:32:33 (69.4s)
+[2025-06-18 06:31:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:32:34] Simulação Executada
+[2025-06-18 06:32:34] Próxima Atividade: 06:33:34 (59.8s)
+[2025-06-18 06:32:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:33:35] Simulação Executada
+[2025-06-18 06:33:35] Próxima Atividade: 06:34:40 (65.1s)
+[2025-06-18 06:33:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:34:41] Simulação Executada
+[2025-06-18 06:34:41] Próxima Atividade: 06:35:32 (50.9s)
+[2025-06-18 06:34:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:35:33] Simulação Executada
+[2025-06-18 06:35:33] Próxima Atividade: 06:36:32 (59.5s)
+[2025-06-18 06:35:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:36:33] Simulação Executada
+[2025-06-18 06:36:33] Próxima Atividade: 06:37:48 (75.1s)
+[2025-06-18 06:36:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:37:48] Simulação Executada
+[2025-06-18 06:37:49] Próxima Atividade: 06:38:52 (64.0s)
+[2025-06-18 06:37:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:38:53] Simulação Executada
+[2025-06-18 06:38:53] Próxima Atividade: 06:40:03 (70.0s)
+[2025-06-18 06:38:55] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 06:39:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:40:04] Simulação Executada
+[2025-06-18 06:40:04] Próxima Atividade: 06:40:57 (52.4s)
+[2025-06-18 06:40:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:40:57] Simulação Executada
+[2025-06-18 06:40:57] Próxima Atividade: 06:42:00 (62.7s)
+[2025-06-18 06:41:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 06:42:01] Simulação Executada
+[2025-06-18 06:42:01] Próxima Atividade: 06:42:50 (48.8s)
+[2025-06-18 06:42:51] Simulação Executada
+[2025-06-18 06:42:51] Próxima Atividade: 06:44:07 (76.4s)
+[2025-06-18 06:42:55] Net: RDP:Off | GW:2ms | BR:21ms
+[2025-06-18 06:43:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:44:07] Simulação Executada
+[2025-06-18 06:44:07] Próxima Atividade: 06:44:55 (47.5s)
+[2025-06-18 06:44:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:44:56] Simulação Executada
+[2025-06-18 06:44:56] Próxima Atividade: 06:45:49 (52.4s)
+[2025-06-18 06:45:49] Simulação Executada
+[2025-06-18 06:45:49] Próxima Atividade: 06:46:37 (47.9s)
+[2025-06-18 06:45:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:46:38] Simulação Executada
+[2025-06-18 06:46:38] Próxima Atividade: 06:47:31 (53.2s)
+[2025-06-18 06:46:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:47:32] Simulação Executada
+[2025-06-18 06:47:32] Próxima Atividade: 06:48:30 (58.1s)
+[2025-06-18 06:47:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:48:31] Simulação Executada
+[2025-06-18 06:48:31] Próxima Atividade: 06:49:36 (64.9s)
+[2025-06-18 06:48:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:49:36] Simulação Executada
+[2025-06-18 06:49:36] Próxima Atividade: 06:50:19 (42.2s)
+[2025-06-18 06:49:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:50:19] Simulação Executada
+[2025-06-18 06:50:19] Próxima Atividade: 06:51:07 (47.6s)
+[2025-06-18 06:50:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:51:08] Simulação Executada
+[2025-06-18 06:51:08] Próxima Atividade: 06:52:21 (73.1s)
+[2025-06-18 06:51:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:52:22] Simulação Executada
+[2025-06-18 06:52:22] Próxima Atividade: 06:53:11 (49.2s)
+[2025-06-18 06:52:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:53:12] Simulação Executada
+[2025-06-18 06:53:12] Próxima Atividade: 06:54:10 (58.7s)
+[2025-06-18 06:53:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:54:12] Simulação Executada
+[2025-06-18 06:54:12] Próxima Atividade: 06:55:28 (76.6s)
+[2025-06-18 06:54:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:55:29] Simulação Executada
+[2025-06-18 06:55:29] Próxima Atividade: 06:56:14 (44.1s)
+[2025-06-18 06:55:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:56:14] Simulação Executada
+[2025-06-18 06:56:14] Próxima Atividade: 06:57:20 (66.2s)
+[2025-06-18 06:56:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:57:21] Simulação Executada
+[2025-06-18 06:57:21] Próxima Atividade: 06:58:21 (60.1s)
+[2025-06-18 06:57:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:58:22] Simulação Executada
+[2025-06-18 06:58:22] Próxima Atividade: 06:59:22 (60.0s)
+[2025-06-18 06:58:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 06:59:23] Simulação Executada
+[2025-06-18 06:59:23] Próxima Atividade: 07:00:36 (73.7s)
+[2025-06-18 06:59:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:00:37] Simulação Executada
+[2025-06-18 07:00:37] Próxima Atividade: 07:01:49 (71.0s)
+[2025-06-18 07:00:55] Net: RDP:Off | GW:1ms | BR:22ms
+[2025-06-18 07:01:49] Simulação Executada
+[2025-06-18 07:01:49] Próxima Atividade: 07:02:31 (42.1s)
+[2025-06-18 07:01:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:02:32] Simulação Executada
+[2025-06-18 07:02:32] Próxima Atividade: 07:03:21 (48.9s)
+[2025-06-18 07:02:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:03:22] Simulação Executada
+[2025-06-18 07:03:22] Próxima Atividade: 07:04:34 (71.6s)
+[2025-06-18 07:03:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:04:35] Simulação Executada
+[2025-06-18 07:04:35] Próxima Atividade: 07:05:28 (53.6s)
+[2025-06-18 07:04:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:05:30] Simulação Executada
+[2025-06-18 07:05:30] Próxima Atividade: 07:06:32 (62.4s)
+[2025-06-18 07:05:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:06:32] Simulação Executada
+[2025-06-18 07:06:32] Próxima Atividade: 07:07:50 (77.2s)
+[2025-06-18 07:06:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:07:50] Simulação Executada
+[2025-06-18 07:07:50] Próxima Atividade: 07:09:02 (71.7s)
+[2025-06-18 07:07:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:08:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:09:03] Simulação Executada
+[2025-06-18 07:09:03] Próxima Atividade: 07:10:13 (70.4s)
+[2025-06-18 07:09:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:10:14] Simulação Executada
+[2025-06-18 07:10:14] Próxima Atividade: 07:11:22 (68.0s)
+[2025-06-18 07:10:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 07:11:23] Simulação Executada
+[2025-06-18 07:11:23] Próxima Atividade: 07:12:08 (45.3s)
+[2025-06-18 07:11:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:12:09] Simulação Executada
+[2025-06-18 07:12:09] Próxima Atividade: 07:13:06 (57.2s)
+[2025-06-18 07:12:55] Net: RDP:Off | GW:1ms | BR:21ms
+[2025-06-18 07:13:06] Simulação Executada
+[2025-06-18 07:13:06] Próxima Atividade: 07:14:23 (77.1s)
+[2025-06-18 07:13:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:14:24] Simulação Executada
+[2025-06-18 07:14:24] Próxima Atividade: 07:15:14 (50.0s)
+[2025-06-18 07:14:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:15:15] Simulação Executada
+[2025-06-18 07:15:15] Próxima Atividade: 07:16:19 (64.1s)
+[2025-06-18 07:15:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:16:20] Simulação Executada
+[2025-06-18 07:16:20] Próxima Atividade: 07:17:17 (57.4s)
+[2025-06-18 07:16:55] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 07:17:18] Simulação Executada
+[2025-06-18 07:17:18] Próxima Atividade: 07:18:05 (47.5s)
+[2025-06-18 07:17:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:18:05] Simulação Executada
+[2025-06-18 07:18:05] Próxima Atividade: 07:19:21 (75.4s)
+[2025-06-18 07:18:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 07:19:21] Simulação Executada
+[2025-06-18 07:19:21] Próxima Atividade: 07:20:39 (78.0s)
+[2025-06-18 07:19:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 07:20:40] Simulação Executada
+[2025-06-18 07:20:40] Próxima Atividade: 07:21:47 (66.5s)
+[2025-06-18 07:20:55] Net: RDP:Off | GW:1ms | BR:24ms
+[2025-06-18 07:21:48] Simulação Executada
+[2025-06-18 07:21:48] Próxima Atividade: 07:22:43 (55.6s)
+[2025-06-18 07:21:55] Net: RDP:Off | GW:2ms | BR:22ms
+[2025-06-18 07:22:45] Simulação Executada
+[2025-06-18 07:22:45] Próxima Atividade: 07:23:32 (47.4s)
+[2025-06-18 07:22:55] Net: RDP:Off | GW:4ms | BR:17ms
+[2025-06-18 07:23:33] Simulação Executada
+[2025-06-18 07:23:33] Próxima Atividade: 07:24:22 (49.6s)
+[2025-06-18 07:23:55] Net: RDP:Off | GW:2ms | BR:16ms
+[2025-06-18 07:24:23] Simulação Executada
+[2025-06-18 07:24:23] Próxima Atividade: 07:25:35 (71.3s)
+[2025-06-18 07:24:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:25:35] Simulação Executada
+[2025-06-18 07:25:35] Próxima Atividade: 07:26:43 (67.9s)
+[2025-06-18 07:25:55] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 07:26:44] Simulação Executada
+[2025-06-18 07:26:44] Próxima Atividade: 07:27:30 (46.1s)
+[2025-06-18 07:26:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:27:31] Simulação Executada
+[2025-06-18 07:27:31] Próxima Atividade: 07:28:22 (50.7s)
+[2025-06-18 07:27:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:28:23] Simulação Executada
+[2025-06-18 07:28:23] Próxima Atividade: 07:29:35 (72.7s)
+[2025-06-18 07:28:55] Net: RDP:Off | GW:1ms | BR:21ms
+[2025-06-18 07:29:37] Simulação Executada
+[2025-06-18 07:29:37] Próxima Atividade: 07:30:33 (56.9s)
+[2025-06-18 07:29:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:30:34] Simulação Executada
+[2025-06-18 07:30:34] Próxima Atividade: 07:31:32 (58.1s)
+[2025-06-18 07:30:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:31:33] Simulação Executada
+[2025-06-18 07:31:33] Próxima Atividade: 07:32:34 (61.3s)
+[2025-06-18 07:31:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:32:35] Simulação Executada
+[2025-06-18 07:32:35] Próxima Atividade: 07:33:22 (47.4s)
+[2025-06-18 07:32:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:33:23] Simulação Executada
+[2025-06-18 07:33:23] Próxima Atividade: 07:34:15 (52.6s)
+[2025-06-18 07:33:55] Net: RDP:Off | GW:1ms | BR:20ms
+[2025-06-18 07:34:17] Simulação Executada
+[2025-06-18 07:34:17] Próxima Atividade: 07:35:01 (44.1s)
+[2025-06-18 07:34:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:35:01] Simulação Executada
+[2025-06-18 07:35:01] Próxima Atividade: 07:35:54 (52.2s)
+[2025-06-18 07:35:54] Simulação Executada
+[2025-06-18 07:35:54] Próxima Atividade: 07:36:40 (45.3s)
+[2025-06-18 07:35:55] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 07:36:40] Simulação Executada
+[2025-06-18 07:36:40] Próxima Atividade: 07:37:51 (70.4s)
+[2025-06-18 07:36:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:37:51] Simulação Executada
+[2025-06-18 07:37:51] Próxima Atividade: 07:39:00 (69.2s)
+[2025-06-18 07:37:55] Net: RDP:Off | GW:1ms | BR:22ms
+[2025-06-18 07:38:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:39:01] Simulação Executada
+[2025-06-18 07:39:01] Próxima Atividade: 07:39:55 (54.2s)
+[2025-06-18 07:39:56] Simulação Executada
+[2025-06-18 07:39:56] Próxima Atividade: 07:40:56 (60.1s)
+[2025-06-18 07:39:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:40:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:40:56] Simulação Executada
+[2025-06-18 07:40:56] Próxima Atividade: 07:41:40 (43.7s)
+[2025-06-18 07:41:41] Simulação Executada
+[2025-06-18 07:41:41] Próxima Atividade: 07:42:34 (52.8s)
+[2025-06-18 07:41:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:42:35] Simulação Executada
+[2025-06-18 07:42:35] Próxima Atividade: 07:43:45 (69.6s)
+[2025-06-18 07:42:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:43:46] Simulação Executada
+[2025-06-18 07:43:46] Próxima Atividade: 07:45:00 (74.1s)
+[2025-06-18 07:43:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:44:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:45:01] Simulação Executada
+[2025-06-18 07:45:01] Próxima Atividade: 07:45:52 (51.6s)
+[2025-06-18 07:45:54] Simulação Executada
+[2025-06-18 07:45:54] Próxima Atividade: 07:46:38 (44.6s)
+[2025-06-18 07:45:55] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 07:46:39] Simulação Executada
+[2025-06-18 07:46:39] Próxima Atividade: 07:47:45 (66.1s)
+[2025-06-18 07:46:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:47:46] Simulação Executada
+[2025-06-18 07:47:46] Próxima Atividade: 07:48:55 (69.3s)
+[2025-06-18 07:47:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 07:48:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:48:56] Simulação Executada
+[2025-06-18 07:48:56] Próxima Atividade: 07:49:41 (44.2s)
+[2025-06-18 07:49:41] Simulação Executada
+[2025-06-18 07:49:41] Próxima Atividade: 07:50:24 (42.8s)
+[2025-06-18 07:49:55] Net: RDP:Off | GW:1ms | BR:25ms
+[2025-06-18 07:50:25] Simulação Executada
+[2025-06-18 07:50:25] Próxima Atividade: 07:51:12 (47.3s)
+[2025-06-18 07:50:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:51:13] Simulação Executada
+[2025-06-18 07:51:13] Próxima Atividade: 07:52:20 (67.5s)
+[2025-06-18 07:51:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:52:21] Simulação Executada
+[2025-06-18 07:52:21] Próxima Atividade: 07:53:13 (51.8s)
+[2025-06-18 07:52:56] Net: RDP:Off | GW:1ms | BR:22ms
+[2025-06-18 07:53:14] Simulação Executada
+[2025-06-18 07:53:14] Próxima Atividade: 07:54:29 (75.5s)
+[2025-06-18 07:53:55] Net: RDP:Off | GW:1ms | BR:20ms
+[2025-06-18 07:54:29] Simulação Executada
+[2025-06-18 07:54:29] Próxima Atividade: 07:55:17 (47.8s)
+[2025-06-18 07:54:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:55:18] Simulação Executada
+[2025-06-18 07:55:18] Próxima Atividade: 07:56:06 (47.9s)
+[2025-06-18 07:55:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:56:07] Simulação Executada
+[2025-06-18 07:56:07] Próxima Atividade: 07:56:53 (46.4s)
+[2025-06-18 07:56:54] Simulação Executada
+[2025-06-18 07:56:54] Próxima Atividade: 07:57:37 (42.9s)
+[2025-06-18 07:56:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:57:38] Simulação Executada
+[2025-06-18 07:57:38] Próxima Atividade: 07:58:51 (73.3s)
+[2025-06-18 07:57:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:58:51] Simulação Executada
+[2025-06-18 07:58:51] Próxima Atividade: 07:59:39 (48.0s)
+[2025-06-18 07:58:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 07:59:40] Simulação Executada
+[2025-06-18 07:59:40] Próxima Atividade: 08:00:30 (49.4s)
+[2025-06-18 07:59:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:00:30] Simulação Executada
+[2025-06-18 08:00:30] Próxima Atividade: 08:01:45 (75.3s)
+[2025-06-18 08:00:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:01:46] Simulação Executada
+[2025-06-18 08:01:46] Próxima Atividade: 08:02:45 (58.8s)
+[2025-06-18 08:01:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:02:46] Simulação Executada
+[2025-06-18 08:02:46] Próxima Atividade: 08:03:34 (48.1s)
+[2025-06-18 08:02:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:03:34] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:03:34] Próxima Atividade: 08:04:30 (56.7s)
+[2025-06-18 08:03:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:04:31] Usuário Ativo (inatividade: 3.6s < 60s)
+[2025-06-18 08:04:31] Próxima Atividade: 08:05:21 (49.7s)
+[2025-06-18 08:04:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:05:21] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:05:21] Próxima Atividade: 08:06:37 (75.8s)
+[2025-06-18 08:05:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:06:37] Usuário Ativo (inatividade: 19.7s < 60s)
+[2025-06-18 08:06:37] Próxima Atividade: 08:07:34 (57.2s)
+[2025-06-18 08:06:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:07:34] Usuário Ativo (inatividade: 0.6s < 60s)
+[2025-06-18 08:07:34] Próxima Atividade: 08:08:30 (56.5s)
+[2025-06-18 08:07:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:08:31] Usuário Ativo (inatividade: 7.1s < 60s)
+[2025-06-18 08:08:31] Próxima Atividade: 08:09:43 (72.5s)
+[2025-06-18 08:08:56] Net: RDP:Off | GW:1ms | BR:25ms
+[2025-06-18 08:09:44] Usuário Ativo (inatividade: 31.2s < 60s)
+[2025-06-18 08:09:44] Próxima Atividade: 08:10:53 (69.1s)
+[2025-06-18 08:09:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:10:53] Usuário Ativo (inatividade: 26.9s < 60s)
+[2025-06-18 08:10:53] Próxima Atividade: 08:12:08 (75.5s)
+[2025-06-18 08:10:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:11:55] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:12:09] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:12:09] Próxima Atividade: 08:13:15 (66.2s)
+[2025-06-18 08:12:56] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 08:13:15] Usuário Ativo (inatividade: 41.5s < 60s)
+[2025-06-18 08:13:15] Próxima Atividade: 08:14:06 (51.0s)
+[2025-06-18 08:13:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:14:06] Usuário Ativo (inatividade: 0.3s < 60s)
+[2025-06-18 08:14:06] Próxima Atividade: 08:15:17 (71.3s)
+[2025-06-18 08:14:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 08:15:17] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 08:15:17] Próxima Atividade: 08:16:34 (77.5s)
+[2025-06-18 08:15:56] Net: RDP:Off | GW:6ms | BR:17ms
+[2025-06-18 08:16:35] Usuário Ativo (inatividade: 1.4s < 60s)
+[2025-06-18 08:16:35] Próxima Atividade: 08:17:41 (66.2s)
+[2025-06-18 08:16:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 08:17:41] Usuário Ativo (inatividade: 4.4s < 60s)
+[2025-06-18 08:17:41] Próxima Atividade: 08:18:40 (59.0s)
+[2025-06-18 08:17:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:18:40] Usuário Ativo (inatividade: 13.3s < 60s)
+[2025-06-18 08:18:40] Próxima Atividade: 08:19:57 (76.9s)
+[2025-06-18 08:18:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:19:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:19:57] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:19:57] Próxima Atividade: 08:20:53 (56.3s)
+[2025-06-18 08:20:53] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 08:20:53] Próxima Atividade: 08:21:55 (62.6s)
+[2025-06-18 08:20:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:21:56] Net: RDP:Off | GW:2ms | BR:18ms
+[2025-06-18 08:21:56] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:21:56] Próxima Atividade: 08:22:44 (48.3s)
+[2025-06-18 08:22:44] Usuário Ativo (inatividade: 1.2s < 60s)
+[2025-06-18 08:22:44] Próxima Atividade: 08:23:34 (50.4s)
+[2025-06-18 08:22:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:23:34] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 08:23:34] Próxima Atividade: 08:24:38 (64.2s)
+[2025-06-18 08:23:56] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 08:24:38] Usuário Ativo (inatividade: 4.3s < 60s)
+[2025-06-18 08:24:38] Próxima Atividade: 08:25:37 (58.8s)
+[2025-06-18 08:24:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:25:37] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:25:37] Próxima Atividade: 08:26:38 (61.3s)
+[2025-06-18 08:25:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:26:38] Usuário Ativo (inatividade: 6.7s < 60s)
+[2025-06-18 08:26:38] Próxima Atividade: 08:27:32 (54.2s)
+[2025-06-18 08:26:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:27:32] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 08:27:32] Próxima Atividade: 08:28:18 (46.6s)
+[2025-06-18 08:27:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:28:19] Usuário Ativo (inatividade: 0.3s < 60s)
+[2025-06-18 08:28:19] Próxima Atividade: 08:29:06 (47.5s)
+[2025-06-18 08:28:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 08:29:07] Usuário Ativo (inatividade: 7.4s < 60s)
+[2025-06-18 08:29:07] Próxima Atividade: 08:30:13 (65.9s)
+[2025-06-18 08:29:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 08:30:13] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:30:13] Próxima Atividade: 08:31:12 (59.0s)
+[2025-06-18 08:30:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:31:12] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 08:31:12] Próxima Atividade: 08:31:54 (42.1s)
+[2025-06-18 08:31:54] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:31:54] Próxima Atividade: 08:32:42 (48.2s)
+[2025-06-18 08:31:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 08:32:42] Usuário Ativo (inatividade: 9.0s < 60s)
+[2025-06-18 08:32:42] Próxima Atividade: 08:33:41 (59.1s)
+[2025-06-18 08:32:56] Net: RDP:Off | GW:3ms | BR:17ms
+[2025-06-18 08:33:42] Simulação Executada
+[2025-06-18 08:33:42] Próxima Atividade: 08:34:40 (58.5s)
+[2025-06-18 08:33:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:34:41] Usuário Ativo (inatividade: 59.1s < 60s)
+[2025-06-18 08:34:41] Próxima Atividade: 08:35:35 (54.2s)
+[2025-06-18 08:34:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:35:36] Simulação Executada
+[2025-06-18 08:35:36] Próxima Atividade: 08:36:40 (63.9s)
+[2025-06-18 08:35:56] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 08:36:40] Simulação Executada
+[2025-06-18 08:36:40] Próxima Atividade: 08:37:38 (57.5s)
+[2025-06-18 08:36:56] Net: RDP:Off | GW:7ms | BR:17ms
+[2025-06-18 08:37:37] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 08:37:37] Próxima Atividade: 08:38:27 (49.6s)
+[2025-06-18 08:37:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 08:38:27] Usuário Ativo (inatividade: 0.5s < 60s)
+[2025-06-18 08:38:27] Próxima Atividade: 08:39:12 (44.9s)
+[2025-06-18 08:38:56] Net: RDP:Off | GW:1ms | BR:24ms
+[2025-06-18 08:39:12] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:39:12] Próxima Atividade: 08:40:17 (64.4s)
+[2025-06-18 08:39:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:40:16] Usuário Ativo (inatividade: 0.4s < 60s)
+[2025-06-18 08:40:16] Próxima Atividade: 08:41:14 (57.2s)
+[2025-06-18 08:40:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 08:41:14] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:41:14] Próxima Atividade: 08:42:04 (50.7s)
+[2025-06-18 08:41:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:42:05] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:42:05] Próxima Atividade: 08:43:22 (77.9s)
+[2025-06-18 08:42:56] Net: RDP:Off | GW:1ms | BR:25ms
+[2025-06-18 08:43:23] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:43:23] Próxima Atividade: 08:44:26 (63.5s)
+[2025-06-18 08:43:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:44:27] Usuário Ativo (inatividade: 0.6s < 60s)
+[2025-06-18 08:44:27] Próxima Atividade: 08:45:20 (53.4s)
+[2025-06-18 08:44:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:45:20] Usuário Ativo (inatividade: 3.8s < 60s)
+[2025-06-18 08:45:20] Próxima Atividade: 08:46:23 (63.1s)
+[2025-06-18 08:45:56] Net: RDP:Off | GW:1ms | BR:56ms
+[2025-06-18 08:46:23] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:46:23] Próxima Atividade: 08:47:12 (49.6s)
+[2025-06-18 08:46:56] Net: RDP:Off | GW:1ms | BR:24ms
+[2025-06-18 08:47:13] Usuário Ativo (inatividade: 12.0s < 60s)
+[2025-06-18 08:47:13] Próxima Atividade: 08:48:25 (72.5s)
+[2025-06-18 08:47:56] Net: RDP:Off | GW:9ms | BR:17ms
+[2025-06-18 08:48:25] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 08:48:25] Próxima Atividade: 08:49:15 (50.8s)
+[2025-06-18 08:48:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:49:16] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 08:49:16] Próxima Atividade: 08:50:09 (53.5s)
+[2025-06-18 08:49:56] Net: RDP:Off | GW:3ms | BR:17ms
+[2025-06-18 08:50:09] Usuário Ativo (inatividade: 0.7s < 60s)
+[2025-06-18 08:50:09] Próxima Atividade: 08:51:03 (54.6s)
+[2025-06-18 08:50:56] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 08:51:04] Usuário Ativo (inatividade: 2.1s < 60s)
+[2025-06-18 08:51:04] Próxima Atividade: 08:52:02 (58.7s)
+[2025-06-18 08:51:56] Net: RDP:Off | GW:1ms | BR:21ms
+[2025-06-18 08:52:03] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:52:03] Próxima Atividade: 08:53:08 (65.8s)
+[2025-06-18 08:52:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:53:09] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 08:53:09] Próxima Atividade: 08:54:24 (75.7s)
+[2025-06-18 08:53:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 08:54:25] Usuário Ativo (inatividade: 8.2s < 60s)
+[2025-06-18 08:54:25] Próxima Atividade: 08:55:26 (60.9s)
+[2025-06-18 08:54:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:55:26] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:55:26] Próxima Atividade: 08:56:31 (65.2s)
+[2025-06-18 08:55:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:56:31] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:56:31] Próxima Atividade: 08:57:35 (64.0s)
+[2025-06-18 08:56:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:57:35] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:57:35] Próxima Atividade: 08:58:32 (56.9s)
+[2025-06-18 08:57:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 08:58:32] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 08:58:32] Próxima Atividade: 08:59:19 (47.5s)
+[2025-06-18 08:58:56] Net: RDP:Off | GW:1ms | BR:23ms
+[2025-06-18 08:59:20] Usuário Ativo (inatividade: 19.4s < 60s)
+[2025-06-18 08:59:20] Próxima Atividade: 09:00:32 (72.6s)
+[2025-06-18 08:59:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 09:00:33] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 09:00:33] Próxima Atividade: 09:01:50 (77.2s)
+[2025-06-18 09:00:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:01:50] Usuário Ativo (inatividade: 1.9s < 60s)
+[2025-06-18 09:01:50] Próxima Atividade: 09:02:48 (58.2s)
+[2025-06-18 09:01:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:02:48] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 09:02:48] Próxima Atividade: 09:04:03 (75.4s)
+[2025-06-18 09:02:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:03:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:04:03] Usuário Ativo (inatividade: 0.4s < 60s)
+[2025-06-18 09:04:03] Próxima Atividade: 09:04:57 (54.4s)
+[2025-06-18 09:04:56] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 09:04:57] Usuário Ativo (inatividade: 0.5s < 60s)
+[2025-06-18 09:04:57] Próxima Atividade: 09:05:48 (51.0s)
+[2025-06-18 09:05:48] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:05:48] Próxima Atividade: 09:06:36 (47.8s)
+[2025-06-18 09:05:56] Net: RDP:Off | GW:4ms | BR:17ms
+[2025-06-18 09:06:36] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:06:36] Próxima Atividade: 09:07:48 (72.1s)
+[2025-06-18 09:06:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:07:48] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 09:07:48] Próxima Atividade: 09:08:48 (60.1s)
+[2025-06-18 09:07:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 09:08:48] Usuário Ativo (inatividade: 0.4s < 60s)
+[2025-06-18 09:08:48] Próxima Atividade: 09:09:53 (64.8s)
+[2025-06-18 09:08:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:09:53] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:09:53] Próxima Atividade: 09:10:55 (62.4s)
+[2025-06-18 09:09:56] Net: RDP:Off | GW:1ms | BR:19ms
+[2025-06-18 09:10:55] Usuário Ativo (inatividade: 2.7s < 60s)
+[2025-06-18 09:10:55] Próxima Atividade: 09:11:52 (56.9s)
+[2025-06-18 09:10:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:11:52] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 09:11:52] Próxima Atividade: 09:12:52 (60.2s)
+[2025-06-18 09:11:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:12:52] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 09:12:52] Próxima Atividade: 09:13:48 (55.7s)
+[2025-06-18 09:12:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:13:48] Usuário Ativo (inatividade: 5.2s < 60s)
+[2025-06-18 09:13:48] Próxima Atividade: 09:14:43 (54.8s)
+[2025-06-18 09:13:56] Net: RDP:Off | GW:1ms | BR:26ms
+[2025-06-18 09:14:43] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:14:43] Próxima Atividade: 09:15:35 (51.5s)
+[2025-06-18 09:14:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 09:15:35] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 09:15:35] Próxima Atividade: 09:16:21 (45.7s)
+[2025-06-18 09:15:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:16:21] Usuário Ativo (inatividade: 0.5s < 60s)
+[2025-06-18 09:16:21] Próxima Atividade: 09:17:36 (75.0s)
+[2025-06-18 09:16:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:17:36] Usuário Ativo (inatividade: 36.2s < 60s)
+[2025-06-18 09:17:36] Próxima Atividade: 09:18:25 (48.7s)
+[2025-06-18 09:17:56] Net: RDP:Off | GW:3ms | BR:17ms
+[2025-06-18 09:18:26] Simulação Executada
+[2025-06-18 09:18:26] Próxima Atividade: 09:19:20 (54.2s)
+[2025-06-18 09:18:57] Net: RDP:Off | GW:2ms | BR:19ms
+[2025-06-18 09:19:20] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:19:20] Próxima Atividade: 09:20:26 (66.3s)
+[2025-06-18 09:19:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:20:26] Usuário Ativo (inatividade: 7.0s < 60s)
+[2025-06-18 09:20:26] Próxima Atividade: 09:21:36 (69.9s)
+[2025-06-18 09:20:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:21:36] Usuário Ativo (inatividade: 21.5s < 60s)
+[2025-06-18 09:21:36] Próxima Atividade: 09:22:32 (56.4s)
+[2025-06-18 09:21:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:22:32] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 09:22:32] Próxima Atividade: 09:23:26 (54.4s)
+[2025-06-18 09:22:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:23:26] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:23:26] Próxima Atividade: 09:24:22 (56.2s)
+[2025-06-18 09:23:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:24:22] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 09:24:22] Próxima Atividade: 09:25:09 (46.9s)
+[2025-06-18 09:24:56] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 09:25:09] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:25:09] Próxima Atividade: 09:26:20 (70.7s)
+[2025-06-18 09:25:56] Net: RDP:Off | GW:2ms | BR:18ms
+[2025-06-18 09:26:20] Usuário Ativo (inatividade: 0.7s < 60s)
+[2025-06-18 09:26:20] Próxima Atividade: 09:27:16 (55.7s)
+[2025-06-18 09:26:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:27:16] Usuário Ativo (inatividade: 1.5s < 60s)
+[2025-06-18 09:27:16] Próxima Atividade: 09:28:31 (75.4s)
+[2025-06-18 09:27:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:28:31] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:28:31] Próxima Atividade: 09:29:19 (48.2s)
+[2025-06-18 09:28:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:29:19] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:29:19] Próxima Atividade: 09:30:07 (47.9s)
+[2025-06-18 09:29:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:30:07] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:30:07] Próxima Atividade: 09:30:54 (47.2s)
+[2025-06-18 09:30:54] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:30:54] Próxima Atividade: 09:31:56 (62.3s)
+[2025-06-18 09:30:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:31:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:31:56] Usuário Ativo (inatividade: 0.4s < 60s)
+[2025-06-18 09:31:56] Próxima Atividade: 09:33:07 (70.7s)
+[2025-06-18 09:32:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:33:07] Usuário Ativo (inatividade: 6.4s < 60s)
+[2025-06-18 09:33:07] Próxima Atividade: 09:33:56 (49.2s)
+[2025-06-18 09:33:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 09:33:56] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:33:56] Próxima Atividade: 09:34:46 (49.8s)
+[2025-06-18 09:34:46] Usuário Ativo (inatividade: 0.3s < 60s)
+[2025-06-18 09:34:46] Próxima Atividade: 09:35:37 (51.0s)
+[2025-06-18 09:34:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:35:37] Usuário Ativo (inatividade: 0.8s < 60s)
+[2025-06-18 09:35:37] Próxima Atividade: 09:36:41 (64.3s)
+[2025-06-18 09:35:56] Net: RDP:Off | GW:1ms | BR:21ms
+[2025-06-18 09:36:41] Usuário Ativo (inatividade: 2.6s < 60s)
+[2025-06-18 09:36:41] Próxima Atividade: 09:37:34 (53.1s)
+[2025-06-18 09:36:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:37:34] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:37:34] Próxima Atividade: 09:38:32 (58.3s)
+[2025-06-18 09:37:56] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 09:38:32] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:38:32] Próxima Atividade: 09:39:38 (66.3s)
+[2025-06-18 09:38:56] Net: RDP:Off | GW:1ms | BR:19ms
+[2025-06-18 09:39:38] Usuário Ativo (inatividade: 0.3s < 60s)
+[2025-06-18 09:39:38] Próxima Atividade: 09:40:34 (55.6s)
+[2025-06-18 09:39:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:40:34] Usuário Ativo (inatividade: 0.3s < 60s)
+[2025-06-18 09:40:34] Próxima Atividade: 09:41:26 (51.7s)
+[2025-06-18 09:40:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:41:26] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:41:26] Próxima Atividade: 09:42:34 (67.8s)
+[2025-06-18 09:41:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:42:34] Usuário Ativo (inatividade: 0.4s < 60s)
+[2025-06-18 09:42:34] Próxima Atividade: 09:43:30 (56.2s)
+[2025-06-18 09:42:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:43:30] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:43:30] Próxima Atividade: 09:44:30 (60.3s)
+[2025-06-18 09:43:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:44:30] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 09:44:30] Próxima Atividade: 09:45:20 (50.0s)
+[2025-06-18 09:44:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:45:20] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:45:20] Próxima Atividade: 09:46:26 (65.6s)
+[2025-06-18 09:45:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:46:26] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:46:26] Próxima Atividade: 09:47:43 (77.3s)
+[2025-06-18 09:46:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:47:43] Usuário Ativo (inatividade: 1.8s < 60s)
+[2025-06-18 09:47:43] Próxima Atividade: 09:48:35 (51.5s)
+[2025-06-18 09:47:56] Net: RDP:Off | GW:3ms | BR:17ms
+[2025-06-18 09:48:35] Usuário Ativo (inatividade: 0.8s < 60s)
+[2025-06-18 09:48:35] Próxima Atividade: 09:49:28 (52.9s)
+[2025-06-18 09:48:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:49:28] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:49:28] Próxima Atividade: 09:50:37 (68.4s)
+[2025-06-18 09:49:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:50:36] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 09:50:36] Próxima Atividade: 09:51:49 (72.6s)
+[2025-06-18 09:50:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:51:49] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:51:49] Próxima Atividade: 09:52:52 (63.2s)
+[2025-06-18 09:51:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:52:52] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:52:52] Próxima Atividade: 09:53:46 (53.8s)
+[2025-06-18 09:52:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:53:46] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 09:53:46] Próxima Atividade: 09:55:03 (76.9s)
+[2025-06-18 09:53:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:54:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:55:03] Usuário Ativo (inatividade: 0.2s < 60s)
+[2025-06-18 09:55:03] Próxima Atividade: 09:56:06 (62.8s)
+[2025-06-18 09:55:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:56:06] Usuário Ativo (inatividade: 0.1s < 60s)
+[2025-06-18 09:56:06] Próxima Atividade: 09:57:10 (64.0s)
+[2025-06-18 09:56:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 09:57:10] Usuário Ativo (inatividade: 1.1s < 60s)
+[2025-06-18 09:57:10] Próxima Atividade: 09:58:08 (57.3s)
+[2025-06-18 09:57:56] Net: RDP:Off | GW:1ms | BR:19ms
+[2025-06-18 09:58:07] Usuário Ativo (inatividade: 0.9s < 60s)
+[2025-06-18 09:58:07] Próxima Atividade: 09:59:12 (64.9s)
+[2025-06-18 09:58:56] Net: RDP:Off | GW:1ms | BR:20ms
+[2025-06-18 09:59:12] Usuário Ativo (inatividade: 3.0s < 60s)
+[2025-06-18 09:59:12] Próxima Atividade: 10:00:22 (69.8s)
+[2025-06-18 09:59:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:00:22] Usuário Ativo (inatividade: 3.7s < 60s)
+[2025-06-18 10:00:22] Próxima Atividade: 10:01:32 (69.3s)
+[2025-06-18 10:00:56] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 10:01:31] Usuário Ativo (inatividade: 36.8s < 60s)
+[2025-06-18 10:01:31] Próxima Atividade: 10:02:43 (72.1s)
+[2025-06-18 10:01:56] Net: RDP:Off | GW:5ms | BR:17ms
+[2025-06-18 10:02:44] Simulação Executada
+[2025-06-18 10:02:44] Próxima Atividade: 10:03:32 (48.0s)
+[2025-06-18 10:02:56] Net: RDP:Off | GW:1ms | BR:20ms
+[2025-06-18 10:03:32] Usuário Ativo (inatividade: 48.1s < 60s)
+[2025-06-18 10:03:32] Próxima Atividade: 10:04:26 (53.6s)
+[2025-06-18 10:03:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:04:27] Simulação Executada
+[2025-06-18 10:04:27] Próxima Atividade: 10:05:42 (74.4s)
+[2025-06-18 10:04:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:05:42] Simulação Executada
+[2025-06-18 10:05:42] Próxima Atividade: 10:06:28 (46.2s)
+[2025-06-18 10:05:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:06:28] Usuário Ativo (inatividade: 23.2s < 60s)
+[2025-06-18 10:06:28] Próxima Atividade: 10:07:22 (53.5s)
+[2025-06-18 10:06:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:07:23] Simulação Executada
+[2025-06-18 10:07:23] Próxima Atividade: 10:08:27 (64.0s)
+[2025-06-18 10:07:56] Net: RDP:Off | GW:1ms | BR:26ms
+[2025-06-18 10:08:28] Simulação Executada
+[2025-06-18 10:08:28] Próxima Atividade: 10:09:16 (48.1s)
+[2025-06-18 10:08:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:09:16] Usuário Ativo (inatividade: 48.1s < 60s)
+[2025-06-18 10:09:16] Próxima Atividade: 10:10:11 (55.2s)
+[2025-06-18 10:09:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:10:12] Simulação Executada
+[2025-06-18 10:10:12] Próxima Atividade: 10:11:26 (74.6s)
+[2025-06-18 10:10:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:11:28] Simulação Executada
+[2025-06-18 10:11:28] Próxima Atividade: 10:12:20 (52.8s)
+[2025-06-18 10:11:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:12:21] Usuário Ativo (inatividade: 53.1s < 60s)
+[2025-06-18 10:12:21] Próxima Atividade: 10:13:28 (67.2s)
+[2025-06-18 10:12:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:13:28] Simulação Executada
+[2025-06-18 10:13:28] Próxima Atividade: 10:14:25 (56.2s)
+[2025-06-18 10:13:56] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:14:24] Usuário Ativo (inatividade: 56.1s < 60s)
+[2025-06-18 10:14:24] Próxima Atividade: 10:15:33 (68.3s)
+[2025-06-18 10:14:56] Net: RDP:Off | GW:1ms | BR:24ms
+[2025-06-18 10:15:33] Simulação Executada
+[2025-06-18 10:15:33] Próxima Atividade: 10:16:33 (59.4s)
+[2025-06-18 10:15:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:16:32] Usuário Ativo (inatividade: 59.1s < 60s)
+[2025-06-18 10:16:32] Próxima Atividade: 10:17:29 (56.7s)
+[2025-06-18 10:16:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:17:30] Simulação Executada
+[2025-06-18 10:17:30] Próxima Atividade: 10:18:21 (50.5s)
+[2025-06-18 10:17:57] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 10:18:21] Usuário Ativo (inatividade: 51.1s < 60s)
+[2025-06-18 10:18:21] Próxima Atividade: 10:19:07 (45.4s)
+[2025-06-18 10:18:57] Net: RDP:Off | GW:1ms | BR:19ms
+[2025-06-18 10:19:07] Simulação Executada
+[2025-06-18 10:19:07] Próxima Atividade: 10:20:09 (62.4s)
+[2025-06-18 10:19:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:20:09] Usuário Ativo (inatividade: 0.3s < 60s)
+[2025-06-18 10:20:09] Próxima Atividade: 10:20:54 (44.6s)
+[2025-06-18 10:20:54] Usuário Ativo (inatividade: 1.4s < 60s)
+[2025-06-18 10:20:54] Próxima Atividade: 10:21:42 (47.9s)
+[2025-06-18 10:20:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:21:42] Usuário Ativo (inatividade: 2.8s < 60s)
+[2025-06-18 10:21:42] Próxima Atividade: 10:22:45 (62.9s)
+[2025-06-18 10:21:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:22:46] Simulação Executada
+[2025-06-18 10:22:46] Próxima Atividade: 10:23:34 (48.2s)
+[2025-06-18 10:22:57] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 10:23:34] Usuário Ativo (inatividade: 48.1s < 60s)
+[2025-06-18 10:23:34] Próxima Atividade: 10:24:24 (50.2s)
+[2025-06-18 10:23:57] Net: RDP:Off | GW:1ms | BR:16ms
+[2025-06-18 10:24:25] Simulação Executada
+[2025-06-18 10:24:25] Próxima Atividade: 10:25:12 (47.1s)
+[2025-06-18 10:24:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:25:12] Usuário Ativo (inatividade: 47.1s < 60s)
+[2025-06-18 10:25:12] Próxima Atividade: 10:26:29 (77.1s)
+[2025-06-18 10:25:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:26:30] Simulação Executada
+[2025-06-18 10:26:30] Próxima Atividade: 10:27:47 (77.5s)
+[2025-06-18 10:26:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:27:47] Usuário Ativo (inatividade: 56.2s < 60s)
+[2025-06-18 10:27:47] Próxima Atividade: 10:28:36 (49.8s)
+[2025-06-18 10:27:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:28:37] Simulação Executada
+[2025-06-18 10:28:37] Próxima Atividade: 10:29:52 (74.8s)
+[2025-06-18 10:28:57] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 10:29:53] Simulação Executada
+[2025-06-18 10:29:53] Próxima Atividade: 10:30:54 (61.1s)
+[2025-06-18 10:29:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:30:55] Simulação Executada
+[2025-06-18 10:30:55] Próxima Atividade: 10:31:52 (56.8s)
+[2025-06-18 10:30:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:31:52] Usuário Ativo (inatividade: 57.1s < 60s)
+[2025-06-18 10:31:52] Próxima Atividade: 10:33:06 (74.0s)
+[2025-06-18 10:31:57] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 10:32:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:33:07] Simulação Executada
+[2025-06-18 10:33:07] Próxima Atividade: 10:34:09 (61.9s)
+[2025-06-18 10:33:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:34:10] Simulação Executada
+[2025-06-18 10:34:10] Próxima Atividade: 10:35:27 (77.6s)
+[2025-06-18 10:34:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:35:29] Simulação Executada
+[2025-06-18 10:35:29] Próxima Atividade: 10:36:14 (45.9s)
+[2025-06-18 10:35:57] Net: RDP:Off | GW:2ms | BR:16ms
+[2025-06-18 10:36:15] Usuário Ativo (inatividade: 46.1s < 60s)
+[2025-06-18 10:36:15] Próxima Atividade: 10:37:06 (51.1s)
+[2025-06-18 10:36:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:37:06] Simulação Executada
+[2025-06-18 10:37:06] Próxima Atividade: 10:38:09 (62.2s)
+[2025-06-18 10:37:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:38:09] Simulação Executada
+[2025-06-18 10:38:09] Próxima Atividade: 10:39:16 (67.1s)
+[2025-06-18 10:38:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:39:17] Simulação Executada
+[2025-06-18 10:39:17] Próxima Atividade: 10:40:17 (59.5s)
+[2025-06-18 10:39:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:40:16] Usuário Ativo (inatividade: 59.1s < 60s)
+[2025-06-18 10:40:16] Próxima Atividade: 10:41:24 (68.1s)
+[2025-06-18 10:40:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:41:25] Simulação Executada
+[2025-06-18 10:41:25] Próxima Atividade: 10:42:21 (55.9s)
+[2025-06-18 10:41:57] Net: RDP:Off | GW:1ms | BR:21ms
+[2025-06-18 10:42:21] Usuário Ativo (inatividade: 56.1s < 60s)
+[2025-06-18 10:42:21] Próxima Atividade: 10:43:25 (64.5s)
+[2025-06-18 10:42:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:43:26] Simulação Executada
+[2025-06-18 10:43:26] Próxima Atividade: 10:44:10 (44.1s)
+[2025-06-18 10:43:57] Net: RDP:Off | GW:1ms | BR:29ms
+[2025-06-18 10:44:10] Usuário Ativo (inatividade: 44.1s < 60s)
+[2025-06-18 10:44:10] Próxima Atividade: 10:45:19 (69.2s)
+[2025-06-18 10:44:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:45:20] Simulação Executada
+[2025-06-18 10:45:20] Próxima Atividade: 10:46:13 (53.7s)
+[2025-06-18 10:45:57] Net: RDP:Off | GW:1ms | BR:36ms
+[2025-06-18 10:46:14] Usuário Ativo (inatividade: 54.1s < 60s)
+[2025-06-18 10:46:14] Próxima Atividade: 10:46:59 (45.7s)
+[2025-06-18 10:46:57] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 10:47:00] Simulação Executada
+[2025-06-18 10:47:00] Próxima Atividade: 10:47:43 (42.1s)
+[2025-06-18 10:47:42] Usuário Ativo (inatividade: 42.1s < 60s)
+[2025-06-18 10:47:42] Próxima Atividade: 10:48:47 (64.3s)
+[2025-06-18 10:47:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:48:47] Simulação Executada
+[2025-06-18 10:48:47] Próxima Atividade: 10:49:34 (47.0s)
+[2025-06-18 10:48:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:49:34] Usuário Ativo (inatividade: 47.1s < 60s)
+[2025-06-18 10:49:34] Próxima Atividade: 10:50:40 (65.6s)
+[2025-06-18 10:49:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:50:41] Simulação Executada
+[2025-06-18 10:50:41] Próxima Atividade: 10:51:59 (77.9s)
+[2025-06-18 10:50:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:51:57] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 10:52:00] Simulação Executada
+[2025-06-18 10:52:00] Próxima Atividade: 10:53:00 (60.0s)
+[2025-06-18 10:52:57] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 10:53:01] Simulação Executada
+[2025-06-18 10:53:01] Próxima Atividade: 10:54:04 (62.9s)
+[2025-06-18 10:53:57] Net: RDP:Off | GW:2ms | BR:17ms
+[2025-06-18 10:54:04] Simulação Executada
+[2025-06-18 10:54:04] Próxima Atividade: 10:55:04 (59.2s)
+[2025-06-18 10:54:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:55:03] Usuário Ativo (inatividade: 59.1s < 60s)
+[2025-06-18 10:55:03] Próxima Atividade: 10:56:15 (71.2s)
+[2025-06-18 10:55:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:56:15] Simulação Executada
+[2025-06-18 10:56:15] Próxima Atividade: 10:57:15 (59.6s)
+[2025-06-18 10:56:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:57:16] Simulação Executada
+[2025-06-18 10:57:16] Próxima Atividade: 10:58:00 (43.5s)
+[2025-06-18 10:57:57] Net: RDP:Off | GW:3ms | BR:17ms
+[2025-06-18 10:58:00] Usuário Ativo (inatividade: 44.1s < 60s)
+[2025-06-18 10:58:00] Próxima Atividade: 10:58:47 (46.5s)
+[2025-06-18 10:58:47] Simulação Executada
+[2025-06-18 10:58:47] Próxima Atividade: 11:00:04 (77.0s)
+[2025-06-18 10:58:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 10:59:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:00:05] Simulação Executada
+[2025-06-18 11:00:05] Próxima Atividade: 11:00:52 (46.9s)
+[2025-06-18 11:00:52] Usuário Ativo (inatividade: 47.1s < 60s)
+[2025-06-18 11:00:52] Próxima Atividade: 11:01:56 (64.1s)
+[2025-06-18 11:00:57] Net: RDP:Off | GW:12ms | BR:17ms
+[2025-06-18 11:01:57] Simulação Executada
+[2025-06-18 11:01:57] Próxima Atividade: 11:03:04 (66.9s)
+[2025-06-18 11:01:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:02:57] Net: RDP:Off | GW:1ms | BR:20ms
+[2025-06-18 11:03:04] Simulação Executada
+[2025-06-18 11:03:04] Próxima Atividade: 11:04:00 (55.8s)
+[2025-06-18 11:03:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:04:00] Usuário Ativo (inatividade: 56.1s < 60s)
+[2025-06-18 11:04:00] Próxima Atividade: 11:05:17 (76.9s)
+[2025-06-18 11:04:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:05:18] Simulação Executada
+[2025-06-18 11:05:18] Próxima Atividade: 11:06:21 (62.7s)
+[2025-06-18 11:05:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:06:22] Simulação Executada
+[2025-06-18 11:06:22] Próxima Atividade: 11:07:34 (71.9s)
+[2025-06-18 11:06:57] Net: RDP:Off | GW:1ms | BR:19ms
+[2025-06-18 11:07:35] Simulação Executada
+[2025-06-18 11:07:35] Próxima Atividade: 11:08:20 (44.7s)
+[2025-06-18 11:07:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:08:20] Usuário Ativo (inatividade: 45.1s < 60s)
+[2025-06-18 11:08:20] Próxima Atividade: 11:09:29 (68.8s)
+[2025-06-18 11:08:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:09:30] Simulação Executada
+[2025-06-18 11:09:30] Próxima Atividade: 11:10:44 (74.0s)
+[2025-06-18 11:09:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:10:45] Simulação Executada
+[2025-06-18 11:10:45] Próxima Atividade: 11:11:39 (54.1s)
+[2025-06-18 11:10:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:11:39] Usuário Ativo (inatividade: 54.1s < 60s)
+[2025-06-18 11:11:39] Próxima Atividade: 11:12:37 (58.6s)
+[2025-06-18 11:11:57] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 11:12:38] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 11:12:38] Próxima Atividade: 11:13:35 (57.0s)
+[2025-06-18 11:12:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:13:35] Usuário Ativo (inatividade: 41.2s < 60s)
+[2025-06-18 11:13:35] Próxima Atividade: 11:14:48 (73.7s)
+[2025-06-18 11:13:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:14:49] Simulação Executada
+[2025-06-18 11:14:49] Próxima Atividade: 11:15:51 (62.0s)
+[2025-06-18 11:14:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:15:52] Simulação Executada
+[2025-06-18 11:15:52] Próxima Atividade: 11:16:49 (56.3s)
+[2025-06-18 11:15:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:16:48] Usuário Ativo (inatividade: 56.1s < 60s)
+[2025-06-18 11:16:48] Próxima Atividade: 11:17:51 (62.3s)
+[2025-06-18 11:16:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:17:51] Simulação Executada
+[2025-06-18 11:17:51] Próxima Atividade: 11:18:50 (58.9s)
+[2025-06-18 11:17:57] Net: RDP:Off | GW:1ms | BR:18ms
+[2025-06-18 11:18:50] Usuário Ativo (inatividade: 46.1s < 60s)
+[2025-06-18 11:18:50] Próxima Atividade: 11:20:04 (74.1s)
+[2025-06-18 11:18:57] Net: RDP:Off | GW:1ms | BR:24ms
+[2025-06-18 11:19:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:20:05] Simulação Executada
+[2025-06-18 11:20:05] Próxima Atividade: 11:20:49 (44.2s)
+[2025-06-18 11:20:49] Usuário Ativo (inatividade: 44.1s < 60s)
+[2025-06-18 11:20:49] Próxima Atividade: 11:21:55 (66.5s)
+[2025-06-18 11:20:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:21:57] Simulação Executada
+[2025-06-18 11:21:57] Próxima Atividade: 11:22:58 (60.7s)
+[2025-06-18 11:21:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:22:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:22:59] Simulação Executada
+[2025-06-18 11:22:59] Próxima Atividade: 11:24:14 (75.7s)
+[2025-06-18 11:23:57] Net: RDP:Off | GW:1ms | BR:23ms
+[2025-06-18 11:24:16] Simulação Executada
+[2025-06-18 11:24:16] Próxima Atividade: 11:25:32 (76.1s)
+[2025-06-18 11:24:57] Net: RDP:Off | GW:1ms | BR:24ms
+[2025-06-18 11:25:32] Simulação Executada
+[2025-06-18 11:25:32] Próxima Atividade: 11:26:30 (57.7s)
+[2025-06-18 11:25:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:26:30] Usuário Ativo (inatividade: 58.1s < 60s)
+[2025-06-18 11:26:30] Próxima Atividade: 11:27:23 (53.0s)
+[2025-06-18 11:26:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:27:24] Simulação Executada
+[2025-06-18 11:27:24] Próxima Atividade: 11:28:29 (64.9s)
+[2025-06-18 11:27:57] Net: RDP:Off | GW:1ms | BR:17ms
+[2025-06-18 11:28:29] Usuário Ativo (inatividade: 0.0s < 60s)
+[2025-06-18 11:28:29] Próxima Atividade: 11:29:22 (52.5s)
