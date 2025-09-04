@@ -1059,8 +1059,9 @@ class KeepAliveApp(QMainWindow):
         time_layout.addWidget(QLabel("Atual:"))
         self.current_time_label = QLabel("<b>--:--:--</b>")
         self.current_time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #self.current_time_label.setStyleSheet("font-size: 110%; color: white; font-weight: bold;")
         self.current_time_label.setStyleSheet(
-            "font-size: 110%; color: white; font-weight: bold;"
+            "font-size: 110%; font-weight: bold;"
         )
         time_layout.addWidget(self.current_time_label)
 

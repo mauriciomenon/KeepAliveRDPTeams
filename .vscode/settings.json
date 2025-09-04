@@ -1,7 +1,9 @@
-﻿{
+{
     "python.analysis.diagnosticSeverityOverrides":  {
                                                         "reportMissingTypeStubs":  "none"
                                                     },
     "python.analysis.useLibraryCodeForTypes":  true,
-    "python.analysis.typeCheckingMode":  "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "makefile.configureOnOpen": false,
+    "vscode-aiconfig.pythonInterpreter": "/usr/local/bin/python3"
 }
