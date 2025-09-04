@@ -33,3 +33,5 @@ build_temp/KeepAliveRDP/localpycs/pyimod03_ctypes.pyc
 build_temp/KeepAliveRDP/localpycs/pyimod04_pywin32.pyc
 build_temp/KeepAliveRDP/localpycs/struct.pyc
 build_temp/KeepAliveRDP/KeepAliveRDP.pkg
+keep_alive_log_*.txt
+[-OtherParameters/
