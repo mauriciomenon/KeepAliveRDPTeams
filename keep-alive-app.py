@@ -1446,7 +1446,7 @@ class KeepAliveApp(QMainWindow):
 
     def log_help_message(self):
         """Loga mensagem de orientação"""
-        # help_msg = "Utilize 'Iniciar Contínuo' para execução imediata contínua ou 'Iniciar Agendado' para execução no horário selecionado."
+        # help_msg = "Utilize 'Iniciar Contínuo' para execução imediata contínua ou 'Iniciar Agendado' para execução no horário selecionado.
         # self.log_tab.add_log(help_msg)
         # self.log_tab.add_log(help_msg, is_orientation=True)  para negrito
         # self.add_main_log(help_msg)
