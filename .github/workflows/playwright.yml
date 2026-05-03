@@ -10,17 +10,47 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      with:
+        persist-credentials: false
     - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
       with:
         node-version: lts/*
+        cache: npm
+        cache-dependency-path: package-lock.json
+    - name: Detect Playwright tests
+      id: playwright_tests
+      shell: bash
+      run: |
+        if find . \
+          -path './node_modules' -prune -o \
+          -type f \( \
+            -name '*.spec.ts' -o \
+            -name '*.spec.js' -o \
+            -name '*.test.ts' -o \
+            -name '*.test.js' \
+          \) -print -quit | grep -q .; then
+          echo "has_tests=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "has_tests=false" >> "$GITHUB_OUTPUT"
+          echo "No Playwright tests found; skipping browser install and test run."
+        fi
     - name: Install dependencies
+      if: steps.playwright_tests.outputs.has_tests == 'true'
       run: npm ci
+    - name: Cache Playwright browsers
+      if: steps.playwright_tests.outputs.has_tests == 'true'
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
     - name: Install Playwright Browsers
+      if: steps.playwright_tests.outputs.has_tests == 'true'
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test --pass-with-no-tests
+      if: steps.playwright_tests.outputs.has_tests == 'true'
+      run: npx playwright test
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-      if: ${{ !cancelled() }}
+      if: ${{ !cancelled() && steps.playwright_tests.outputs.has_tests == 'true' }}
       with:
         name: playwright-report
         path: playwright-report/
